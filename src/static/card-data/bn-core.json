@@ -1,0 +1,143 @@
+[
+  {
+    "id": "ember_cub",
+    "type": "CREATURE",
+    "name": "Ember Cub",
+    "description": "A young fire beast that sparks the first Ignite chain.",
+    "cost": 1,
+    "atk": 200,
+    "def": 150,
+    "affinity": "FIRE",
+    "keywords": ["IGNITE"],
+    "rarity": "C",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "ember_lion",
+    "type": "CREATURE",
+    "name": "Ember Lion",
+    "description": "The evolved form of Ember Cub with a roaring Ignite burst.",
+    "cost": 2,
+    "atk": 300,
+    "def": 250,
+    "affinity": "FIRE",
+    "keywords": ["IGNITE", "STRIKE"],
+    "evolution": {
+      "evolvesFromId": "ember_cub",
+      "stage": 2,
+      "atkBonus": 100,
+      "defBonus": 100,
+      "addKeywords": ["CHAIN"]
+    },
+    "rarity": "R",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "aqua_sprite",
+    "type": "CREATURE",
+    "name": "Aqua Sprite",
+    "description": "A nimble water spirit that excels at defensive counters.",
+    "cost": 1,
+    "atk": 150,
+    "def": 250,
+    "affinity": "WATER",
+    "keywords": ["ABSORB"],
+    "rarity": "C",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "tidal_guardian",
+    "type": "CREATURE",
+    "name": "Tidal Guardian",
+    "description": "A towering shield of water that absorbs incoming blows.",
+    "cost": 2,
+    "atk": 200,
+    "def": 400,
+    "affinity": "WATER",
+    "keywords": ["ABSORB", "CHAIN"],
+    "evolution": {
+      "evolvesFromId": "aqua_sprite",
+      "stage": 2,
+      "defBonus": 150,
+      "addKeywords": ["STRIKE"]
+    },
+    "rarity": "SR",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "terra_beetle",
+    "type": "CREATURE",
+    "name": "Terra Beetle",
+    "description": "A sturdy earth warrior with a reinforced shell.",
+    "cost": 1,
+    "atk": 250,
+    "def": 250,
+    "affinity": "EARTH",
+    "keywords": ["CHARGE"],
+    "rarity": "C",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "quake_stag",
+    "type": "CREATURE",
+    "name": "Quake Stag",
+    "description": "A mighty evolution of Terra Beetle capable of shattering defenses.",
+    "cost": 3,
+    "atk": 400,
+    "def": 350,
+    "affinity": "EARTH",
+    "keywords": ["CHARGE", "STRIKE"],
+    "evolution": {
+      "evolvesFromId": "terra_beetle",
+      "stage": 2,
+      "atkBonus": 150,
+      "addKeywords": ["CHAIN"]
+    },
+    "rarity": "SR",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "ignite_burst",
+    "type": "ACTION",
+    "name": "Ignite Burst",
+    "description": "Boost a Fire creature and extend an Ignite combo.",
+    "cost": 1,
+    "speed": "QUICK",
+    "effectId": "boost_fire_and_extend_ignite",
+    "rarity": "R",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "aqua_shift",
+    "type": "ACTION",
+    "name": "Aqua Shift",
+    "description": "Redirect damage to your highest-defense Water creature.",
+    "cost": 1,
+    "speed": "NORMAL",
+    "effectId": "redirect_to_water_creature",
+    "rarity": "C",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "burning_field",
+    "type": "SUPPORT",
+    "name": "Burning Field",
+    "description": "Fire creatures gain +100 ATK and deal extra Ignite damage.",
+    "cost": 2,
+    "continuousEffectId": "global_fire_buff",
+    "oncePerTurn": false,
+    "rarity": "UR",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "tide_barrier",
+    "type": "SUPPORT",
+    "name": "Tide Barrier",
+    "description": "Water creatures take 20% reduced damage.",
+    "cost": 2,
+    "continuousEffectId": "reduce_damage_to_water",
+    "oncePerTurn": true,
+    "rarity": "R",
+    "set": "BN-CORE"
+  }
+]
