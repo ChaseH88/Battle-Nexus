@@ -1,5 +1,5 @@
 import { GameState, getOpponentIndex } from "./GameState";
-import { CardType, CreatureCard } from "../cards";
+import { CardInterface, CardType, CreatureCard } from "../cards";
 import { moveCard } from "./ZoneEngine";
 import { Zone } from "./zones";
 
@@ -86,7 +86,7 @@ export class BattleEngine {
 
       // remove defender from lane and send to graveyard
       opponent.lanes[lane] = null;
-      opponent.graveyard.push(defender);
+      opponent.graveyard.push(defender as CardInterface);
 
       this.log(
         `${attacker.name} destroyed ${defender.name} and dealt ${extraDamage} extra damage to ${opponent.id}`

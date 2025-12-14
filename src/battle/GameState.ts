@@ -1,18 +1,12 @@
+import { CardInterface } from "../cards";
 import { PlayerState } from "./PlayerState";
-import { Card } from "../cards";
 
 export interface GameState {
   players: [PlayerState, PlayerState];
   turn: number;
-  /**
-   * Index of the active player (0 or 1)
-   */
-  activePlayer: number;
+  activePlayer: 0 | 1;
   log: string[];
-  stack: Card[];
-  /**
-   * KOs done by Player 0 and Player 1
-   */
+  stack: CardInterface[];
   koCount: [number, number];
   winnerIndex: 0 | 1 | null;
 }
@@ -29,6 +23,6 @@ export function createGameState(p1: PlayerState, p2: PlayerState): GameState {
   };
 }
 
-export function getOpponentIndex(active: number): number {
-  return active === 0 ? 1 : 0;
+export function getOpponentIndex(i: 0 | 1): 0 | 1 {
+  return i === 0 ? 1 : 0;
 }

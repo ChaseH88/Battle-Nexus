@@ -1,7 +1,7 @@
 import { Card } from "./Card";
-import { Affinity, BaseCardArgs, CardType, ComboKeyword } from "./types";
+import { Affinity, CardInterface, CardType, ComboKeyword } from "./types";
 
-export interface CreatureCardArgs extends BaseCardArgs {
+export interface CreatureCardArgs extends CardInterface {
   atk: number;
   def: number;
   affinity: Affinity;

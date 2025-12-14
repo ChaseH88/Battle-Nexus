@@ -1,4 +1,4 @@
-import { BaseCardArgs, CardId, CardType } from "./types";
+import { CardInterface, CardId, CardType } from "./types";
 
 export abstract class Card {
   readonly id: CardId;
@@ -7,7 +7,7 @@ export abstract class Card {
   readonly type: CardType;
   readonly cost: number;
 
-  protected constructor(args: BaseCardArgs & { type: CardType }) {
+  protected constructor(args: CardInterface) {
     this.id = args.id;
     this.name = args.name;
     this.description = args.description ?? "";

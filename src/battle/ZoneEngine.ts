@@ -1,17 +1,18 @@
-// src/battle/ZoneEngine.ts
+import { CardInterface } from "../cards";
 import { GameState } from "./GameState";
-import { Zone, isLane, laneIndexFromZone } from "./zones";
-import { Card } from "../cards";
+import {
+  Zone,
+  isLane,
+  isSupport,
+  laneIndexFromZone,
+  supportIndexFromZone,
+} from "./zones";
 
 interface MoveOptions {
-  fromLane?: number;
+  fromLane?: number; // lane/support index override
   toLane?: number;
 }
 
-/**
- * Move a card by id between zones for a given player.
- * For lanes, you can either pass Lane0/1/2 or use fromLane/toLane.
- */
 export function moveCard(
   state: GameState,
   playerIndex: number,
@@ -19,10 +20,10 @@ export function moveCard(
   to: Zone,
   cardId: string,
   options: MoveOptions = {}
-): Card | null {
+): CardInterface | null {
   const player = state.players[playerIndex];
 
-  const removeFromZone = (): Card | null => {
+  const removeFromZone = (): CardInterface | null => {
     if (from === Zone.Deck) {
       const idx = player.deck.findIndex((c) => c.id === cardId);
       if (idx === -1) return null;
@@ -45,10 +46,11 @@ export function moveCard(
       return card;
     }
 
-    if (from === Zone.Support) {
-      const card = player.support;
+    if (isSupport(from)) {
+      const slot = options.fromLane ?? supportIndexFromZone(from);
+      const card = player.support[slot];
       if (!card || card.id !== cardId) return null;
-      player.support = null;
+      player.support[slot] = null;
       return card;
     }
 
@@ -69,9 +71,8 @@ export function moveCard(
     return null;
   };
 
-  const placeIntoZone = (card: Card): void => {
+  const placeIntoZone = (card: CardInterface): void => {
     if (to === Zone.Deck) {
-      // top of deck
       player.deck.unshift(card);
       return;
     }
@@ -83,18 +84,16 @@ export function moveCard(
 
     if (isLane(to)) {
       const lane = options.toLane ?? laneIndexFromZone(to);
-      if (player.lanes[lane] !== null) {
-        throw new Error(`Lane ${lane} is already occupied`);
-      }
+      if (player.lanes[lane] !== null) throw new Error(`Lane ${lane} occupied`);
       player.lanes[lane] = card;
       return;
     }
 
-    if (to === Zone.Support) {
-      if (player.support !== null) {
-        throw new Error("Support zone is already occupied");
-      }
-      player.support = card;
+    if (isSupport(to)) {
+      const slot = options.toLane ?? supportIndexFromZone(to);
+      if (player.support[slot] !== null)
+        throw new Error(`Support ${slot} occupied`);
+      player.support[slot] = card;
       return;
     }
 
@@ -111,6 +110,7 @@ export function moveCard(
 
   const card = removeFromZone();
   if (!card) return null;
+
   placeIntoZone(card);
   return card;
 }

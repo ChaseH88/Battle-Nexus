@@ -1,9 +1,9 @@
 import { Card } from "./Card";
-import { BaseCardArgs, CardType } from "./types";
+import { CardInterface, CardType } from "./types";
 
 export type ActionSpeed = "NORMAL" | "QUICK";
 
-export interface ActionCardArgs extends BaseCardArgs {
+export interface ActionCardArgs extends CardInterface {
   speed?: ActionSpeed;
   effectId: string;
 }

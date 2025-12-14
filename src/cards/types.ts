@@ -1,3 +1,24 @@
+export type CardId = string;
+export interface CardInterface {
+  id: string;
+  name: string;
+  type: CardType;
+  description: string;
+  cost?: number;
+  atk?: number;
+  def?: number;
+  affinity?: Affinity;
+  keywords?: ComboKeyword[];
+  rarity: "C" | "R" | "SR" | "UR";
+  set: "Base";
+  effectId?: string;
+}
+
+export interface EffectInterface {
+  id: string;
+  description: string;
+}
+
 export enum CardType {
   Creature = "CREATURE",
   Action = "ACTION",
@@ -19,13 +40,4 @@ export enum ComboKeyword {
   Absorb = "ABSORB",
   Strike = "STRIKE",
   Charge = "CHARGE",
-}
-
-export type CardId = string;
-
-export interface BaseCardArgs {
-  id: CardId;
-  name: string;
-  description?: string;
-  cost?: number;
 }

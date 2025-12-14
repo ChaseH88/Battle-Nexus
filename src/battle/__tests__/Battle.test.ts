@@ -7,7 +7,7 @@ import { BattleEngine } from "../BattleEngine";
 import { CreatureCard } from "../../cards/CreatureCard";
 import { ActionCard } from "../../cards/ActionCard";
 import { SupportCard } from "../../cards/SupportCard";
-import { CardType } from "../../cards/types";
+import { CardInterface, CardType } from "../../cards/types";
 
 function cardFactory(raw: any) {
   switch (raw.type) {
@@ -22,8 +22,8 @@ function cardFactory(raw: any) {
   }
 }
 
-const deck1 = (cards as any[]).map(cardFactory);
-const deck2 = (cards as any[]).map(cardFactory);
+const deck1 = (cards as any[]).map(cardFactory) as CardInterface[];
+const deck2 = (cards as any[]).map(cardFactory) as CardInterface[];
 
 function drawMany(engine: BattleEngine, playerIndex: 0 | 1, count: number) {
   for (let i = 0; i < count; i++) {
