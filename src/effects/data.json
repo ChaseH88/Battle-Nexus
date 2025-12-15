@@ -1,0 +1,184 @@
+[
+  {
+    "id": "fire_atk_boost_aura",
+    "name": "Flame Surge",
+    "timing": "PERSIST",
+    "trigger": "CONTINUOUS",
+    "stackable": true,
+    "actions": [
+      {
+        "type": "STAT_MOD",
+        "mode": "BOOST",
+        "target": "ALLY_CREATURE",
+        "filter": { "affinity": "FIRE" },
+        "atk": 100,
+        "duration": { "kind": "PERMANENT" }
+      }
+    ]
+  },
+
+  {
+    "id": "draw_on_play",
+    "name": "Quick Thinking",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "actions": [
+      {
+        "type": "HAND_SIZE_CHANGE",
+        "mode": "DRAW",
+        "target": "PLAYER",
+        "amount": 1
+      }
+    ]
+  },
+
+  {
+    "id": "ignite_direct_damage",
+    "name": "Ignite Burst",
+    "timing": "QUICK",
+    "trigger": "ON_ATTACK",
+    "chainable": true,
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "OPPONENT",
+        "amount": 2
+      }
+    ]
+  },
+
+  {
+    "id": "conditional_fire_bonus",
+    "name": "Blazing Advantage",
+    "timing": "NORMAL",
+    "trigger": "ON_ATTACK",
+    "actions": [
+      {
+        "type": "IF",
+        "condition": {
+          "check": "AFFINITY_MATCH",
+          "affinity": "FIRE"
+        },
+        "then": [
+          {
+            "type": "STAT_MOD",
+            "mode": "BOOST",
+            "target": "SELF_CARD",
+            "atk": 200,
+            "duration": { "kind": "UNTIL_END_OF_TURN" }
+          }
+        ],
+        "else": [
+          {
+            "type": "HP_CHANGE",
+            "target": "PLAYER",
+            "amount": -1
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "id": "heal_on_combat_ko",
+    "name": "Victory Renewal",
+    "timing": "NORMAL",
+    "trigger": "ON_DESTROY",
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "PLAYER",
+        "amount": -3
+      }
+    ]
+  },
+
+  {
+    "id": "discard_enemy_card",
+    "name": "Mind Break",
+    "timing": "QUICK",
+    "trigger": "ON_PLAY",
+    "actions": [
+      {
+        "type": "HAND_SIZE_CHANGE",
+        "mode": "DISCARD_RANDOM",
+        "target": "OPPONENT",
+        "amount": 1
+      }
+    ]
+  },
+
+  {
+    "id": "keyword_grant_chain",
+    "name": "Chain Catalyst",
+    "timing": "PERSIST",
+    "trigger": "ON_PLAY",
+    "actions": [
+      {
+        "type": "KEYWORD",
+        "mode": "ADD",
+        "target": "ALLY_CREATURE",
+        "keywords": ["CHAIN"],
+        "duration": { "kind": "TURNS", "turns": 2 }
+      }
+    ]
+  },
+
+  {
+    "id": "bounce_enemy_creature",
+    "name": "Aqua Displacement",
+    "timing": "QUICK",
+    "trigger": "ON_DEFEND",
+    "actions": [
+      {
+        "type": "MOVE",
+        "target": "ENEMY_CREATURE",
+        "destination": "HAND",
+        "countsAsKO": false
+      }
+    ]
+  },
+
+  {
+    "id": "non_ko_removal",
+    "name": "Shadow Purge",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "actions": [
+      {
+        "type": "MOVE",
+        "target": "ENEMY_CREATURE",
+        "destination": "GRAVEYARD",
+        "countsAsKO": false
+      }
+    ]
+  },
+
+  {
+    "id": "ko_threshold_bonus",
+    "name": "Last Stand",
+    "timing": "PERSIST",
+    "trigger": "CONTINUOUS",
+    "actions": [
+      {
+        "type": "IF",
+        "condition": {
+          "check": "KO_COUNT",
+          "target": "PLAYER",
+          "op": ">=",
+          "kos": 2
+        },
+        "then": [
+          {
+            "type": "STAT_MOD",
+            "mode": "BOOST",
+            "target": "ALLY_CREATURE",
+            "atk": 150,
+            "def": 150,
+            "duration": { "kind": "PERMANENT" }
+          }
+        ]
+      }
+    ]
+  }
+]

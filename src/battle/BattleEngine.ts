@@ -2,6 +2,7 @@ import { GameState, getOpponentIndex } from "./GameState";
 import { CardInterface, CardType, CreatureCard } from "../cards";
 import { moveCard } from "./ZoneEngine";
 import { Zone } from "./zones";
+import { resolveEffectsForCard } from "../effects/resolve";
 
 export class BattleEngine {
   constructor(public state: GameState) {}
@@ -30,7 +31,7 @@ export class BattleEngine {
     if (this.state.winnerIndex !== null) return;
 
     const player = this.state.players[playerIndex];
-    const topCard = player.deck[0];
+    const topCard = player.deck?.[0] as CardInterface | undefined;
 
     if (!topCard) {
       this.log(`${player.id} cannot draw — deck is empty.`);
@@ -42,6 +43,13 @@ export class BattleEngine {
     player.hand.push(topCard);
 
     this.log(`${player.id} drew ${topCard.name}`);
+
+    resolveEffectsForCard({
+      state: this.state,
+      ownerIndex: playerIndex as 0 | 1,
+      trigger: "ON_DRAW",
+      cardEffectId: topCard.effectId,
+    });
   }
 
   playCreature(playerIndex: number, lane: number, cardId: string): boolean {
@@ -55,16 +63,59 @@ export class BattleEngine {
     });
 
     this.log(`${player.id} summoned ${card.name} to lane ${lane}`);
+
+    resolveEffectsForCard({
+      state: this.state,
+      ownerIndex: playerIndex as 0 | 1,
+      cardEffectId: card.effectId,
+      trigger: "ON_PLAY",
+    });
+
+    return true;
+  }
+
+  playSupport(playerIndex: 0 | 1, slot: number, cardId: string): boolean {
+    if (this.state.winnerIndex !== null) return false;
+
+    const player = this.state.players[playerIndex];
+
+    // 3 support slots
+    if (slot < 0 || slot > 2) return false;
+    if (player.support[slot] !== null) return false;
+
+    const card = player.hand.find((c) => c.id === cardId);
+    if (!card || card.type !== CardType.Support) return false;
+
+    moveCard(this.state, playerIndex, Zone.Hand, Zone.Support0, cardId, {
+      toLane: slot,
+    });
+
+    this.log(`${player.id} played support ${card.name} to slot ${slot}`);
+
+    resolveEffectsForCard({
+      state: this.state,
+      ownerIndex: playerIndex,
+      cardEffectId: card.effectId,
+      trigger: "ON_PLAY",
+    });
+
     return true;
   }
 
   attack(playerIndex: 0 | 1, lane: number) {
-    if (this.state.winnerIndex !== null) return; // game already over
+    if (this.state.winnerIndex !== null) return;
 
     const attacker = this.state.players[playerIndex].lanes[
       lane
     ] as CreatureCard;
     if (!attacker) return;
+
+    resolveEffectsForCard({
+      state: this.state,
+      ownerIndex: playerIndex,
+      cardEffectId: attacker.onAttackEffectId,
+      trigger: "ON_ATTACK",
+    });
 
     const opponentIndex = getOpponentIndex(playerIndex);
     const opponent = this.state.players[opponentIndex];
