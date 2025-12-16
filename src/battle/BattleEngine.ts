@@ -1,5 +1,7 @@
 import { GameState, getOpponentIndex } from "./GameState";
 import { CardInterface, CardType, CreatureCard } from "../cards";
+import { SupportCard } from "../cards/SupportCard";
+import { ActionCard } from "../cards/ActionCard";
 import { moveCard } from "./ZoneEngine";
 import { Zone } from "./zones";
 import { resolveEffectsForCard } from "../effects/resolve";
@@ -44,6 +46,15 @@ export class BattleEngine {
 
     this.log(`${player.id} drew ${topCard.name}`);
 
+    // Mark that player has drawn this turn
+    this.state.hasDrawnThisTurn = true;
+
+    // Automatically move to main phase after drawing
+    if (this.state.phase === "DRAW") {
+      this.state.phase = "MAIN";
+      this.log(`Main Phase begins`);
+    }
+
     resolveEffectsForCard({
       state: this.state,
       ownerIndex: playerIndex as 0 | 1,
@@ -53,6 +64,12 @@ export class BattleEngine {
   }
 
   playCreature(playerIndex: number, lane: number, cardId: string): boolean {
+    // Must be in main phase to play cards
+    if (this.state.phase !== "MAIN") {
+      this.log("Cannot play cards during draw phase. Draw a card first!");
+      return false;
+    }
+
     const player = this.state.players[playerIndex];
     const card = player.hand.find((c) => c.id === cardId);
     if (!card || card.type !== CardType.Creature) return false;
@@ -74,8 +91,19 @@ export class BattleEngine {
     return true;
   }
 
-  playSupport(playerIndex: 0 | 1, slot: number, cardId: string): boolean {
+  playSupport(
+    playerIndex: 0 | 1,
+    slot: number,
+    cardId: string,
+    activate: boolean = false
+  ): boolean {
     if (this.state.winnerIndex !== null) return false;
+
+    // Must be in main phase to play cards
+    if (this.state.phase !== "MAIN") {
+      this.log("Cannot play cards during draw phase. Draw a card first!");
+      return false;
+    }
 
     const player = this.state.players[playerIndex];
 
@@ -84,13 +112,75 @@ export class BattleEngine {
     if (player.support[slot] !== null) return false;
 
     const card = player.hand.find((c) => c.id === cardId);
-    if (!card || card.type !== CardType.Support) return false;
+    if (
+      !card ||
+      (card.type !== CardType.Support && card.type !== CardType.Action)
+    )
+      return false;
 
     moveCard(this.state, playerIndex, Zone.Hand, Zone.Support0, cardId, {
       toLane: slot,
     });
 
-    this.log(`${player.id} played support ${card.name} to slot ${slot}`);
+    const spellCard = player.support[slot] as SupportCard | ActionCard;
+
+    if (activate) {
+      spellCard.isActive = true;
+      this.log(
+        `${player.id} played and activated ${card.type.toLowerCase()} ${
+          card.name
+        } to slot ${slot}`
+      );
+
+      resolveEffectsForCard({
+        state: this.state,
+        ownerIndex: playerIndex,
+        cardEffectId: card.effectId,
+        trigger: "ON_PLAY",
+      });
+    } else {
+      spellCard.isActive = false;
+      this.log(
+        `${player.id} set ${card.type.toLowerCase()} ${
+          card.name
+        } face-down to slot ${slot}`
+      );
+    }
+
+    return true;
+  }
+
+  activateSupport(playerIndex: 0 | 1, slot: number): boolean {
+    if (this.state.winnerIndex !== null) return false;
+
+    // Must be in main phase
+    if (this.state.phase !== "MAIN") {
+      this.log("Cannot activate cards during draw phase. Draw a card first!");
+      return false;
+    }
+
+    const player = this.state.players[playerIndex];
+    const card = player.support[slot];
+
+    if (
+      !card ||
+      (card.type !== CardType.Support && card.type !== CardType.Action)
+    )
+      return false;
+
+    const spellCard = card as SupportCard | ActionCard;
+
+    if (spellCard.isActive) {
+      this.log(`${spellCard.name} is already active!`);
+      return false;
+    }
+
+    spellCard.isActive = true;
+    this.log(
+      `${player.id} activated ${card.type.toLowerCase()} ${
+        spellCard.name
+      } from slot ${slot}`
+    );
 
     resolveEffectsForCard({
       state: this.state,
@@ -102,13 +192,54 @@ export class BattleEngine {
     return true;
   }
 
+  toggleCreatureMode(playerIndex: 0 | 1, lane: number): boolean {
+    if (this.state.winnerIndex !== null) return false;
+
+    // Must be in main phase
+    if (this.state.phase !== "MAIN") {
+      this.log("Cannot change modes during draw phase. Draw a card first!");
+      return false;
+    }
+
+    const player = this.state.players[playerIndex];
+    const creature = player.lanes[lane] as CreatureCard | null;
+
+    if (!creature || creature.type !== CardType.Creature) return false;
+
+    // Toggle mode
+    const newMode = creature.mode === "ATTACK" ? "DEFENSE" : "ATTACK";
+    creature.mode = newMode;
+
+    this.log(`${creature.name} switched to ${newMode} mode`);
+    return true;
+  }
+
   attack(playerIndex: 0 | 1, lane: number) {
     if (this.state.winnerIndex !== null) return;
 
-    const attacker = this.state.players[playerIndex].lanes[
-      lane
-    ] as CreatureCard;
+    // Must be in main phase to attack
+    if (this.state.phase !== "MAIN") {
+      this.log("Cannot attack during draw phase. Draw a card first!");
+      return;
+    }
+
+    // First turn (turn 1) - player going first cannot attack
+    if (this.state.turn === 1 && playerIndex === 0) {
+      this.log("Cannot attack on the first turn of the game!");
+      return;
+    }
+
+    const attacker = this.state.players[playerIndex].lanes[lane] as any;
     if (!attacker) return;
+
+    // Check if creature has already attacked this turn
+    if (attacker.hasAttackedThisTurn) {
+      this.log(`${attacker.name} has already attacked this turn!`);
+      return;
+    }
+
+    // Mark creature as having attacked
+    attacker.hasAttackedThisTurn = true;
 
     resolveEffectsForCard({
       state: this.state,
@@ -122,39 +253,133 @@ export class BattleEngine {
     const defender = opponent.lanes[lane] as CreatureCard | null;
 
     if (!defender) {
-      // direct hit still allowed but DOES NOT win the game anymore
-      const damage = attacker.atk;
-      opponent.hp -= damage;
-      this.log(
-        `${attacker.name} hit ${opponent.id} directly for ${damage} (HP now ${opponent.hp})`
+      // Check if opponent has ANY creatures on the field
+      const hasAnyCreatures = opponent.lanes.some(
+        (creature) => creature !== null
       );
+
+      if (!hasAnyCreatures) {
+        // Opponent has no creatures - direct attack scores a KO point
+        this.log(`${attacker.name} attacked ${opponent.id} directly!`);
+        this.log(
+          `${opponent.id} has no creatures to defend! Direct attack scores a KO point!`
+        );
+
+        // Award KO point for undefended direct attack
+        this.state.koCount[playerIndex] += 1;
+        const ko = this.state.koCount[playerIndex];
+        this.log(
+          `Player ${playerIndex + 1} scores a KO point! Total: ${ko} KOs.`
+        );
+
+        if (ko >= 3 && this.state.winnerIndex === null) {
+          this.state.winnerIndex = playerIndex;
+          this.log(`Player ${playerIndex + 1} wins by reaching 3 KOs!`);
+        }
+      } else {
+        // Opponent has creatures, but this lane is empty - no effect
+        this.log(
+          `${attacker.name} attacked lane ${lane} but no creature was there.`
+        );
+      }
       return;
     }
 
-    // lane combat
-    if (attacker.atk > defender.def) {
-      const extraDamage = attacker.atk - defender.def;
+    // lane combat with HP system based on modes
+    // ATTACK MODE vs ATTACK MODE: Both creatures deal damage to each other
+    // ATTACK MODE vs DEFENSE MODE: Attacker deals damage based on ATK - DEF
 
-      // remove defender from lane and send to graveyard
-      opponent.lanes[lane] = null;
-      opponent.graveyard.push(defender as CardInterface);
+    if (attacker.mode === "ATTACK" && defender.mode === "ATTACK") {
+      // Both in attack mode - simultaneous damage
+      const damageToDefender = Math.max(0, attacker.atk - defender.atk);
+      const damageToAttacker = Math.max(0, defender.atk - attacker.atk);
 
-      this.log(
-        `${attacker.name} destroyed ${defender.name} and dealt ${extraDamage} extra damage to ${opponent.id}`
-      );
-      opponent.hp -= extraDamage;
+      if (damageToDefender > 0) {
+        defender.currentHp -= damageToDefender;
+        this.log(
+          `${attacker.name} (ATK: ${attacker.atk}) vs ${defender.name} (ATK: ${defender.atk}) - ${defender.name} takes ${damageToDefender} damage`
+        );
+        this.log(`${defender.name} HP: ${defender.currentHp}/${defender.hp}`);
+      } else if (damageToDefender === 0) {
+        this.log(
+          `${attacker.name} (ATK: ${attacker.atk}) vs ${defender.name} (ATK: ${defender.atk}) - Equal strength, no damage!`
+        );
+      }
 
-      // REGISTER KO (this is what counts for victory now)
-      this.registerKO(playerIndex, defender);
-    } else {
-      this.log(`${attacker.name} failed to destroy ${defender.name}`);
+      if (damageToAttacker > 0) {
+        attacker.currentHp -= damageToAttacker;
+        this.log(
+          `${defender.name} counter-attacks - ${attacker.name} takes ${damageToAttacker} damage`
+        );
+        this.log(`${attacker.name} HP: ${attacker.currentHp}/${attacker.hp}`);
+      }
+
+      // Check if defender is defeated
+      if (defender.currentHp <= 0) {
+        opponent.lanes[lane] = null;
+        opponent.graveyard.push(defender as any);
+        this.log(`${defender.name} was destroyed!`);
+        this.registerKO(playerIndex, defender);
+      }
+
+      // Check if attacker is defeated
+      if (attacker.currentHp <= 0) {
+        this.state.players[playerIndex].lanes[lane] = null;
+        this.state.players[playerIndex].graveyard.push(
+          attacker as CardInterface
+        );
+        this.log(`${attacker.name} was destroyed in the exchange!`);
+        this.registerKO(opponentIndex, attacker);
+      }
+    } else if (attacker.mode === "ATTACK" && defender.mode === "DEFENSE") {
+      // Attacker vs defender in defense mode - ATK vs DEF
+      const damageToDefender = Math.max(0, attacker.atk - defender.def);
+
+      if (damageToDefender > 0) {
+        defender.currentHp -= damageToDefender;
+        this.log(
+          `${attacker.name} (ATK: ${attacker.atk}) attacked ${defender.name} (DEF: ${defender.def}) for ${damageToDefender} damage`
+        );
+        this.log(`${defender.name} HP: ${defender.currentHp}/${defender.hp}`);
+
+        // Check if defender is defeated
+        if (defender.currentHp <= 0) {
+          opponent.lanes[lane] = null;
+          opponent.graveyard.push(defender as any);
+          this.log(`${defender.name} was destroyed!`);
+          this.registerKO(playerIndex, defender);
+        }
+      } else {
+        // Attacker failed to penetrate defense
+        this.log(
+          `${attacker.name} (ATK: ${attacker.atk}) failed to penetrate ${defender.name}'s defense (DEF: ${defender.def})`
+        );
+        this.log(`${defender.name} blocked the attack!`);
+      }
     }
   }
 
   endTurn() {
     if (this.state.winnerIndex !== null) return; // game finished
+
+    // Reset hasAttackedThisTurn for all creatures on the current player's field
+    const currentPlayer = this.state.players[this.state.activePlayer];
+    currentPlayer.lanes.forEach((creature) => {
+      if (creature && creature.type === CardType.Creature) {
+        (creature as any).hasAttackedThisTurn = false;
+      }
+    });
+
     this.state.activePlayer = getOpponentIndex(this.state.activePlayer);
     this.state.turn++;
-    this.log(`Turn ${this.state.turn} begins`);
+    this.state.phase = "DRAW";
+    this.state.hasDrawnThisTurn = false;
+
+    this.log(
+      `Turn ${this.state.turn} begins - ${
+        this.state.players[this.state.activePlayer].id
+      }'s turn`
+    );
+    this.log(`Draw Phase - Draw a card to begin`);
   }
 }

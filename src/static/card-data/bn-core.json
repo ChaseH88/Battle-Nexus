@@ -7,6 +7,7 @@
     "cost": 1,
     "atk": 200,
     "def": 150,
+    "hp": 500,
     "affinity": "FIRE",
     "keywords": ["IGNITE"],
     "rarity": "C",
@@ -20,6 +21,7 @@
     "cost": 2,
     "atk": 300,
     "def": 250,
+    "hp": 800,
     "affinity": "FIRE",
     "keywords": ["IGNITE", "STRIKE"],
     "evolution": {
@@ -40,6 +42,7 @@
     "cost": 1,
     "atk": 150,
     "def": 250,
+    "hp": 600,
     "affinity": "WATER",
     "keywords": ["ABSORB"],
     "rarity": "C",
@@ -53,6 +56,7 @@
     "cost": 2,
     "atk": 200,
     "def": 400,
+    "hp": 1000,
     "affinity": "WATER",
     "keywords": ["ABSORB", "CHAIN"],
     "evolution": {
@@ -72,6 +76,7 @@
     "cost": 1,
     "atk": 250,
     "def": 250,
+    "hp": 700,
     "affinity": "EARTH",
     "keywords": ["CHARGE"],
     "rarity": "C",
@@ -85,6 +90,7 @@
     "cost": 3,
     "atk": 400,
     "def": 350,
+    "hp": 1200,
     "affinity": "EARTH",
     "keywords": ["CHARGE", "STRIKE"],
     "evolution": {

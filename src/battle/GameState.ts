@@ -5,6 +5,8 @@ export interface GameState {
   players: [PlayerState, PlayerState];
   turn: number;
   activePlayer: 0 | 1;
+  phase: "DRAW" | "MAIN";
+  hasDrawnThisTurn: boolean;
   log: string[];
   stack: CardInterface[];
   koCount: [number, number];
@@ -16,6 +18,8 @@ export function createGameState(p1: PlayerState, p2: PlayerState): GameState {
     players: [p1, p2],
     turn: 1,
     activePlayer: 0,
+    phase: "DRAW",
+    hasDrawnThisTurn: false,
     log: [],
     stack: [],
     koCount: [0, 0],

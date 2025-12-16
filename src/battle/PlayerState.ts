@@ -2,7 +2,6 @@ import { CardInterface } from "../cards";
 
 export interface PlayerState {
   id: string;
-  hp: number;
 
   deck: CardInterface[];
   hand: CardInterface[];
@@ -19,7 +18,6 @@ export function createPlayerState(
 ): PlayerState {
   return {
     id,
-    hp: 20,
     deck: [...deck],
     hand: [],
     lanes: [null, null, null],
