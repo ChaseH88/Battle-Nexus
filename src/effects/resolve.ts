@@ -1,15 +1,38 @@
 import { GameState } from "../battle/GameState";
 import { effectsRegistry } from "./effects";
 import { EffectDefinition } from "./types";
+import { CardInterface } from "../cards";
+import { BattleEngine } from "../battle/BattleEngine";
+import {
+  executeEffect,
+  createEffectUtils,
+  EffectContext,
+} from "./effectHandlers";
 
 export function resolveEffectsForCard(params: {
   state: GameState;
   ownerIndex: 0 | 1;
   cardEffectId?: string;
   trigger: EffectDefinition["trigger"];
+  sourceCard?: CardInterface;
+  engine?: BattleEngine;
+  eventData?: {
+    lane?: number;
+    targetLane?: number;
+    targetPlayer?: 0 | 1;
+  };
 }) {
-  const { state, ownerIndex, cardEffectId, trigger } = params;
-  if (!cardEffectId) return;
+  const {
+    state,
+    ownerIndex,
+    cardEffectId,
+    trigger,
+    sourceCard,
+    engine,
+    eventData,
+  } = params;
+
+  if (!cardEffectId || !sourceCard || !engine) return;
 
   const effect = effectsRegistry[cardEffectId];
   if (!effect) {
@@ -20,7 +43,18 @@ export function resolveEffectsForCard(params: {
   if (effect.trigger !== trigger && effect.trigger !== "CONTINUOUS") return;
 
   state.log.push(`Effect fired: ${effect.name} (${effect.id})`);
-  for (const action of effect.actions) {
-    state.log.push(`  -> ${action.type}`);
-  }
+
+  // Create effect context
+  const context: EffectContext = {
+    state,
+    engine,
+    sourceCard,
+    ownerIndex,
+    trigger,
+    eventData,
+    utils: createEffectUtils(state, engine),
+  };
+
+  // Execute the effect using the custom handler
+  executeEffect(cardEffectId, context);
 }

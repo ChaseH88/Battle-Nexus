@@ -43,16 +43,18 @@ export default function App() {
   useEffect(() => {
     if (!engine || !ai) return;
     if (engine.state.winnerIndex !== null) return;
-    if (engine.state.currentPlayerIndex !== 1) return;
+    if (engine.state.activePlayer !== 1) return;
 
     const executeTurn = async () => {
+      console.log("[AI] Taking turn...");
       await ai.takeTurn(engine.state);
+      console.log("[AI] Turn complete, refreshing UI");
       refresh();
     };
 
-    const timer = setTimeout(executeTurn, 800);
+    const timer = setTimeout(executeTurn, 1000);
     return () => clearTimeout(timer);
-  }, [engine?.state.currentPlayerIndex, engine?.state.phase, ai]);
+  }, [engine?.state.activePlayer, engine?.state.phase, ai]);
 
   const startNewGame = () => {
     const deck1 = allCards.map(cardFactory);
@@ -101,14 +103,15 @@ export default function App() {
     refresh();
   };
 
-  const handlePlayCreature = (lane: number) => {
+  const handlePlayCreature = (lane: number, faceDown: boolean = false) => {
     if (!selectedHandCard) return;
     const card = currentPlayer.hand.find((c) => c.id === selectedHandCard);
     if (card?.type === CardType.Creature) {
       const success = engine.playCreature(
         game.activePlayer,
         lane,
-        selectedHandCard
+        selectedHandCard,
+        faceDown
       );
       if (success) {
         setSelectedHandCard(null);
@@ -120,7 +123,7 @@ export default function App() {
   const handlePlaySupport = (slot: number, activate: boolean = false) => {
     if (!selectedHandCard) return;
     const card = currentPlayer.hand.find((c) => c.id === selectedHandCard);
-    if (card?.type === CardType.Support) {
+    if (card?.type === CardType.Support || card?.type === CardType.Action) {
       const success = engine.playSupport(
         game.activePlayer,
         slot,
@@ -150,7 +153,7 @@ export default function App() {
 
   const handleAttack = (targetLane: number) => {
     if (selectedAttacker === null) return;
-    engine.attack(game.activePlayer, selectedAttacker);
+    engine.attack(game.activePlayer, selectedAttacker, targetLane);
     setSelectedAttacker(null);
     refresh();
   };
@@ -164,6 +167,13 @@ export default function App() {
 
   const handleToggleMode = (lane: number) => {
     const success = engine.toggleCreatureMode(game.activePlayer, lane);
+    if (success) {
+      refresh();
+    }
+  };
+
+  const handleFlipFaceUp = (lane: number) => {
+    const success = engine.flipCreatureFaceUp(game.activePlayer, lane);
     if (success) {
       refresh();
     }
@@ -192,13 +202,34 @@ export default function App() {
 
     const isCreature = card.type === CardType.Creature;
     const isSupport = card.type === CardType.Support;
+    const isAction = card.type === CardType.Action;
     const creature = isCreature ? (card as CreatureCard) : null;
     const support = isSupport ? (card as SupportCard) : null;
+    const action = isAction ? (card as ActionCard) : null;
 
-    // Face-down support card
-    if (showFaceDown && support && !support.isActive) {
+    // Face-down creature card
+    if (showFaceDown && creature && creature.isFaceDown) {
       return (
-        <div className="card-slot support face-down" onClick={onClick}>
+        <div
+          className={`card-slot creature face-down ${
+            creature.mode === "DEFENSE" ? "defense-mode" : ""
+          }`}
+          onClick={onClick}
+        >
+          <div className="card-name">???</div>
+          <div className="card-type">FACE-DOWN</div>
+          <div className="card-mode-badge">{creature.mode}</div>
+        </div>
+      );
+    }
+
+    // Face-down support or action card
+    if (showFaceDown && (support || action) && !(support || action)!.isActive) {
+      return (
+        <div
+          className={`card-slot ${card.type.toLowerCase()} face-down`}
+          onClick={onClick}
+        >
           <div className="card-name">???</div>
           <div className="card-type">FACE-DOWN</div>
         </div>
@@ -212,7 +243,9 @@ export default function App() {
         } ${creature && creature.currentHp <= 0 ? "defeated" : ""} ${
           creature && creature.hasAttackedThisTurn ? "exhausted" : ""
         } ${creature && creature.mode === "DEFENSE" ? "defense-mode" : ""} ${
-          support && support.isActive ? "active" : ""
+          creature && creature.isFaceDown ? "face-down" : ""
+        } ${
+          (support || action) && (support || action)!.isActive ? "active" : ""
         }`}
         onClick={onClick}
       >
@@ -221,8 +254,22 @@ export default function App() {
           <>
             <div className="card-mode-badge">{creature.mode}</div>
             <div className="card-stats">
-              <span className="atk">ATK: {creature.atk}</span>
-              <span className="def">DEF: {creature.def}</span>
+              <span
+                className={`atk ${creature.isAtkModified ? "modified" : ""}`}
+              >
+                ATK: {creature.atk}
+                {creature.isAtkModified && (
+                  <span className="base-stat">({creature.baseAtk})</span>
+                )}
+              </span>
+              <span
+                className={`def ${creature.isDefModified ? "modified" : ""}`}
+              >
+                DEF: {creature.def}
+                {creature.isDefModified && (
+                  <span className="base-stat">({creature.baseDef})</span>
+                )}
+              </span>
             </div>
             <div className="card-hp">
               <span className="hp-label">HP:</span>
@@ -239,7 +286,7 @@ export default function App() {
             )}
           </>
         )}
-        {support && support.isActive && (
+        {(support || action) && (support || action)!.isActive && (
           <div className="active-badge">ACTIVE</div>
         )}
         <div className="card-description">{card.description}</div>
@@ -270,6 +317,53 @@ export default function App() {
           </div>
         )}
       </div>
+
+      {/* Active Effects Panel */}
+      {game.activeEffects.length > 0 && (
+        <div className="active-effects-panel">
+          <h4>⚡ Active Effects</h4>
+          <div className="effects-list">
+            {game.activeEffects.map((effect, i) => (
+              <div key={i} className="effect-item">
+                <span className="effect-name">{effect.name}</span>
+                <span className="effect-source">
+                  from {effect.sourceCardName}
+                </span>
+                {effect.statModifiers && (
+                  <span className="effect-stats">
+                    {effect.statModifiers.atk && (
+                      <span className="stat-mod atk">
+                        +{effect.statModifiers.atk} ATK
+                      </span>
+                    )}
+                    {effect.statModifiers.def && (
+                      <span className="stat-mod def">
+                        +{effect.statModifiers.def} DEF
+                      </span>
+                    )}
+                  </span>
+                )}
+                {effect.affectedCardIds &&
+                  effect.affectedCardIds.length > 0 && (
+                    <span className="affected-count">
+                      ({effect.affectedCardIds.length} card
+                      {effect.affectedCardIds.length !== 1 ? "s" : ""})
+                    </span>
+                  )}
+                {effect.turnsRemaining !== undefined && (
+                  <span className="effect-duration">
+                    ({effect.turnsRemaining} turn
+                    {effect.turnsRemaining !== 1 ? "s" : ""})
+                  </span>
+                )}
+                <span className={`effect-owner p${effect.playerIndex}`}>
+                  [{game.players[effect.playerIndex].id}]
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* AI Controls */}
       <div className="ai-controls">
@@ -326,7 +420,7 @@ export default function App() {
             {opponent.lanes.map((card, i) => (
               <div key={i} className="lane">
                 <div className="lane-label">Lane {i}</div>
-                {renderCard(card)}
+                {renderCard(card, undefined, false, true)}
                 {selectedAttacker !== null && (
                   <button
                     className="attack-here"
@@ -361,12 +455,22 @@ export default function App() {
                   selectedAttacker === i
                 )}
                 {card && card.type === CardType.Creature && (
-                  <button
-                    className="toggle-mode-btn"
-                    onClick={() => handleToggleMode(i)}
-                  >
-                    Switch Mode
-                  </button>
+                  <>
+                    <button
+                      className="toggle-mode-btn"
+                      onClick={() => handleToggleMode(i)}
+                    >
+                      Switch Mode
+                    </button>
+                    {(card as CreatureCard).isFaceDown && (
+                      <button
+                        className="flip-btn"
+                        onClick={() => handleFlipFaceUp(i)}
+                      >
+                        Flip Face-Up
+                      </button>
+                    )}
+                  </>
                 )}
                 {!card &&
                   selectedHandCard &&
@@ -375,12 +479,20 @@ export default function App() {
                       (c) => c.id === selectedHandCard
                     );
                     return handCard?.type === CardType.Creature ? (
-                      <button
-                        className="play-here"
-                        onClick={() => handlePlayCreature(i)}
-                      >
-                        Play Here
-                      </button>
+                      <div className="creature-play-actions">
+                        <button
+                          className="play-here face-up-btn"
+                          onClick={() => handlePlayCreature(i, false)}
+                        >
+                          Play Face-Up
+                        </button>
+                        <button
+                          className="play-here face-down-btn"
+                          onClick={() => handlePlayCreature(i, true)}
+                        >
+                          Set Face-Down
+                        </button>
+                      </div>
                     ) : null;
                   })()}
               </div>
@@ -394,9 +506,13 @@ export default function App() {
             {currentPlayer.support.map((card, i) => (
               <div key={i} className="support-slot">
                 {renderCard(card, () => {
-                  if (card && card.type === CardType.Support) {
-                    const support = card as SupportCard;
-                    if (!support.isActive) {
+                  if (
+                    card &&
+                    (card.type === CardType.Support ||
+                      card.type === CardType.Action)
+                  ) {
+                    const spellCard = card as SupportCard | ActionCard;
+                    if (!spellCard.isActive) {
                       handleActivateSupport(i);
                     }
                   }
@@ -407,7 +523,8 @@ export default function App() {
                     const handCard = currentPlayer.hand.find(
                       (c) => c.id === selectedHandCard
                     );
-                    return handCard?.type === CardType.Support ? (
+                    return handCard?.type === CardType.Support ||
+                      handCard?.type === CardType.Action ? (
                       <div className="support-actions">
                         <button
                           className="play-here face-down-btn"

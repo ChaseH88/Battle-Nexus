@@ -1,6 +1,21 @@
 import { CardInterface } from "../cards";
 import { PlayerState } from "./PlayerState";
 
+export interface ActiveEffect {
+  id: string;
+  name: string;
+  sourceCardId: string;
+  sourceCardName: string;
+  playerIndex: 0 | 1;
+  turnsRemaining?: number;
+  description: string;
+  affectedCardIds?: string[]; // Track which cards are affected
+  statModifiers?: {
+    atk?: number;
+    def?: number;
+  };
+}
+
 export interface GameState {
   players: [PlayerState, PlayerState];
   turn: number;
@@ -11,6 +26,7 @@ export interface GameState {
   stack: CardInterface[];
   koCount: [number, number];
   winnerIndex: 0 | 1 | null;
+  activeEffects: ActiveEffect[];
 }
 
 export function createGameState(p1: PlayerState, p2: PlayerState): GameState {
@@ -24,6 +40,7 @@ export function createGameState(p1: PlayerState, p2: PlayerState): GameState {
     stack: [],
     koCount: [0, 0],
     winnerIndex: null,
+    activeEffects: [],
   };
 }
 

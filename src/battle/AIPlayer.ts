@@ -26,24 +26,31 @@ export class AIPlayer {
    * Execute AI turn logic
    */
   async takeTurn(state: GameState): Promise<void> {
-    if (state.currentPlayerIndex !== this.playerIndex) return;
+    if (state.activePlayer !== this.playerIndex) return;
     if (state.winnerIndex !== null) return;
+
+    console.log(
+      `[AI] Player ${this.playerIndex} taking turn (skill: ${this.skillLevel})`
+    );
 
     // Add slight delay for visual effect
     await this.delay(500);
 
     // DRAW PHASE - AI must draw
     if (state.phase === "DRAW") {
+      console.log("[AI] Draw phase - drawing card");
       this.engine.draw(this.playerIndex);
       await this.delay(300);
     }
 
     // MAIN PHASE - AI makes strategic decisions
     if (state.phase === "MAIN") {
+      console.log("[AI] Main phase - executing actions");
       await this.executeMainPhase(state);
     }
 
     // End turn
+    console.log("[AI] Ending turn");
     this.engine.endTurn();
   }
 
@@ -186,8 +193,8 @@ export class AIPlayer {
       if (
         this.engine.playSupport(
           this.playerIndex,
-          spell.id,
           slotIndex,
+          spell.id,
           shouldActivate
         )
       ) {
@@ -269,7 +276,7 @@ export class AIPlayer {
       const target = this.chooseAttackTarget(state, laneIndex);
 
       if (target !== null) {
-        this.engine.attack(this.playerIndex, laneIndex);
+        this.engine.attack(this.playerIndex, laneIndex, target);
         await this.delay(500);
       }
     }

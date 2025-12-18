@@ -145,5 +145,27 @@
     "oncePerTurn": true,
     "rarity": "R",
     "set": "BN-CORE"
+  },
+  {
+    "id": "flame_aura",
+    "type": "SUPPORT",
+    "name": "Flame Aura",
+    "description": "All Fire creatures gain +100 ATK permanently.",
+    "cost": 2,
+    "effectId": "fire_atk_boost_aura",
+    "oncePerTurn": false,
+    "rarity": "R",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "card_draw_spell",
+    "type": "ACTION",
+    "name": "Card Draw Spell",
+    "description": "Draw 1 card.",
+    "cost": 1,
+    "speed": "NORMAL",
+    "effectId": "draw_on_play",
+    "rarity": "C",
+    "set": "BN-CORE"
   }
 ]

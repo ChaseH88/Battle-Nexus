@@ -1,4 +1,4 @@
-import { GameState, getOpponentIndex } from "./GameState";
+import { GameState, getOpponentIndex, ActiveEffect } from "./GameState";
 import { CardInterface, CardType, CreatureCard } from "../cards";
 import { SupportCard } from "../cards/SupportCard";
 import { ActionCard } from "../cards/ActionCard";
@@ -63,7 +63,12 @@ export class BattleEngine {
     });
   }
 
-  playCreature(playerIndex: number, lane: number, cardId: string): boolean {
+  playCreature(
+    playerIndex: number,
+    lane: number,
+    cardId: string,
+    faceDown: boolean = false
+  ): boolean {
     // Must be in main phase to play cards
     if (this.state.phase !== "MAIN") {
       this.log("Cannot play cards during draw phase. Draw a card first!");
@@ -79,14 +84,26 @@ export class BattleEngine {
       toLane: lane,
     });
 
-    this.log(`${player.id} summoned ${card.name} to lane ${lane}`);
+    const creature = player.lanes[lane] as CreatureCard;
+    creature.isFaceDown = faceDown;
 
-    resolveEffectsForCard({
-      state: this.state,
-      ownerIndex: playerIndex as 0 | 1,
-      cardEffectId: card.effectId,
-      trigger: "ON_PLAY",
-    });
+    this.log(
+      `${player.id} summoned ${card.name} to lane ${lane}${
+        faceDown ? " face-down" : ""
+      }`
+    );
+
+    // Only trigger effects if played face-up
+    if (!faceDown) {
+      resolveEffectsForCard({
+        state: this.state,
+        ownerIndex: playerIndex as 0 | 1,
+        cardEffectId: card.effectId,
+        trigger: "ON_PLAY",
+        sourceCard: card,
+        engine: this,
+      });
+    }
 
     return true;
   }
@@ -137,6 +154,8 @@ export class BattleEngine {
         ownerIndex: playerIndex,
         cardEffectId: card.effectId,
         trigger: "ON_PLAY",
+        sourceCard: card,
+        engine: this,
       });
     } else {
       spellCard.isActive = false;
@@ -187,6 +206,8 @@ export class BattleEngine {
       ownerIndex: playerIndex,
       cardEffectId: card.effectId,
       trigger: "ON_PLAY",
+      sourceCard: card,
+      engine: this,
     });
 
     return true;
@@ -214,7 +235,32 @@ export class BattleEngine {
     return true;
   }
 
-  attack(playerIndex: 0 | 1, lane: number) {
+  flipCreatureFaceUp(playerIndex: 0 | 1, lane: number): boolean {
+    if (this.state.winnerIndex !== null) return false;
+
+    const player = this.state.players[playerIndex];
+    const creature = player.lanes[lane] as CreatureCard | null;
+
+    if (!creature || creature.type !== CardType.Creature) return false;
+    if (!creature.isFaceDown) return false;
+
+    creature.isFaceDown = false;
+    this.log(`${creature.name} was flipped face-up!`);
+
+    // Trigger summon effects when flipped face-up
+    resolveEffectsForCard({
+      state: this.state,
+      ownerIndex: playerIndex,
+      cardEffectId: creature.effectId,
+      trigger: "ON_PLAY",
+      sourceCard: creature,
+      engine: this,
+    });
+
+    return true;
+  }
+
+  attack(playerIndex: 0 | 1, attackerLane: number, targetLane: number) {
     if (this.state.winnerIndex !== null) return;
 
     // Must be in main phase to attack
@@ -229,8 +275,14 @@ export class BattleEngine {
       return;
     }
 
-    const attacker = this.state.players[playerIndex].lanes[lane] as any;
+    const attacker = this.state.players[playerIndex].lanes[attackerLane] as any;
     if (!attacker) return;
+
+    // Cannot attack if creature is face-down
+    if (attacker.isFaceDown) {
+      this.log(`${attacker.name} cannot attack while face-down!`);
+      return;
+    }
 
     // Check if creature has already attacked this turn
     if (attacker.hasAttackedThisTurn) {
@@ -250,7 +302,7 @@ export class BattleEngine {
 
     const opponentIndex = getOpponentIndex(playerIndex);
     const opponent = this.state.players[opponentIndex];
-    const defender = opponent.lanes[lane] as CreatureCard | null;
+    const defender = opponent.lanes[targetLane] as CreatureCard | null;
 
     if (!defender) {
       // Check if opponent has ANY creatures on the field
@@ -279,10 +331,16 @@ export class BattleEngine {
       } else {
         // Opponent has creatures, but this lane is empty - no effect
         this.log(
-          `${attacker.name} attacked lane ${lane} but no creature was there.`
+          `${attacker.name} attacked lane ${targetLane} but no creature was there.`
         );
       }
       return;
+    }
+
+    // Flip defender face-up if they're face-down (revealed by attack)
+    if (defender.isFaceDown) {
+      defender.isFaceDown = false;
+      this.log(`${defender.name} was flipped face-up by the attack!`);
     }
 
     // lane combat with HP system based on modes
@@ -370,6 +428,9 @@ export class BattleEngine {
       }
     });
 
+    // Update active effects durations
+    this.updateActiveEffects();
+
     this.state.activePlayer = getOpponentIndex(this.state.activePlayer);
     this.state.turn++;
     this.state.phase = "DRAW";
@@ -381,5 +442,55 @@ export class BattleEngine {
       }'s turn`
     );
     this.log(`Draw Phase - Draw a card to begin`);
+  }
+
+  addActiveEffect(
+    effectId: string,
+    name: string,
+    sourceCard: CardInterface,
+    playerIndex: 0 | 1,
+    turns?: number,
+    description?: string,
+    affectedCardIds?: string[],
+    statModifiers?: { atk?: number; def?: number }
+  ) {
+    const effect: ActiveEffect = {
+      id: effectId,
+      name,
+      sourceCardId: sourceCard.id,
+      sourceCardName: sourceCard.name,
+      playerIndex,
+      turnsRemaining: turns,
+      description: description || name,
+      affectedCardIds,
+      statModifiers,
+    };
+
+    this.state.activeEffects.push(effect);
+    this.log(`Effect activated: ${name} from ${sourceCard.name}`);
+  }
+
+  removeActiveEffect(effectId: string) {
+    const index = this.state.activeEffects.findIndex((e) => e.id === effectId);
+    if (index >= 0) {
+      const effect = this.state.activeEffects[index];
+      this.state.activeEffects.splice(index, 1);
+      this.log(`Effect expired: ${effect.name}`);
+    }
+  }
+
+  private updateActiveEffects() {
+    const expiredEffects: string[] = [];
+
+    this.state.activeEffects.forEach((effect) => {
+      if (effect.turnsRemaining !== undefined) {
+        effect.turnsRemaining--;
+        if (effect.turnsRemaining <= 0) {
+          expiredEffects.push(effect.id);
+        }
+      }
+    });
+
+    expiredEffects.forEach((id) => this.removeActiveEffect(id));
   }
 }
