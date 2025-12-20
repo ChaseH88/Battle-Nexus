@@ -9,6 +9,8 @@ import { SupportCard } from "../cards/SupportCard";
 import { AIPlayer } from "../battle/AIPlayer";
 import cardsData from "../static/card-data/bn-core.json";
 import "./styles.css";
+import { GameLog } from "./Battle/GameLog";
+import { Controls } from "./Battle/Controls";
 
 function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
@@ -574,36 +576,14 @@ export default function App() {
           ))}
         </div>
       </div>
-
-      {/* Controls */}
-      <div className="controls">
-        <button
-          onClick={handleDraw}
-          disabled={isGameOver || game.phase !== "DRAW"}
-          className={game.phase === "DRAW" ? "highlight" : ""}
-        >
-          {game.phase === "DRAW" ? "⚠️ Draw Card (Required)" : "Draw Card"}
-        </button>
-        <button onClick={handleEndTurn} disabled={isGameOver}>
-          End Turn
-        </button>
-        <button onClick={startNewGame}>New Game</button>
-      </div>
-
-      {/* Game Log */}
-      <div className="game-log">
-        <h4>Game Log</h4>
-        <div className="log-entries">
-          {game.log
-            .slice(-10)
-            .reverse()
-            .map((entry, i) => (
-              <div key={i} className="log-entry">
-                {entry}
-              </div>
-            ))}
-        </div>
-      </div>
+      <Controls
+        phase={game.phase}
+        isGameOver={isGameOver}
+        handleDraw={handleDraw}
+        handleEndTurn={handleEndTurn}
+        startNewGame={startNewGame}
+      />
+      <GameLog log={game.log} />
     </div>
   );
 }
