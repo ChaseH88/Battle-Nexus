@@ -110,6 +110,7 @@
     "cost": 1,
     "speed": "QUICK",
     "effectId": "boost_fire_and_extend_ignite",
+    "effectType": "ONE_TIME",
     "rarity": "R",
     "set": "BN-CORE"
   },
@@ -121,6 +122,7 @@
     "cost": 1,
     "speed": "NORMAL",
     "effectId": "redirect_to_water_creature",
+    "effectType": "ONE_TIME",
     "rarity": "C",
     "set": "BN-CORE"
   },
@@ -130,7 +132,8 @@
     "name": "Burning Field",
     "description": "Fire creatures gain +100 ATK and deal extra Ignite damage.",
     "cost": 2,
-    "continuousEffectId": "global_fire_buff",
+    "effectId": "global_fire_buff",
+    "effectType": "CONTINUOUS",
     "oncePerTurn": false,
     "rarity": "UR",
     "set": "BN-CORE"
@@ -141,7 +144,8 @@
     "name": "Tide Barrier",
     "description": "Water creatures take 20% reduced damage.",
     "cost": 2,
-    "continuousEffectId": "reduce_damage_to_water",
+    "effectId": "reduce_damage_to_water",
+    "effectType": "CONTINUOUS",
     "oncePerTurn": true,
     "rarity": "R",
     "set": "BN-CORE"
@@ -153,6 +157,7 @@
     "description": "All Fire creatures gain +100 ATK permanently.",
     "cost": 2,
     "effectId": "fire_atk_boost_aura",
+    "effectType": "CONTINUOUS",
     "oncePerTurn": false,
     "rarity": "R",
     "set": "BN-CORE"
@@ -165,6 +170,7 @@
     "cost": 1,
     "speed": "NORMAL",
     "effectId": "draw_on_play",
+    "effectType": "ONE_TIME",
     "rarity": "C",
     "set": "BN-CORE"
   }

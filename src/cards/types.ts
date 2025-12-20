@@ -12,6 +12,7 @@ export interface CardInterface {
   rarity: "C" | "R" | "SR" | "UR";
   set: "Base";
   effectId?: string;
+  effectType?: "ONE_TIME" | "CONTINUOUS";
 }
 
 export interface EffectInterface {
