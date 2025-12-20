@@ -17,6 +17,7 @@ export class CreatureCard extends Card {
   readonly hp: number;
   currentHp: number;
   hasAttackedThisTurn: boolean;
+  hasChangedModeThisTurn: boolean;
   mode: "ATTACK" | "DEFENSE";
   isFaceDown: boolean;
   readonly affinity: Affinity;
@@ -37,6 +38,7 @@ export class CreatureCard extends Card {
     this.hp = args.hp;
     this.currentHp = args.hp;
     this.hasAttackedThisTurn = false;
+    this.hasChangedModeThisTurn = false;
     this.mode = "ATTACK"; // Default to attack mode
     this.isFaceDown = false; // Default to face-up
     this.affinity = args.affinity;

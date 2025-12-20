@@ -88,7 +88,7 @@ describe("BattleEngine – Effect System", () => {
       const initialLogLength = game.log.length;
 
       // Execute attack
-      engine.attack(0, 0);
+      engine.attack(0, 0, 0);
 
       // Check logs for effect trigger
       const newLogs = game.log.slice(initialLogLength);
@@ -196,7 +196,7 @@ describe("BattleEngine – Effect System", () => {
       // Even if it plays, attack should be blocked
       if (played) {
         const initialLogLength = game.log.length;
-        engine.attack(0, 0);
+        engine.attack(0, 0, 0);
         // Should not log new attacks when game is won
         const newLogs = game.log.slice(initialLogLength);
         expect(newLogs.length).toBe(0);

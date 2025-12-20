@@ -12,7 +12,7 @@ interface PlayerBoardProps {
   isFirstTurn?: boolean;
   selectedHandCard?: string | null;
   selectedAttacker?: number | null;
-  onPlayCreature?: (lane: number, faceDown: boolean) => void;
+  onPlayCreature?: (lane: number) => void;
   onPlaySupport?: (slot: number, activate: boolean) => void;
   onActivateSupport?: (slot: number) => void;
   onSelectAttacker?: (lane: number) => void;
@@ -148,8 +148,15 @@ export const PlayerBoard = ({
                     <button
                       className="toggle-mode-btn"
                       onClick={() => onToggleMode(i)}
+                      disabled={(card as CreatureCard).hasChangedModeThisTurn}
+                      title={
+                        (card as CreatureCard).hasChangedModeThisTurn
+                          ? "Already changed mode this turn"
+                          : "Switch between Attack and Defense mode"
+                      }
                     >
                       Switch Mode
+                      {(card as CreatureCard).hasChangedModeThisTurn && " ✓"}
                     </button>
                   )}
                   {onFlipFaceUp && (card as CreatureCard).isFaceDown && (
@@ -173,20 +180,12 @@ export const PlayerBoard = ({
                     (c) => c.id === selectedHandCard
                   );
                   return handCard?.type === CardType.Creature ? (
-                    <div className="creature-play-actions">
-                      <button
-                        className="play-here face-up-btn"
-                        onClick={() => onPlayCreature(i, false)}
-                      >
-                        Play Face-Up
-                      </button>
-                      <button
-                        className="play-here face-down-btn"
-                        onClick={() => onPlayCreature(i, true)}
-                      >
-                        Set Face-Down
-                      </button>
-                    </div>
+                    <button
+                      className="play-here"
+                      onClick={() => onPlayCreature(i)}
+                    >
+                      Play Here
+                    </button>
                   ) : null;
                 })()}
             </div>

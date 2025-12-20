@@ -67,7 +67,8 @@ export class BattleEngine {
     playerIndex: number,
     lane: number,
     cardId: string,
-    faceDown: boolean = false
+    faceDown: boolean = false,
+    mode: "ATTACK" | "DEFENSE" = "ATTACK"
   ): boolean {
     // Must be in main phase to play cards
     if (this.state.phase !== "MAIN") {
@@ -84,11 +85,12 @@ export class BattleEngine {
       toLane: lane,
     });
 
-    const creature = player.lanes[lane] as CreatureCard;
+    const creature = player.lanes[lane]!;
     creature.isFaceDown = faceDown;
+    creature.mode = mode;
 
     this.log(
-      `${player.id} summoned ${card.name} to lane ${lane}${
+      `${player.id} summoned ${card.name} to lane ${lane} in ${mode} mode${
         faceDown ? " face-down" : ""
       }`
     );
@@ -139,7 +141,7 @@ export class BattleEngine {
       toLane: slot,
     });
 
-    const spellCard = player.support[slot] as SupportCard | ActionCard;
+    const spellCard = player.support[slot]!;
 
     if (activate) {
       spellCard.isActive = true;
@@ -187,17 +189,15 @@ export class BattleEngine {
     )
       return false;
 
-    const spellCard = card as SupportCard | ActionCard;
-
-    if (spellCard.isActive) {
-      this.log(`${spellCard.name} is already active!`);
+    if (card.isActive) {
+      this.log(`${card.name} is already active!`);
       return false;
     }
 
-    spellCard.isActive = true;
+    card.isActive = true;
     this.log(
       `${player.id} activated ${card.type.toLowerCase()} ${
-        spellCard.name
+        card.name
       } from slot ${slot}`
     );
 
@@ -223,13 +223,20 @@ export class BattleEngine {
     }
 
     const player = this.state.players[playerIndex];
-    const creature = player.lanes[lane] as CreatureCard | null;
+    const creature = player.lanes[lane];
 
     if (!creature || creature.type !== CardType.Creature) return false;
+
+    // Check if creature has already changed mode this turn
+    if (creature.hasChangedModeThisTurn) {
+      this.log(`${creature.name} has already changed mode this turn!`);
+      return false;
+    }
 
     // Toggle mode
     const newMode = creature.mode === "ATTACK" ? "DEFENSE" : "ATTACK";
     creature.mode = newMode;
+    creature.hasChangedModeThisTurn = true;
 
     this.log(`${creature.name} switched to ${newMode} mode`);
     return true;
@@ -239,7 +246,7 @@ export class BattleEngine {
     if (this.state.winnerIndex !== null) return false;
 
     const player = this.state.players[playerIndex];
-    const creature = player.lanes[lane] as CreatureCard | null;
+    const creature = player.lanes[lane];
 
     if (!creature || creature.type !== CardType.Creature) return false;
     if (!creature.isFaceDown) return false;
@@ -275,7 +282,7 @@ export class BattleEngine {
       return;
     }
 
-    const attacker = this.state.players[playerIndex].lanes[attackerLane] as any;
+    const attacker = this.state.players[playerIndex].lanes[attackerLane];
     if (!attacker) return;
 
     // Cannot attack if creature is face-down
@@ -302,7 +309,7 @@ export class BattleEngine {
 
     const opponentIndex = getOpponentIndex(playerIndex);
     const opponent = this.state.players[opponentIndex];
-    const defender = opponent.lanes[targetLane] as CreatureCard | null;
+    const defender = opponent.lanes[targetLane];
 
     if (!defender) {
       // Check if opponent has ANY creatures on the field
@@ -374,18 +381,16 @@ export class BattleEngine {
 
       // Check if defender is defeated
       if (defender.currentHp <= 0) {
-        opponent.lanes[lane] = null;
-        opponent.graveyard.push(defender as any);
+        opponent.lanes[targetLane] = null;
+        opponent.graveyard.push(defender);
         this.log(`${defender.name} was destroyed!`);
         this.registerKO(playerIndex, defender);
       }
 
       // Check if attacker is defeated
       if (attacker.currentHp <= 0) {
-        this.state.players[playerIndex].lanes[lane] = null;
-        this.state.players[playerIndex].graveyard.push(
-          attacker as CardInterface
-        );
+        this.state.players[playerIndex].lanes[attackerLane] = null;
+        this.state.players[playerIndex].graveyard.push(attacker);
         this.log(`${attacker.name} was destroyed in the exchange!`);
         this.registerKO(opponentIndex, attacker);
       }
@@ -402,8 +407,8 @@ export class BattleEngine {
 
         // Check if defender is defeated
         if (defender.currentHp <= 0) {
-          opponent.lanes[lane] = null;
-          opponent.graveyard.push(defender as any);
+          opponent.lanes[targetLane] = null;
+          opponent.graveyard.push(defender);
           this.log(`${defender.name} was destroyed!`);
           this.registerKO(playerIndex, defender);
         }
@@ -420,11 +425,12 @@ export class BattleEngine {
   endTurn() {
     if (this.state.winnerIndex !== null) return; // game finished
 
-    // Reset hasAttackedThisTurn for all creatures on the current player's field
+    // Reset hasAttackedThisTurn and hasChangedModeThisTurn for all creatures on the current player's field
     const currentPlayer = this.state.players[this.state.activePlayer];
     currentPlayer.lanes.forEach((creature) => {
       if (creature && creature.type === CardType.Creature) {
-        (creature as any).hasAttackedThisTurn = false;
+        creature.hasAttackedThisTurn = false;
+        creature.hasChangedModeThisTurn = false;
       }
     });
 

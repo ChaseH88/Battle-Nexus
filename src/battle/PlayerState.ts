@@ -1,4 +1,7 @@
 import { CardInterface } from "../cards";
+import { CreatureCard } from "../cards/CreatureCard";
+import { SupportCard } from "../cards/SupportCard";
+import { ActionCard } from "../cards/ActionCard";
 
 export interface PlayerState {
   id: string;
@@ -6,8 +9,8 @@ export interface PlayerState {
   deck: CardInterface[];
   hand: CardInterface[];
 
-  lanes: Array<CardInterface | null>; // 3 creature lanes
-  support: Array<CardInterface | null>; // 3 support lanes
+  lanes: Array<CreatureCard | null>; // 3 creature lanes
+  support: Array<SupportCard | ActionCard | null>; // 3 support lanes
 
   graveyard: CardInterface[];
 }
