@@ -1,19 +1,18 @@
 import { GameState } from "../../../battle/GameState";
+import { GameLogContainer, GameLogTitle, LogEntries, LogEntry } from "./styled";
 
 interface GameLogProps extends Pick<GameState, "log"> {}
 
 export const GameLog = ({ log }: GameLogProps) => (
-  <div className="game-log">
-    <h4>Game Log</h4>
-    <div className="log-entries">
+  <GameLogContainer>
+    <GameLogTitle>Game Log</GameLogTitle>
+    <LogEntries>
       {log
         .slice(-10)
         .reverse()
         .map((entry, i) => (
-          <div key={i} className="log-entry">
-            {entry}
-          </div>
+          <LogEntry key={i}>{entry}</LogEntry>
         ))}
-    </div>
-  </div>
+    </LogEntries>
+  </GameLogContainer>
 );

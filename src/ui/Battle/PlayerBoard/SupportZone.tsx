@@ -6,6 +6,15 @@ import {
 } from "../../../cards";
 import { PlayerState } from "../../../battle/PlayerState";
 import { Card } from "../Card";
+import {
+  SupportZoneContainer,
+  SupportZoneTitle,
+  SupportSlots,
+  SupportSlot,
+  SupportActions,
+  FaceDownButton,
+  ActivateButton,
+} from "./SupportZone.styled";
 
 export interface SupportZoneProps {
   player: PlayerState;
@@ -22,11 +31,13 @@ export const SupportZone = ({
   onPlaySupport,
   isOpponent = false,
 }: SupportZoneProps) => (
-  <div className="support-zone">
-    <h4>{isOpponent ? "Support" : "Your Support"}</h4>
-    <div className="support-slots">
+  <SupportZoneContainer>
+    <SupportZoneTitle>
+      {isOpponent ? "Support" : "Your Support"}
+    </SupportZoneTitle>
+    <SupportSlots>
       {player.support.map((card, i) => (
-        <div key={i} className="support-slot">
+        <SupportSlot key={i}>
           <Card
             card={card}
             onClick={
@@ -56,24 +67,18 @@ export const SupportZone = ({
               );
               return handCard?.type === CardType.Support ||
                 handCard?.type === CardType.Action ? (
-                <div className="support-actions">
-                  <button
-                    className="play-here face-down-btn"
-                    onClick={() => onPlaySupport(i, false)}
-                  >
+                <SupportActions>
+                  <FaceDownButton onClick={() => onPlaySupport(i, false)}>
                     Set Face-Down
-                  </button>
-                  <button
-                    className="play-here activate-btn"
-                    onClick={() => onPlaySupport(i, true)}
-                  >
+                  </FaceDownButton>
+                  <ActivateButton onClick={() => onPlaySupport(i, true)}>
                     Activate
-                  </button>
-                </div>
+                  </ActivateButton>
+                </SupportActions>
               ) : null;
             })()}
-        </div>
+        </SupportSlot>
       ))}
-    </div>
-  </div>
+    </SupportSlots>
+  </SupportZoneContainer>
 );

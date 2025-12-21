@@ -1,18 +1,22 @@
 import { CardInterface } from "../../../cards";
+import {
+  DiscardPileDisplay,
+  DiscardPileTitle,
+  DiscardPileCards,
+  DiscardPileCardMini,
+} from "./DiscardPile.styled";
 
 interface DiscardPileProps {
   cards: CardInterface[];
 }
 
 export const DiscardPile = ({ cards }: DiscardPileProps) => (
-  <div className="discard-pile-display">
-    <h4>Discard Pile ({cards.length})</h4>
-    <div className="discard-pile-cards">
+  <DiscardPileDisplay>
+    <DiscardPileTitle>Discard Pile ({cards.length})</DiscardPileTitle>
+    <DiscardPileCards>
       {cards.slice(-3).map((card, i) => (
-        <div key={i} className="discard-pile-card-mini">
-          {card.name}
-        </div>
+        <DiscardPileCardMini key={i}>{card.name}</DiscardPileCardMini>
       ))}
-    </div>
-  </div>
+    </DiscardPileCards>
+  </DiscardPileDisplay>
 );

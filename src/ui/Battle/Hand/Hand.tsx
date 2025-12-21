@@ -1,5 +1,6 @@
 import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card";
+import { HandZone, HandTitle, HandCards } from "./styled";
 
 interface HandProps {
   hand: CardInterface[];
@@ -8,9 +9,9 @@ interface HandProps {
 }
 
 export const Hand = ({ hand, selectedHandCard, onSelectCard }: HandProps) => (
-  <div className="hand-zone">
-    <h4>Your Hand</h4>
-    <div className="hand-cards">
+  <HandZone>
+    <HandTitle>Your Hand</HandTitle>
+    <HandCards>
       {hand.map((card) => (
         <div key={card.id}>
           <Card
@@ -20,6 +21,6 @@ export const Hand = ({ hand, selectedHandCard, onSelectCard }: HandProps) => (
           />
         </div>
       ))}
-    </div>
-  </div>
+    </HandCards>
+  </HandZone>
 );

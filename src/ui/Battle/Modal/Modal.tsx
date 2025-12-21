@@ -1,3 +1,12 @@
+import {
+  ModalOverlay,
+  ModalContent,
+  ModalTitle,
+  ModalMessage,
+  ModalActions,
+  ModalButton,
+} from "./styled";
+
 interface ModalProps {
   isOpen: boolean;
   title: string;
@@ -16,19 +25,19 @@ export const Modal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h3 className="modal-title">{title}</h3>
-        <p className="modal-message">{message}</p>
-        <div className="modal-actions">
-          <button className="modal-button confirm" onClick={onConfirm}>
+    <ModalOverlay onClick={onCancel}>
+      <ModalContent onClick={(e) => e.stopPropagation()}>
+        <ModalTitle>{title}</ModalTitle>
+        <ModalMessage>{message}</ModalMessage>
+        <ModalActions>
+          <ModalButton variant="confirm" onClick={onConfirm}>
             Yes
-          </button>
-          <button className="modal-button cancel" onClick={onCancel}>
+          </ModalButton>
+          <ModalButton variant="cancel" onClick={onCancel}>
             No
-          </button>
-        </div>
-      </div>
-    </div>
+          </ModalButton>
+        </ModalActions>
+      </ModalContent>
+    </ModalOverlay>
   );
 };

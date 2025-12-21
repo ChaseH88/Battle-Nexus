@@ -1,3 +1,11 @@
+import {
+  AIControlsContainer,
+  SkillSelector,
+  SkillLabel,
+  StyledSlider,
+  SkillLabels,
+} from "./styled";
+
 interface AIControlsProps {
   aiSkillLevel: number;
   onSkillChange: (level: number) => void;
@@ -7,21 +15,20 @@ export const AIControls = ({
   aiSkillLevel,
   onSkillChange,
 }: AIControlsProps) => (
-  <div className="ai-controls">
-    <div className="skill-selector">
-      <label>AI Skill Level: {aiSkillLevel}</label>
-      <input
-        type="range"
-        min="1"
-        max="10"
+  <AIControlsContainer>
+    <SkillSelector>
+      <SkillLabel>AI Skill Level: {aiSkillLevel}</SkillLabel>
+      <StyledSlider
+        min={1}
+        max={10}
         value={aiSkillLevel}
-        onChange={(e) => onSkillChange(parseInt(e.target.value))}
+        onChange={(_, value) => onSkillChange(value as number)}
       />
-      <div className="skill-labels">
+      <SkillLabels>
         <span>Beginner</span>
         <span>Intermediate</span>
         <span>Expert</span>
-      </div>
-    </div>
-  </div>
+      </SkillLabels>
+    </SkillSelector>
+  </AIControlsContainer>
 );

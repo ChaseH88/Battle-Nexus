@@ -3,6 +3,12 @@ import { DiscardPile } from "./DiscardPile";
 import { SupportZone, SupportZoneProps } from "./SupportZone";
 import { CreatureZone, CreatureZoneProps } from "./CreatureZone";
 import { useMemo } from "react";
+import {
+  PlayerBoardContainer,
+  PlayerInfo,
+  PlayerName,
+  PlayerStat,
+} from "./PlayerBoard.styled";
 
 interface PlayerBoardProps
   extends Pick<SupportZoneProps, "onActivateSupport" | "onPlaySupport">,
@@ -51,14 +57,14 @@ export const PlayerBoard = ({
   );
 
   return (
-    <div className={`player-board ${isOpponent ? "opponent" : "current"}`}>
-      <div className="player-info">
-        <h3>{player.id}</h3>
-        <div className="kos">KOs: {koCount}/3</div>
-        <div className="deck">Deck: {player.deck.length}</div>
-        {isOpponent && <div className="hand">Hand: {player.hand.length}</div>}
+    <PlayerBoardContainer isopponent={isOpponent ? "true" : "false"}>
+      <PlayerInfo>
+        <PlayerName variant="h3">{player.id}</PlayerName>
+        <PlayerStat className="kos">KOs: {koCount}/3</PlayerStat>
+        <PlayerStat>Deck: {player.deck.length}</PlayerStat>
+        {isOpponent && <PlayerStat>Hand: {player.hand.length}</PlayerStat>}
         <DiscardPile cards={player.discardPile} />
-      </div>
+      </PlayerInfo>
       {isOpponent && SupportZoneComponent}
       <CreatureZone
         player={player}
@@ -73,6 +79,6 @@ export const PlayerBoard = ({
         onFlipFaceUp={onFlipFaceUp}
       />
       {!isOpponent && SupportZoneComponent}
-    </div>
+    </PlayerBoardContainer>
   );
 };

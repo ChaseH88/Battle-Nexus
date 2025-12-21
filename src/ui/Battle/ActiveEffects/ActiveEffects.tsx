@@ -1,4 +1,17 @@
 import { ActiveEffect } from "../../../battle/GameState";
+import {
+  ActiveEffectsPanel,
+  EffectsTitle,
+  EffectsList,
+  EffectItem,
+  EffectName,
+  EffectSource,
+  EffectDuration,
+  EffectOwner,
+  EffectStats,
+  StatMod,
+  AffectedCount,
+} from "./styled";
 
 interface ActiveEffectsProps {
   activeEffects: ActiveEffect[];
@@ -12,45 +25,45 @@ export const ActiveEffects = ({
   if (activeEffects.length === 0) return null;
 
   return (
-    <div className="active-effects-panel">
-      <h4>⚡ Active Effects</h4>
-      <div className="effects-list">
+    <ActiveEffectsPanel>
+      <EffectsTitle>⚡ Active Effects</EffectsTitle>
+      <EffectsList>
         {activeEffects.map((effect, i) => (
-          <div key={i} className="effect-item">
-            <span className="effect-name">{effect.name}</span>
-            <span className="effect-source">from {effect.sourceCardName}</span>
+          <EffectItem key={i}>
+            <EffectName>{effect.name}</EffectName>
+            <EffectSource>from {effect.sourceCardName}</EffectSource>
             {effect.statModifiers && (
-              <span className="effect-stats">
+              <EffectStats>
                 {effect.statModifiers.atk && (
-                  <span className="stat-mod atk">
+                  <StatMod stattype="atk">
                     +{effect.statModifiers.atk} ATK
-                  </span>
+                  </StatMod>
                 )}
                 {effect.statModifiers.def && (
-                  <span className="stat-mod def">
+                  <StatMod stattype="def">
                     +{effect.statModifiers.def} DEF
-                  </span>
+                  </StatMod>
                 )}
-              </span>
+              </EffectStats>
             )}
             {effect.affectedCardIds && effect.affectedCardIds.length > 0 && (
-              <span className="affected-count">
+              <AffectedCount>
                 ({effect.affectedCardIds.length} card
                 {effect.affectedCardIds.length !== 1 ? "s" : ""})
-              </span>
+              </AffectedCount>
             )}
             {effect.turnsRemaining !== undefined && (
-              <span className="effect-duration">
+              <EffectDuration>
                 ({effect.turnsRemaining} turn
                 {effect.turnsRemaining !== 1 ? "s" : ""})
-              </span>
+              </EffectDuration>
             )}
-            <span className={`effect-owner p${effect.playerIndex}`}>
+            <EffectOwner playerindex={effect.playerIndex}>
               [{players[effect.playerIndex].id}]
-            </span>
-          </div>
+            </EffectOwner>
+          </EffectItem>
         ))}
-      </div>
-    </div>
+      </EffectsList>
+    </ActiveEffectsPanel>
   );
 };

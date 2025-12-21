@@ -1,3 +1,13 @@
+import {
+  GameHeaderContainer,
+  GameTitle,
+  GameOverBox,
+  GameOverTitle,
+  NewGameButton,
+  TurnInfo,
+  PhaseIndicator,
+} from "./styled";
+
 interface GameHeaderProps {
   isGameOver: boolean;
   winnerName: string;
@@ -15,19 +25,23 @@ export const GameHeader = ({
   phase,
   onNewGame,
 }: GameHeaderProps) => (
-  <div className="game-header">
-    <h1>Battle Nexus</h1>
+  <GameHeaderContainer>
+    <GameTitle variant="h1">Battle Nexus</GameTitle>
     {isGameOver ? (
-      <div className="game-over">
-        <h2>Game Over! {winnerName} Wins!</h2>
-        <button onClick={onNewGame}>New Game</button>
-      </div>
+      <GameOverBox>
+        <GameOverTitle variant="h2">
+          Game Over! {winnerName} Wins!
+        </GameOverTitle>
+        <NewGameButton onClick={onNewGame}>New Game</NewGameButton>
+      </GameOverBox>
     ) : (
-      <div className="turn-info">
+      <TurnInfo>
         <span>Turn: {turn}</span>
         <span>Active: {currentPlayerName}</span>
-        <span className={`phase ${phase.toLowerCase()}`}>Phase: {phase}</span>
-      </div>
+        <PhaseIndicator phase={phase.toLowerCase()}>
+          Phase: {phase}
+        </PhaseIndicator>
+      </TurnInfo>
     )}
-  </div>
+  </GameHeaderContainer>
 );

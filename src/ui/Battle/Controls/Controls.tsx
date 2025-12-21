@@ -1,4 +1,5 @@
 import { GameState } from "../../../battle/GameState";
+import { ControlsContainer, ControlButton } from "./styled";
 
 interface ControlsProps extends Pick<GameState, "phase"> {
   isGameOver: boolean;
@@ -14,17 +15,17 @@ export const Controls = ({
   handleEndTurn,
   startNewGame,
 }: ControlsProps) => (
-  <div className="controls">
-    <button
+  <ControlsContainer>
+    <ControlButton
       onClick={handleDraw}
       disabled={isGameOver || phase !== "DRAW"}
-      className={phase === "DRAW" ? "highlight" : ""}
+      highlight={phase === "DRAW"}
     >
       {phase === "DRAW" ? "⚠️ Draw Card (Required)" : "Draw Card"}
-    </button>
-    <button onClick={handleEndTurn} disabled={isGameOver}>
+    </ControlButton>
+    <ControlButton onClick={handleEndTurn} disabled={isGameOver}>
       End Turn
-    </button>
-    <button onClick={startNewGame}>New Game</button>
-  </div>
+    </ControlButton>
+    <ControlButton onClick={startNewGame}>New Game</ControlButton>
+  </ControlsContainer>
 );
