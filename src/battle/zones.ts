@@ -10,7 +10,7 @@ export enum Zone {
   Support1 = "SUPPORT_1",
   Support2 = "SUPPORT_2",
 
-  Graveyard = "GRAVEYARD",
+  DiscardPile = "DISCARD_PILE",
   Stack = "STACK",
 }
 

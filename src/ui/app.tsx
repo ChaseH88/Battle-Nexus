@@ -17,6 +17,15 @@ import { AIControls } from "./Battle/AIControls";
 import { PlayerBoard } from "./Battle/PlayerBoard";
 import { Hand } from "./Battle/Hand";
 import { Modal, PlayCreatureModal } from "./Battle/Modal";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import {
+  openModal,
+  closeModal,
+  openPlayCreatureModal,
+  closePlayCreatureModal,
+  setSelectedHandCard,
+  setSelectedAttacker,
+} from "../store/uiSlice";
 
 function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
@@ -36,22 +45,13 @@ const allCards = (cardsData as any[])
   .sort(() => 0.5 - Math.random());
 
 export default function App() {
+  const dispatch = useAppDispatch();
+  const { selectedHandCard, selectedAttacker, modal, playCreatureModal } =
+    useAppSelector((state) => state.ui);
+
   const [engine, setEngine] = useState<BattleEngine | null>(null);
   const [ai, setAi] = useState<AIPlayer | null>(null);
   const [aiSkillLevel, setAiSkillLevel] = useState(5);
-  const [selectedHandCard, setSelectedHandCard] = useState<string | null>(null);
-  const [selectedAttacker, setSelectedAttacker] = useState<number | null>(null);
-  const [playCreatureModalState, setPlayCreatureModalState] = useState<{
-    isOpen: boolean;
-    lane: number;
-    creatureName: string;
-  } | null>(null);
-  const [modalState, setModalState] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    onConfirm: () => void;
-  } | null>(null);
   const [, forceUpdate] = useState({});
 
   useEffect(() => {
@@ -104,8 +104,8 @@ export default function App() {
     );
     setAi(aiPlayer);
 
-    setSelectedHandCard(null);
-    setSelectedAttacker(null);
+    dispatch(setSelectedHandCard(null));
+    dispatch(setSelectedAttacker(null));
   };
 
   const refresh = () => forceUpdate({});
@@ -138,8 +138,8 @@ export default function App() {
         mode
       );
       if (success) {
-        setSelectedHandCard(null);
-        setPlayCreatureModalState(null);
+        dispatch(setSelectedHandCard(null));
+        dispatch(closePlayCreatureModal());
         refresh();
       }
     }
@@ -149,11 +149,12 @@ export default function App() {
     if (!selectedHandCard) return;
     const card = currentPlayer.hand.find((c) => c.id === selectedHandCard);
     if (card?.type === CardType.Creature) {
-      setPlayCreatureModalState({
-        isOpen: true,
-        lane,
-        creatureName: card.name,
-      });
+      dispatch(
+        openPlayCreatureModal({
+          lane,
+          creatureName: card.name,
+        })
+      );
     }
   };
 
@@ -168,7 +169,7 @@ export default function App() {
         activate
       );
       if (success) {
-        setSelectedHandCard(null);
+        dispatch(setSelectedHandCard(null));
         refresh();
       }
     }
@@ -178,38 +179,39 @@ export default function App() {
     const card = currentPlayer.support[slot];
     if (!card || card.isActive) return;
 
-    setModalState({
-      isOpen: true,
-      title: "Activate Card",
-      message: `Do you want to activate ${card.name}?`,
-      onConfirm: () => {
-        const success = engine.activateSupport(game.activePlayer, slot);
-        if (success) {
-          refresh();
-        }
-        setModalState(null);
-      },
-    });
+    dispatch(
+      openModal({
+        title: "Activate Card",
+        message: `Do you want to activate ${card.name}?`,
+        onConfirm: () => {
+          const success = engine.activateSupport(game.activePlayer, slot);
+          if (success) {
+            refresh();
+          }
+          dispatch(closeModal());
+        },
+      })
+    );
   };
 
   const handleSelectAttacker = (lane: number) => {
     const creature = currentPlayer.lanes[lane];
     if (!creature) return;
-    setSelectedAttacker(lane);
-    setSelectedHandCard(null);
+    dispatch(setSelectedAttacker(lane));
+    dispatch(setSelectedHandCard(null));
   };
 
   const handleAttack = (targetLane: number) => {
     if (selectedAttacker === null) return;
     engine.attack(game.activePlayer, selectedAttacker, targetLane);
-    setSelectedAttacker(null);
+    dispatch(setSelectedAttacker(null));
     refresh();
   };
 
   const handleEndTurn = () => {
     engine.endTurn();
-    setSelectedHandCard(null);
-    setSelectedAttacker(null);
+    dispatch(setSelectedHandCard(null));
+    dispatch(setSelectedAttacker(null));
     refresh();
   };
 
@@ -224,18 +226,19 @@ export default function App() {
     const creature = currentPlayer.lanes[lane];
     if (!creature || !creature.isFaceDown) return;
 
-    setModalState({
-      isOpen: true,
-      title: "Flip Creature Face-Up",
-      message: `Do you want to flip ${creature.name} face-up? This action cannot be reversed.`,
-      onConfirm: () => {
-        const success = engine.flipCreatureFaceUp(game.activePlayer, lane);
-        if (success) {
-          refresh();
-        }
-        setModalState(null);
-      },
-    });
+    dispatch(
+      openModal({
+        title: "Flip Creature Face-Up",
+        message: `Do you want to flip ${creature.name} face-up? This action cannot be reversed.`,
+        onConfirm: () => {
+          const success = engine.flipCreatureFaceUp(game.activePlayer, lane);
+          if (success) {
+            refresh();
+          }
+          dispatch(closeModal());
+        },
+      })
+    );
   };
 
   const handleSkillChange = (level: number) => {
@@ -293,7 +296,7 @@ export default function App() {
       <Hand
         hand={currentPlayer.hand}
         selectedHandCard={selectedHandCard}
-        onSelectCard={setSelectedHandCard}
+        onSelectCard={(id) => dispatch(setSelectedHandCard(id))}
       />
 
       <Controls
@@ -307,37 +310,37 @@ export default function App() {
       <GameLog log={game.log} />
 
       <PlayCreatureModal
-        isOpen={playCreatureModalState?.isOpen || false}
-        creatureName={playCreatureModalState?.creatureName || ""}
+        isOpen={playCreatureModal.isOpen}
+        creatureName={playCreatureModal.creatureName || ""}
         onPlayFaceUpAttack={() => {
-          if (playCreatureModalState) {
-            handlePlayCreature(playCreatureModalState.lane, false, "ATTACK");
+          if (playCreatureModal.isOpen) {
+            handlePlayCreature(playCreatureModal.lane!, false, "ATTACK");
           }
         }}
         onPlayFaceUpDefense={() => {
-          if (playCreatureModalState) {
-            handlePlayCreature(playCreatureModalState.lane, false, "DEFENSE");
+          if (playCreatureModal.isOpen) {
+            handlePlayCreature(playCreatureModal.lane!, false, "DEFENSE");
           }
         }}
         onPlayFaceDownAttack={() => {
-          if (playCreatureModalState) {
-            handlePlayCreature(playCreatureModalState.lane, true, "ATTACK");
+          if (playCreatureModal.isOpen) {
+            handlePlayCreature(playCreatureModal.lane!, true, "ATTACK");
           }
         }}
         onPlayFaceDownDefense={() => {
-          if (playCreatureModalState) {
-            handlePlayCreature(playCreatureModalState.lane, true, "DEFENSE");
+          if (playCreatureModal.isOpen) {
+            handlePlayCreature(playCreatureModal.lane!, true, "DEFENSE");
           }
         }}
-        onCancel={() => setPlayCreatureModalState(null)}
+        onCancel={() => dispatch(closePlayCreatureModal())}
       />
 
       <Modal
-        isOpen={modalState?.isOpen || false}
-        title={modalState?.title || ""}
-        message={modalState?.message || ""}
-        onConfirm={modalState?.onConfirm || (() => {})}
-        onCancel={() => setModalState(null)}
+        isOpen={modal.isOpen}
+        title={modal.title || ""}
+        message={modal.message || ""}
+        onConfirm={modal.onConfirm || (() => {})}
+        onCancel={() => dispatch(closeModal())}
       />
     </div>
   );

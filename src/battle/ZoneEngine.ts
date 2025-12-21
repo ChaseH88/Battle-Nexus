@@ -1,4 +1,7 @@
 import { CardInterface } from "../cards";
+import { CreatureCard } from "../cards/CreatureCard";
+import { SupportCard } from "../cards/SupportCard";
+import { ActionCard } from "../cards/ActionCard";
 import { GameState } from "./GameState";
 import {
   Zone,
@@ -54,10 +57,10 @@ export function moveCard(
       return card;
     }
 
-    if (from === Zone.Graveyard) {
-      const idx = player.graveyard.findIndex((c) => c.id === cardId);
+    if (from === Zone.DiscardPile) {
+      const idx = player.discardPile.findIndex((c) => c.id === cardId);
       if (idx === -1) return null;
-      const [card] = player.graveyard.splice(idx, 1);
+      const [card] = player.discardPile.splice(idx, 1);
       return card;
     }
 
@@ -85,7 +88,7 @@ export function moveCard(
     if (isLane(to)) {
       const lane = options.toLane ?? laneIndexFromZone(to);
       if (player.lanes[lane] !== null) throw new Error(`Lane ${lane} occupied`);
-      player.lanes[lane] = card;
+      player.lanes[lane] = card as CreatureCard;
       return;
     }
 
@@ -93,7 +96,7 @@ export function moveCard(
       const slot = options.toLane ?? supportIndexFromZone(to);
       if (player.support[slot] !== null)
         throw new Error(`Support ${slot} occupied`);
-      player.support[slot] = card;
+      player.support[slot] = card as SupportCard | ActionCard;
       return;
     }
 
