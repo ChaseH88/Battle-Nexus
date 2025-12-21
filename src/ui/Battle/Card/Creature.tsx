@@ -14,6 +14,9 @@ interface CreatureProps
     | "currentHp"
     | "hasAttackedThisTurn"
     | "description"
+    | "affinity"
+    | "name"
+    | "type"
   > {}
 
 export const Creature = ({
@@ -28,8 +31,16 @@ export const Creature = ({
   currentHp,
   hasAttackedThisTurn,
   description,
+  affinity,
+  name,
+  type,
 }: CreatureProps) => (
   <article className="creature-card-details">
+    <div>
+      <div className="card-type">{type}</div>
+      <div className="card-name">{name}</div>
+      <div className="card-affinity">{affinity}</div>
+    </div>
     <div className="card-mode-badge">{mode}</div>
     <div
       style={{

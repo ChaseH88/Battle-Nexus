@@ -148,7 +148,7 @@
       {
         "type": "MOVE",
         "target": "ENEMY_CREATURE",
-        "destination": "GRAVEYARD",
+        "destination": "DISCARD_PILE",
         "countsAsKO": false
       }
     ]

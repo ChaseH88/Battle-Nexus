@@ -97,8 +97,8 @@ export function moveCard(
       return;
     }
 
-    if (to === Zone.Graveyard) {
-      player.graveyard.push(card);
+    if (to === Zone.DiscardPile) {
+      player.discardPile.push(card);
       return;
     }
 

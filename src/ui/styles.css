@@ -199,20 +199,20 @@ body {
   font-weight: bold;
 }
 
-/* Graveyard Display */
-.graveyard-display {
+/* Discard Pile Display */
+.discard-pile-display {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.graveyard-display h4 {
+.discard-pile-display h4 {
   font-size: 0.9rem;
   margin: 0;
   color: rgba(200, 200, 200, 0.9);
 }
 
-.graveyard-cards {
+.discard-pile-cards {
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -223,7 +223,7 @@ body {
   border-radius: 5px;
 }
 
-.graveyard-card-mini {
+.discard-pile-card-mini {
   font-size: 0.75rem;
   padding: 3px 8px;
   background: rgba(100, 100, 100, 0.4);

@@ -53,7 +53,7 @@ export interface MoveAction {
   type: "MOVE";
   target: EffectTarget;
   filter?: CardFilter;
-  destination: "GRAVEYARD" | "HAND" | "DECK_TOP" | "DECK_BOTTOM";
+  destination: "DISCARD_PILE" | "HAND" | "DECK_TOP" | "DECK_BOTTOM";
 }
 
 export interface DamageAction {

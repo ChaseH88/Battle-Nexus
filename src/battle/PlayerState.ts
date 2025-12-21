@@ -12,7 +12,7 @@ export interface PlayerState {
   lanes: Array<CreatureCard | null>; // 3 creature lanes
   support: Array<SupportCard | ActionCard | null>; // 3 support lanes
 
-  graveyard: CardInterface[];
+  discardPile: CardInterface[];
 }
 
 export function createPlayerState(
@@ -25,6 +25,6 @@ export function createPlayerState(
     hand: [],
     lanes: [null, null, null],
     support: [null, null, null],
-    graveyard: [],
+    discardPile: [],
   };
 }

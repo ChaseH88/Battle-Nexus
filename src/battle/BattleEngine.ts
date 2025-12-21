@@ -382,7 +382,7 @@ export class BattleEngine {
       // Check if defender is defeated
       if (defender.currentHp <= 0) {
         opponent.lanes[targetLane] = null;
-        opponent.graveyard.push(defender);
+        opponent.discardPile.push(defender);
         this.log(`${defender.name} was destroyed!`);
         this.registerKO(playerIndex, defender);
       }
@@ -390,7 +390,7 @@ export class BattleEngine {
       // Check if attacker is defeated
       if (attacker.currentHp <= 0) {
         this.state.players[playerIndex].lanes[attackerLane] = null;
-        this.state.players[playerIndex].graveyard.push(attacker);
+        this.state.players[playerIndex].discardPile.push(attacker);
         this.log(`${attacker.name} was destroyed in the exchange!`);
         this.registerKO(opponentIndex, attacker);
       }
@@ -408,7 +408,7 @@ export class BattleEngine {
         // Check if defender is defeated
         if (defender.currentHp <= 0) {
           opponent.lanes[targetLane] = null;
-          opponent.graveyard.push(defender);
+          opponent.discardPile.push(defender);
           this.log(`${defender.name} was destroyed!`);
           this.registerKO(playerIndex, defender);
         }

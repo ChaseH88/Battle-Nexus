@@ -164,7 +164,7 @@ export function createEffectUtils(
           ? Math.floor(Math.random() * player.hand.length)
           : 0;
         const card = player.hand.splice(index, 1)[0];
-        player.graveyard.push(card);
+        player.discardPile.push(card);
         state.log.push(`  ${player.id} discarded ${card.name}`);
       }
     },
