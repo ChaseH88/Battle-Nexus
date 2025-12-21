@@ -110,6 +110,27 @@ export default function App() {
 
   const refresh = () => forceUpdate({});
 
+  const checkNeedsToDraw = (): boolean => {
+    if (!engine) return false;
+    // Check if it's the current player's turn and they haven't drawn yet
+    return (
+      game.activePlayer === 0 && !game.hasDrawnThisTurn && game.phase === "DRAW"
+    );
+  };
+
+  const showDrawReminderModal = () => {
+    dispatch(
+      openModal({
+        title: "Draw Required",
+        message: "You must draw a card before taking any actions this turn.",
+        onConfirm: () => {
+          handleDraw();
+          dispatch(closeModal());
+        },
+      })
+    );
+  };
+
   if (!engine) return <div>Loading...</div>;
 
   const game = engine.state;
@@ -146,6 +167,10 @@ export default function App() {
   };
 
   const handlePlayCreatureClick = (lane: number) => {
+    if (checkNeedsToDraw()) {
+      showDrawReminderModal();
+      return;
+    }
     if (!selectedHandCard) return;
     const card = currentPlayer.hand.find((c) => c.id === selectedHandCard);
     if (card?.type === CardType.Creature) {
@@ -159,6 +184,10 @@ export default function App() {
   };
 
   const handlePlaySupport = (slot: number, activate: boolean = false) => {
+    if (checkNeedsToDraw()) {
+      showDrawReminderModal();
+      return;
+    }
     if (!selectedHandCard) return;
     const card = currentPlayer.hand.find((c) => c.id === selectedHandCard);
     if (card?.type === CardType.Support || card?.type === CardType.Action) {
@@ -176,6 +205,10 @@ export default function App() {
   };
 
   const handleActivateSupport = (slot: number) => {
+    if (checkNeedsToDraw()) {
+      showDrawReminderModal();
+      return;
+    }
     const card = currentPlayer.support[slot];
     if (!card || card.isActive) return;
 
@@ -195,6 +228,10 @@ export default function App() {
   };
 
   const handleSelectAttacker = (lane: number) => {
+    if (checkNeedsToDraw()) {
+      showDrawReminderModal();
+      return;
+    }
     const creature = currentPlayer.lanes[lane];
     if (!creature) return;
     dispatch(setSelectedAttacker(lane));
@@ -216,6 +253,10 @@ export default function App() {
   };
 
   const handleToggleMode = (lane: number) => {
+    if (checkNeedsToDraw()) {
+      showDrawReminderModal();
+      return;
+    }
     const success = engine.toggleCreatureMode(game.activePlayer, lane);
     if (success) {
       refresh();
@@ -223,6 +264,10 @@ export default function App() {
   };
 
   const handleFlipFaceUp = (lane: number) => {
+    if (checkNeedsToDraw()) {
+      showDrawReminderModal();
+      return;
+    }
     const creature = currentPlayer.lanes[lane];
     if (!creature || !creature.isFaceDown) return;
 

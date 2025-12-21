@@ -30,10 +30,10 @@ export const Modal = ({
         <ModalTitle>{title}</ModalTitle>
         <ModalMessage>{message}</ModalMessage>
         <ModalActions>
-          <ModalButton variant="confirm" onClick={onConfirm}>
+          <ModalButton buttonType="confirm" onClick={onConfirm}>
             Yes
           </ModalButton>
-          <ModalButton variant="cancel" onClick={onCancel}>
+          <ModalButton buttonType="cancel" onClick={onCancel}>
             No
           </ModalButton>
         </ModalActions>
