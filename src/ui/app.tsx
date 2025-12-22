@@ -96,8 +96,12 @@ export default function App() {
     }
 
     // Start in draw phase for first player
-    newEngine.log("Turn 1 begins - Player 1's turn");
-    newEngine.log("Draw Phase - Draw a card to begin");
+    newEngine.logger.gameStart(1, 0);
+    newEngine.logger.phaseChange(
+      1,
+      "DRAW",
+      "Draw Phase - Draw a card to begin"
+    );
 
     setEngine(newEngine);
 

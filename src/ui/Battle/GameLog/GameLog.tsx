@@ -1,18 +1,97 @@
-import { GameState } from "../../../battle/GameState";
+import { GameLogger, GameLogEvent } from "../../../battle/GameLog";
 import { GameLogContainer, GameLogTitle, LogEntries, LogEntry } from "./styled";
 
-interface GameLogProps extends Pick<GameState, "log"> {}
+interface GameLogProps {
+  log: GameLogger;
+}
 
-export const GameLog = ({ log }: GameLogProps) => (
-  <GameLogContainer>
-    <GameLogTitle>Game Log</GameLogTitle>
-    <LogEntries>
-      {log
-        .slice(-10)
-        .reverse()
-        .map((entry, i) => (
-          <LogEntry key={i}>{entry}</LogEntry>
+// Helper to get severity color
+const getSeverityColor = (severity?: string) => {
+  switch (severity) {
+    case "ERROR":
+      return "#ef4444";
+    case "WARN":
+      return "#f59e0b";
+    default:
+      return "#6366f1";
+  }
+};
+
+// Helper to get type badge color
+const getTypeColor = (type: string) => {
+  switch (type) {
+    case "CARD_DRAWN":
+      return "#fbbf24";
+    case "CARD_PLAYED":
+      return "#22c55e";
+    case "ATTACK_DECLARED":
+    case "ATTACK_DIRECT":
+      return "#ef4444";
+    case "CARD_DESTROYED":
+      return "#dc2626";
+    case "EFFECT_TRIGGERED":
+    case "EFFECT_APPLIED":
+      return "#a855f7";
+    case "TURN_START":
+    case "TURN_END":
+      return "#3b82f6";
+    default:
+      return "#6366f1";
+  }
+};
+
+export const GameLog = ({ log }: GameLogProps) => {
+  const events = log.getEvents();
+  const recentEvents = events.slice(-10).reverse();
+
+  return (
+    <GameLogContainer>
+      <GameLogTitle>Game Log</GameLogTitle>
+      <LogEntries>
+        {recentEvents.map((event: GameLogEvent) => (
+          <LogEntry
+            key={event.id}
+            style={{
+              borderLeftColor: getSeverityColor(event.severity),
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                marginBottom: "4px",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "0.7rem",
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                  background: getTypeColor(event.type),
+                  color: "white",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                {event.type.replace(/_/g, " ")}
+              </span>
+              <span
+                style={{
+                  fontSize: "0.7rem",
+                  color: "#94a3b8",
+                  fontWeight: "normal",
+                }}
+              >
+                Turn {event.turn}
+                {event.phase && ` • ${event.phase}`}
+              </span>
+            </div>
+            <div>{event.message}</div>
+          </LogEntry>
         ))}
-    </LogEntries>
-  </GameLogContainer>
-);
+      </LogEntries>
+    </GameLogContainer>
+  );
+};

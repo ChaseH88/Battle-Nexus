@@ -10,8 +10,14 @@ import { effectsRegistry } from "../effects/registry";
 export class BattleEngine {
   constructor(public state: GameState) {}
 
+  // Legacy log method for simple strings (maintains compatibility)
   log(msg: string) {
-    this.state.log.push(msg);
+    this.state.log.info(this.state.turn, this.state.phase, msg);
+  }
+
+  // Access to the full logger for structured events
+  get logger() {
+    return this.state.log;
   }
 
   private registerKO(attackerIndex: 0 | 1, defeated: CreatureCard) {
@@ -44,7 +50,7 @@ export class BattleEngine {
       // Automatically move to main phase
       if (this.state.phase === "DRAW") {
         this.state.phase = "MAIN";
-        this.log(`Main Phase begins`);
+        this.logger.phaseChange(this.state.turn, "MAIN", "Main Phase begins");
       }
       return;
     }
@@ -53,7 +59,16 @@ export class BattleEngine {
     player.deck.shift();
     player.hand.push(topCard);
 
-    this.log(`${player.id} drew ${topCard.name}`);
+    // Structured log for card draw
+    this.logger.cardDrawn(
+      this.state.turn,
+      this.state.phase,
+      playerIndex as 0 | 1,
+      player.id,
+      topCard.id,
+      topCard.name,
+      player.deck.length
+    );
 
     // Mark that player has drawn this turn
     this.state.hasDrawnThisTurn = true;
@@ -61,7 +76,7 @@ export class BattleEngine {
     // Automatically move to main phase after drawing
     if (this.state.phase === "DRAW") {
       this.state.phase = "MAIN";
-      this.log(`Main Phase begins`);
+      this.logger.phaseChange(this.state.turn, "MAIN", "Main Phase begins");
     }
 
     resolveEffectsForCard({
@@ -98,10 +113,14 @@ export class BattleEngine {
     creature.isFaceDown = faceDown;
     creature.mode = mode;
 
-    this.log(
-      `${player.id} summoned ${card.name} to lane ${lane} in ${mode} mode${
-        faceDown ? " face-down" : ""
-      }`
+    // Structured log for card played
+    this.logger.cardPlayed(
+      this.state.turn,
+      this.state.phase,
+      playerIndex as 0 | 1,
+      player.id,
+      { id: card.id, name: card.name, type: "Creature" },
+      { lane, faceDown, mode }
     );
 
     // Apply any persistent active effects (supports/global buffs) to this creature
@@ -543,12 +562,17 @@ export class BattleEngine {
     this.state.phase = "DRAW";
     this.state.hasDrawnThisTurn = false;
 
-    this.log(
-      `Turn ${this.state.turn} begins - ${
-        this.state.players[this.state.activePlayer].id
-      }'s turn`
+    const newActivePlayer = this.state.players[this.state.activePlayer];
+    this.logger.turnStart(
+      this.state.turn,
+      this.state.activePlayer,
+      newActivePlayer.id
     );
-    this.log(`Draw Phase - Draw a card to begin`);
+    this.logger.phaseChange(
+      this.state.turn,
+      "DRAW",
+      "Draw Phase - Draw a card to begin"
+    );
   }
 
   addActiveEffect(

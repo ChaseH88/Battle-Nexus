@@ -32,13 +32,22 @@ export function resolveEffectsForCard(params: {
 
   const effect = effectsRegistry[cardEffectId];
   if (!effect) {
-    state.log.push(`Effect missing: ${cardEffectId}`);
+    state.log.warning(
+      state.turn,
+      state.phase,
+      `Effect missing: ${cardEffectId}`
+    );
     return;
   }
 
   if (effect.trigger !== trigger && effect.trigger !== "CONTINUOUS") return;
 
-  state.log.push(`Effect fired: ${effect.name} (${effect.id})`);
+  state.log.effectApplied(
+    state.turn,
+    state.phase,
+    effect.name,
+    `Effect fired: ${effect.name} (${effect.id})`
+  );
 
   // Create effect context
   const context: EffectContext = {

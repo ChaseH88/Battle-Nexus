@@ -1,5 +1,6 @@
 import { CardInterface } from "../cards";
 import { PlayerState } from "./PlayerState";
+import { GameLogger } from "./GameLog";
 
 export interface ActiveEffect {
   id: string;
@@ -22,7 +23,7 @@ export interface GameState {
   activePlayer: 0 | 1;
   phase: "DRAW" | "MAIN";
   hasDrawnThisTurn: boolean;
-  log: string[];
+  log: GameLogger; // Changed from string[] to GameLogger
   stack: CardInterface[];
   koCount: [number, number];
   winnerIndex: 0 | 1 | null;
@@ -36,7 +37,7 @@ export function createGameState(p1: PlayerState, p2: PlayerState): GameState {
     activePlayer: 0,
     phase: "DRAW",
     hasDrawnThisTurn: false,
-    log: [],
+    log: new GameLogger(),
     stack: [],
     koCount: [0, 0],
     winnerIndex: null,
