@@ -42,7 +42,12 @@ export const Card = ({
     return <Back onClick={onClick} type="creature" />;
   }
 
-  // Show support/action face-down if showFaceDown prop is true AND card is not active
+  // Show support/action face-down if isFaceDown is true
+  if ((support && support.isFaceDown) || (action && action.isFaceDown)) {
+    return <Back onClick={onClick} type={support ? "support" : "action"} />;
+  }
+
+  // Also show face-down for opponent's inactive cards if showFaceDown is true
   if (showFaceDown && (support || action) && !(support || action)!.isActive) {
     return <Back onClick={onClick} type={support ? "support" : "action"} />;
   }
@@ -59,6 +64,7 @@ export const Card = ({
         (support || action) && (support || action)!.isActive ? "active" : ""
       }`}
       onClick={onClick}
+      style={{ width: 160, height: 253, display: "inline-block" }}
     >
       {creature && (
         <Creature
@@ -85,6 +91,7 @@ export const Card = ({
           description={support.description}
           cost={support.cost}
           isActive={support.isActive}
+          isFaceDown={support.isFaceDown}
         />
       )}
       {action && (
@@ -95,6 +102,7 @@ export const Card = ({
           cost={action.cost}
           speed={action.speed}
           isActive={action.isActive}
+          isFaceDown={action.isFaceDown}
         />
       )}
     </div>

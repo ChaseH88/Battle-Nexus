@@ -2,6 +2,10 @@ import { styled } from "@mui/material/styles";
 import { Box, Button } from "@mui/material";
 
 export const ControlsContainer = styled(Box)(({ theme }) => ({
+  position: "fixed",
+  zIndex: 1000,
+  bottom: "20px",
+  right: "20px",
   display: "flex",
   justifyContent: "center",
   gap: "20px",

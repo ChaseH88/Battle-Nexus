@@ -6,6 +6,7 @@ import { EffectContext } from "../handler";
  *   auto-targets the allied Fire creature with highest ATK.
  * - Grants +200 ATK and adds the IGNITE keyword while the source card
  *   remains on the field (persistent).
+ * - If no valid Fire creatures exist, the effect fails (card will be discarded by engine)
  */
 export const boost_fire_and_extend_ignite = (ctx: EffectContext) => {
   // Prefer explicit player choice if provided via eventData.lane
@@ -15,7 +16,16 @@ export const boost_fire_and_extend_ignite = (ctx: EffectContext) => {
   if (typeof chosenLane === "number") {
     target = ctx.utils.getCreatureInLane(ctx.ownerIndex, chosenLane) as any;
     if (!target) {
-      ctx.utils.log(`  No creature in chosen lane ${chosenLane}`);
+      ctx.utils.log(
+        `  No creature in chosen lane ${chosenLane} - effect fails`
+      );
+      return;
+    }
+    // Verify it's a Fire creature
+    if (target.affinity !== "FIRE") {
+      ctx.utils.log(
+        `  Creature in lane ${chosenLane} is not Fire type - effect fails`
+      );
       return;
     }
   }
@@ -26,7 +36,7 @@ export const boost_fire_and_extend_ignite = (ctx: EffectContext) => {
     const fireCreatures = ctx.utils.filterByAffinity(allies, "FIRE");
 
     if (fireCreatures.length === 0) {
-      ctx.utils.log("  No Fire creatures to target");
+      ctx.utils.log("  No Fire creatures to target - effect fails");
       return;
     }
 

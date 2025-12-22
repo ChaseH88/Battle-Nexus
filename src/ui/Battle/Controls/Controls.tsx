@@ -7,6 +7,8 @@ interface ControlsProps extends Pick<GameState, "phase"> {
   handleEndTurn: () => void;
   startNewGame: () => void;
   deckSize: number;
+  isPlayerTurn?: boolean;
+  showEndTurnButton?: boolean;
 }
 
 export const Controls = ({
@@ -16,22 +18,32 @@ export const Controls = ({
   handleEndTurn,
   startNewGame,
   deckSize,
+  isPlayerTurn = true,
 }: ControlsProps) => (
   <ControlsContainer>
-    <ControlButton
-      onClick={handleDraw}
-      disabled={isGameOver || phase !== "DRAW" || deckSize === 0}
-      highlight={phase === "DRAW" && deckSize > 0}
-    >
-      {phase === "DRAW" && deckSize === 0
-        ? "No Cards to Draw"
-        : phase === "DRAW"
-        ? "⚠️ Draw Card (Required)"
-        : "Draw Card"}
+    {isPlayerTurn && (
+      <>
+        <ControlButton
+          onClick={handleDraw}
+          disabled={isGameOver || phase !== "DRAW" || deckSize === 0}
+          highlight={phase === "DRAW" && deckSize > 0}
+        >
+          {phase === "DRAW" && deckSize === 0
+            ? "No Cards to Draw"
+            : phase === "DRAW"
+            ? "⚠️ Draw Card (Required)"
+            : "Draw Card"}
+        </ControlButton>
+        <ControlButton
+          onClick={handleEndTurn}
+          disabled={isGameOver || phase === "DRAW"}
+        >
+          End Turn
+        </ControlButton>
+      </>
+    )}
+    <ControlButton onClick={startNewGame} disabled={!isPlayerTurn}>
+      New Game
     </ControlButton>
-    <ControlButton onClick={handleEndTurn} disabled={isGameOver}>
-      End Turn
-    </ControlButton>
-    <ControlButton onClick={startNewGame}>New Game</ControlButton>
   </ControlsContainer>
 );

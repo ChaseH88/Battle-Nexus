@@ -148,12 +148,7 @@ export class BattleEngine {
     return true;
   }
 
-  playSupport(
-    playerIndex: 0 | 1,
-    slot: number,
-    cardId: string,
-    activate: boolean = false
-  ): boolean {
+  playSupport(playerIndex: 0 | 1, slot: number, cardId: string): boolean {
     if (this.state.winnerIndex !== null) return false;
 
     // Must be in main phase to play cards
@@ -179,61 +174,27 @@ export class BattleEngine {
       toLane: slot,
     });
 
-    const spellCard = player.support[slot]!;
+    const spellCard = player.support[slot]! as SupportCard | ActionCard;
 
-    if (activate) {
-      // Special activation condition for Purge Beacon when played+activated immediately:
-      if (card.effectId === "purge_opponent_support") {
-        const opponentIndex = getOpponentIndex(playerIndex as 0 | 1);
-        const opponent = this.state.players[opponentIndex];
-        const hasSupport = opponent.support.some((s) => s !== null);
-        if (!hasSupport) {
-          // Play succeeded but activation fails — leave card inactive in support slot
-          spellCard.isActive = false;
-          this.log(
-            `${card.name} cannot be activated — no opponent support cards present`
-          );
-          return true;
-        }
-      }
+    // Always play face down and inactive
+    spellCard.isActive = false;
+    spellCard.isFaceDown = true;
 
-      spellCard.isActive = true;
-      this.log(
-        `${player.id} played and activated ${card.type.toLowerCase()} ${
-          card.name
-        } to slot ${slot}`
-      );
+    this.logger.cardPlayed(
+      this.state.turn,
+      this.state.phase,
+      playerIndex,
+      player.id,
+      { id: cardId, name: card.name },
+      { slot, faceDown: true },
+      this.state
+    );
 
-      resolveEffectsForCard({
-        state: this.state,
-        ownerIndex: playerIndex,
-        cardEffectId: card.effectId,
-        trigger: "ON_PLAY",
-        sourceCard: card,
-        engine: this,
-      });
-      // If this was an Action (one-time) card, send it to discard after resolution
-      if (card.type === CardType.Action && card.effectType === "ONE_TIME") {
-        moveCard(
-          this.state,
-          playerIndex,
-          Zone.Support0,
-          Zone.DiscardPile,
-          cardId,
-          {
-            fromLane: slot,
-          }
-        );
-        this.log(`${card.name} resolved and was moved to the discard pile`);
-      }
-    } else {
-      spellCard.isActive = false;
-      this.log(
-        `${player.id} set ${card.type.toLowerCase()} ${
-          card.name
-        } face-down to slot ${slot}`
-      );
-    }
+    this.log(
+      `${
+        player.id
+      } set ${card.type.toLowerCase()} card face-down to support slot ${slot}`
+    );
 
     return true;
   }
@@ -252,7 +213,7 @@ export class BattleEngine {
     }
 
     const player = this.state.players[playerIndex];
-    const card = player.support[slot];
+    const card = player.support[slot] as SupportCard | ActionCard | null;
 
     if (
       !card ||
@@ -271,18 +232,61 @@ export class BattleEngine {
       const opponent = this.state.players[opponentIndex];
       const hasSupport = opponent.support.some((s) => s !== null);
       if (!hasSupport) {
+        // Flip face up but effect fails - discard the card
+        card.isFaceDown = false;
+        card.isActive = false;
         this.log(
-          `${card.name} cannot be activated — no opponent support cards present`
+          `${card.name} was activated but no opponent support cards present - effect fails`
         );
-        return false;
+        moveCard(
+          this.state,
+          playerIndex,
+          Zone.Support0,
+          Zone.DiscardPile,
+          card.id,
+          {
+            fromLane: slot,
+          }
+        );
+        this.log(`${card.name} was moved to the discard pile`);
+        return true; // Activation succeeded but effect failed
       }
     }
 
+    // Special activation condition for Ignite Burst: must have at least one Fire creature
+    if (card.effectId === "boost_fire_and_extend_ignite") {
+      const allies = player.lanes.filter((c) => c !== null);
+      const fireCreatures = allies.filter((c) => c!.affinity === "FIRE");
+      if (fireCreatures.length === 0) {
+        // Flip face up but effect fails - discard the card
+        card.isFaceDown = false;
+        card.isActive = false;
+        this.log(
+          `${card.name} was activated but no Fire creatures present - effect fails`
+        );
+        moveCard(
+          this.state,
+          playerIndex,
+          Zone.Support0,
+          Zone.DiscardPile,
+          card.id,
+          {
+            fromLane: slot,
+          }
+        );
+        this.log(`${card.name} was moved to the discard pile`);
+        return true; // Activation succeeded but effect failed
+      }
+    }
+
+    // Flip face up and activate
+    card.isFaceDown = false;
     card.isActive = true;
+
     this.log(
-      `${player.id} activated ${card.type.toLowerCase()} ${
+      `${player.id} flipped ${card.type.toLowerCase()} ${
         card.name
-      } from slot ${slot}`
+      } face-up and activated it from slot ${slot}`
     );
 
     resolveEffectsForCard({
@@ -295,8 +299,9 @@ export class BattleEngine {
       eventData,
     });
 
-    // If this was an Action (one-time) card activated from a support slot, discard it
-    if (card.type === CardType.Action && card.effectType === "ONE_TIME") {
+    // Discard ONE_TIME effect cards (both Action and Support) after activation
+    // CONTINUOUS effects remain on the field
+    if (card.effectType === "ONE_TIME") {
       moveCard(
         this.state,
         playerIndex,

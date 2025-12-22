@@ -7,9 +7,11 @@ export interface SupportCardArgs extends CardInterface {
 
 export class SupportCard extends Card {
   isActive: boolean;
+  isFaceDown: boolean;
 
   constructor(args: SupportCardArgs) {
     super({ ...args, type: CardType.Support });
     this.isActive = false;
+    this.isFaceDown = false;
   }
 }

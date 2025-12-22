@@ -33,12 +33,7 @@ export interface BattleEngineHookReturn {
     faceDown?: boolean,
     mode?: "ATTACK" | "DEFENSE"
   ) => boolean;
-  playSupport: (
-    playerIndex: number,
-    slot: number,
-    cardId: string,
-    activate?: boolean
-  ) => boolean;
+  playSupport: (playerIndex: number, slot: number, cardId: string) => boolean;
   activateSupport: (playerIndex: number, slot: number) => boolean;
   attack: (
     playerIndex: number,
@@ -159,19 +154,9 @@ export function useBattleEngine(): BattleEngineHookReturn {
   );
 
   const playSupport = useCallback(
-    (
-      playerIndex: number,
-      slot: number,
-      cardId: string,
-      activate: boolean = false
-    ): boolean => {
+    (playerIndex: number, slot: number, cardId: string): boolean => {
       if (!engine) return false;
-      const success = engine.playSupport(
-        playerIndex as 0 | 1,
-        slot,
-        cardId,
-        activate
-      );
+      const success = engine.playSupport(playerIndex as 0 | 1, slot, cardId);
       if (success) refresh();
       return success;
     },

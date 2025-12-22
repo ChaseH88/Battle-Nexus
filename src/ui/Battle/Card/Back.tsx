@@ -15,11 +15,24 @@ export const Back = ({ onClick, type }: BackProps) => {
         isCreature ? "defense-mode" : ""
       }`}
       onClick={onClick}
+      style={{ width: 160, height: 253, display: "inline-block" }}
     >
-      <img src={backImage} alt="Back of card" style={imageStyles} />
-      <div className="card-name">???</div>
-      <div className="card-type">FACE-DOWN</div>
-      {isCreature && <div className="card-mode-badge">Defense Mode!</div>}
+      <img
+        src={backImage}
+        alt="Back of card"
+        style={{ ...imageStyles, width: 140 }}
+      />
+      <div className="card-name" style={{ fontSize: "12px" }}>
+        ???
+      </div>
+      <div className="card-type" style={{ fontSize: "10px" }}>
+        FACE-DOWN
+      </div>
+      {isCreature && (
+        <div className="card-mode-badge" style={{ fontSize: "10px" }}>
+          Defense Mode!
+        </div>
+      )}
     </div>
   );
 };

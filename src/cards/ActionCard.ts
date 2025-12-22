@@ -12,11 +12,13 @@ export class ActionCard extends Card {
   readonly speed: ActionSpeed;
   readonly effectId: string;
   isActive: boolean;
+  isFaceDown: boolean;
 
   constructor(args: ActionCardArgs) {
     super({ ...args, type: CardType.Action });
     this.speed = args.speed ?? "NORMAL";
     this.effectId = args.effectId;
     this.isActive = false;
+    this.isFaceDown = false;
   }
 }

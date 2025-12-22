@@ -35,23 +35,50 @@ export const Creature = ({
   name,
   type,
 }: CreatureProps) => (
-  <article className="creature-card-details">
+  <article
+    className="creature-card-details"
+    style={{ width: 160, height: 253, fontSize: "11px", padding: "8px" }}
+  >
     <div>
-      <div className="card-type">{type}</div>
-      <div className="card-name">{name}</div>
-      <div className="card-affinity">{affinity}</div>
+      <div className="card-type" style={{ fontSize: "9px" }}>
+        {type}
+      </div>
+      <div
+        className="card-name"
+        style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "4px" }}
+      >
+        {name}
+      </div>
+      <div className="card-affinity" style={{ fontSize: "10px" }}>
+        {affinity}
+      </div>
     </div>
-    <div className="card-mode-badge">{mode}</div>
+    <div className="card-mode-badge" style={{ fontSize: "10px" }}>
+      {mode}
+    </div>
     <div
       style={{
-        height: 100,
-        width: 100,
+        height: 80,
+        width: 80,
         background: "white",
-        margin: "0 auto 10px",
+        margin: "4px auto",
       }}
     />
-    <div className="card-description">{description}</div>
-    <div className="card-stats">
+    <div
+      className="card-description"
+      style={{ fontSize: "9px", marginBottom: "4px", lineHeight: "1.2" }}
+    >
+      {description}
+    </div>
+    <div
+      className="card-stats"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px",
+        fontSize: "10px",
+      }}
+    >
       <div className="card-hp">
         <span className="hp-label">HP:</span>
         <span className={`hp-value ${currentHp < hp * 0.3 ? "low" : ""}`}>
@@ -81,6 +108,13 @@ export const Creature = ({
         </span>
       </div>
     </div>
-    {hasAttackedThisTurn && <div className="attacked-badge">ATTACKED</div>}
+    {hasAttackedThisTurn && (
+      <div
+        className="attacked-badge"
+        style={{ fontSize: "9px", padding: "2px 4px" }}
+      >
+        ATTACKED
+      </div>
+    )}
   </article>
 );

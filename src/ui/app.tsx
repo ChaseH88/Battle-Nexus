@@ -111,16 +111,19 @@ export default function App() {
     return <div>Loading...</div>;
   }
 
+  // Always use player indices for consistent board positions
+  const player1 = gameState.players[0]; // User (always bottom)
+  const player2 = gameState.players[1]; // AI (always top)
+  const isPlayer1Turn = gameState.activePlayer === 0;
+
   const handleDraw = () => {
     // Check if deck is empty before attempting draw
-    if (currentPlayer.deck.length === 0) {
+    if (player1.deck.length === 0) {
       // Auto-advance to main phase
       if (gameState.phase === "DRAW") {
         gameState.hasDrawnThisTurn = true;
         gameState.phase = "MAIN";
-        engine.log(
-          `${currentPlayer.id} has no cards to draw - Main Phase begins`
-        );
+        engine.log(`${player1.id} has no cards to draw - Main Phase begins`);
       }
     } else {
       draw(gameState.activePlayer);
@@ -133,7 +136,7 @@ export default function App() {
     mode: "ATTACK" | "DEFENSE" = "ATTACK"
   ) => {
     if (!selectedHandCard) return;
-    const card = currentPlayer.hand.find((c) => c.id === selectedHandCard);
+    const card = player1.hand.find((c) => c.id === selectedHandCard);
     if (card?.type === CardType.Creature) {
       const success = playCreature(
         gameState.activePlayer,
@@ -155,7 +158,7 @@ export default function App() {
       return;
     }
     if (!selectedHandCard) return;
-    const card = currentPlayer.hand.find((c) => c.id === selectedHandCard);
+    const card = player1.hand.find((c) => c.id === selectedHandCard);
     if (card?.type === CardType.Creature) {
       dispatch(
         openPlayCreatureModal({
@@ -166,19 +169,18 @@ export default function App() {
     }
   };
 
-  const handlePlaySupport = (slot: number, activate: boolean = false) => {
+  const handlePlaySupport = (slot: number) => {
     if (checkNeedsToDraw()) {
       showDrawReminderModal();
       return;
     }
     if (!selectedHandCard) return;
-    const card = currentPlayer.hand.find((c) => c.id === selectedHandCard);
+    const card = player1.hand.find((c) => c.id === selectedHandCard);
     if (card?.type === CardType.Support || card?.type === CardType.Action) {
       const success = playSupport(
-        gameState.activePlayer,
+        0, // Player 1 only
         slot,
-        selectedHandCard,
-        activate
+        selectedHandCard
       );
       if (success) {
         dispatch(setSelectedHandCard(null));
@@ -191,46 +193,116 @@ export default function App() {
       showDrawReminderModal();
       return;
     }
-    const card = currentPlayer.support[slot];
+    const card = player1.support[slot];
     if (!card || card.isActive) return;
 
-    // If this support requires a target selection (e.g. Purge Beacon), open the target modal
-    if (card.effectId === "purge_opponent_support") {
-      // Build options from opponent support slots
-      const opponentIndex = gameState.activePlayer === 0 ? 1 : 0;
-      const opponentPlayer = gameState.players[opponentIndex];
-      const options = opponentPlayer.support
-        .map((s, i) => ({ label: s ? s.name : `Slot ${i} (empty)`, value: i }))
-        .filter((o) => opponentPlayer.support[o.value] !== null);
+    // Check if card is face down - must flip and activate
+    if (card.isFaceDown) {
+      // If this support requires a target selection (e.g. Purge Beacon), open the target modal
+      if (card.effectId === "purge_opponent_support") {
+        // Build options from opponent support slots (including face down cards)
+        const opponentIndex = 1;
+        const opponentPlayer = gameState.players[opponentIndex];
+        const options = opponentPlayer.support
+          .map((s, i) => ({
+            label: s
+              ? s.isFaceDown
+                ? `Face-down card in slot ${i}`
+                : s.name
+              : `Slot ${i} (empty)`,
+            value: i,
+          }))
+          .filter((o) => opponentPlayer.support[o.value] !== null);
 
+        if (options.length === 0) {
+          dispatch(
+            openModal({
+              title: "Cannot Activate",
+              message: `${card.name} requires an opponent support card to target, but none are available. The card will be discarded.`,
+              onConfirm: () => {
+                // Activate anyway - effect will fail and card will be discarded
+                engine.activateSupport(0 as 0 | 1, slot);
+                refresh();
+                dispatch(closeModal());
+              },
+            })
+          );
+          return;
+        }
+
+        dispatch(
+          openTargetSelectModal({
+            title: `Select opponent support to remove`,
+            message: `Choose a support card from ${opponentPlayer.id}`,
+            options,
+            onConfirm: (slotIndex: number) => {
+              // Call engine directly for target-based activation
+              engine.activateSupport(0 as 0 | 1, slot, {
+                targetPlayer: opponentIndex,
+                targetLane: slotIndex,
+              });
+              refresh();
+            },
+          })
+        );
+        return;
+      }
+
+      // Handle cards that require targeting own Fire creatures (Ignite Burst)
+      if (card.effectId === "boost_fire_and_extend_ignite") {
+        const fireCreatures = player1.lanes
+          .map((c, i) => ({ creature: c, lane: i }))
+          .filter((item) => item.creature && item.creature.affinity === "FIRE");
+
+        if (fireCreatures.length === 0) {
+          dispatch(
+            openModal({
+              title: "Cannot Activate",
+              message: `${card.name} requires a Fire creature to target, but you have none in play. The card will be discarded.`,
+              onConfirm: () => {
+                // Activate anyway - effect will fail and card will be discarded
+                engine.activateSupport(0 as 0 | 1, slot);
+                refresh();
+                dispatch(closeModal());
+              },
+            })
+          );
+          return;
+        }
+
+        const options = fireCreatures.map(({ creature, lane }) => ({
+          label: `${creature!.name} (Lane ${lane + 1}) - ${creature!.atk} ATK`,
+          value: lane,
+        }));
+
+        dispatch(
+          openTargetSelectModal({
+            title: `Select Fire creature to boost`,
+            message: `Choose a Fire creature to gain +200 ATK and IGNITE`,
+            options,
+            onConfirm: (lane: number) => {
+              engine.activateSupport(0 as 0 | 1, slot, {
+                lane,
+              });
+              refresh();
+            },
+          })
+        );
+        return;
+      }
+
+      // Standard activation (no targeting required)
       dispatch(
-        openTargetSelectModal({
-          title: `Select opponent support to remove`,
-          message: `Choose a support card from ${opponentPlayer.id}`,
-          options,
-          onConfirm: (slotIndex: number) => {
-            // Call engine directly for target-based activation
-            engine.activateSupport(gameState.activePlayer as 0 | 1, slot, {
-              targetPlayer: opponentIndex,
-              targetLane: slotIndex,
-            });
-            refresh();
+        openModal({
+          title: "Activate Card",
+          message: `Flip ${card.name} face-up and activate it?`,
+          onConfirm: () => {
+            activateSupport(0, slot);
+            dispatch(closeModal());
           },
         })
       );
-      return;
     }
-
-    dispatch(
-      openModal({
-        title: "Activate Card",
-        message: `Do you want to activate ${card.name}?`,
-        onConfirm: () => {
-          activateSupport(gameState.activePlayer, slot);
-          dispatch(closeModal());
-        },
-      })
-    );
   };
 
   const handleSelectAttacker = (lane: number) => {
@@ -238,7 +310,7 @@ export default function App() {
       showDrawReminderModal();
       return;
     }
-    const creature = currentPlayer.lanes[lane];
+    const creature = player1.lanes[lane];
     if (!creature) return;
     dispatch(setSelectedAttacker(lane));
     dispatch(setSelectedHandCard(null));
@@ -269,7 +341,7 @@ export default function App() {
       showDrawReminderModal();
       return;
     }
-    const creature = currentPlayer.lanes[lane];
+    const creature = player1.lanes[lane];
     if (!creature || !creature.isFaceDown) return;
 
     dispatch(
@@ -320,7 +392,7 @@ export default function App() {
           isGameOver={isGameOver}
           winnerName={isGameOver && winner ? winner : ""}
           turn={gameState.turn}
-          currentPlayerName={currentPlayer.id}
+          currentPlayerName={isPlayer1Turn ? player1.id : player2.id}
           phase={gameState.phase}
           onNewGame={startNewGame}
         />
@@ -333,16 +405,16 @@ export default function App() {
           onSkillChange={handleSkillChange}
         />
         <PlayerBoard
-          player={opponent}
-          koCount={gameState.koCount[gameState.activePlayer === 0 ? 1 : 0]}
+          player={player2}
+          koCount={gameState.koCount[1]}
           isOpponent={true}
           isFirstTurn={gameState.turn === 1 && gameState.activePlayer === 0}
           selectedAttacker={selectedAttacker}
           onAttack={handleAttack}
         />
         <PlayerBoard
-          player={currentPlayer}
-          koCount={gameState.koCount[gameState.activePlayer]}
+          player={player1}
+          koCount={gameState.koCount[0]}
           isOpponent={false}
           isFirstTurn={gameState.turn === 1 && gameState.activePlayer === 0}
           selectedHandCard={selectedHandCard}
@@ -355,7 +427,7 @@ export default function App() {
           onFlipFaceUp={handleFlipFaceUp}
         />
         <Hand
-          hand={currentPlayer.hand}
+          hand={player1.hand}
           selectedHandCard={selectedHandCard}
           onSelectCard={(id) => dispatch(setSelectedHandCard(id))}
         />
@@ -365,7 +437,8 @@ export default function App() {
           handleDraw={handleDraw}
           handleEndTurn={handleEndTurn}
           startNewGame={startNewGame}
-          deckSize={currentPlayer.deck.length}
+          deckSize={player1.deck.length}
+          isPlayerTurn={gameState.activePlayer === 0}
         />
         <GameLog log={gameState.log} />
         <PlayCreatureModal

@@ -47,7 +47,7 @@ export const PlayerBoard = ({
     () => (
       <SupportZone
         player={player}
-        selectedHandCard={selectedHandCard}
+        selectedHandCard={selectedHandCard ?? null}
         onActivateSupport={onActivateSupport}
         onPlaySupport={onPlaySupport}
         isOpponent={isOpponent}

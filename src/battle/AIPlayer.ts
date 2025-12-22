@@ -195,17 +195,8 @@ export class AIPlayer {
 
       const slotIndex = emptySlots.shift()!;
 
-      // Skill determines face-down vs instant activate
-      const shouldActivate = this.shouldActivateSpellImmediately(state, spell);
-
-      if (
-        this.engine.playSupport(
-          this.playerIndex,
-          slotIndex,
-          spell.id,
-          shouldActivate
-        )
-      ) {
+      // Always play face down now
+      if (this.engine.playSupport(this.playerIndex, slotIndex, spell.id)) {
         this.onActionComplete?.();
         await this.delay(400);
 
@@ -213,27 +204,6 @@ export class AIPlayer {
         if (this.skillLevel < 6 && Math.random() > 0.4) break;
       }
     }
-  }
-
-  /**
-   * Decide whether to activate spell immediately or set face-down
-   */
-  private shouldActivateSpellImmediately(
-    state: GameState,
-    spell: SupportCard | ActionCard
-  ): boolean {
-    // Skill 1-4: Usually activate immediately (don't understand face-down strategy)
-    if (this.skillLevel <= 4) return Math.random() > 0.3;
-
-    // Skill 5-7: Sometimes set face-down for bluffing
-    if (this.skillLevel <= 7) return Math.random() > 0.5;
-
-    // Skill 8-10: Strategic decision based on game state
-    // Support cards (continuous) = set face-down more often
-    if (spell.type === CardType.Support) return Math.random() > 0.6;
-
-    // Action cards = activate when needed
-    return Math.random() > 0.4;
   }
 
   /**
@@ -248,6 +218,7 @@ export class AIPlayer {
 
       const spellCard = card as SupportCard | ActionCard;
       if (spellCard.isActive) continue;
+      if (!spellCard.isFaceDown) continue; // Only activate face-down cards
 
       // Skill determines when to flip face-down cards
       if (this.shouldFlipSupport(state, i)) {
@@ -262,8 +233,11 @@ export class AIPlayer {
    * Decide whether to flip a face-down support
    */
   private shouldFlipSupport(state: GameState, slot: number): boolean {
-    // Skill 1-5: Rarely flip (don't understand the strategy)
-    if (this.skillLevel <= 5) return Math.random() < 0.2;
+    // Skill 1-3: Very rarely flip (don't understand the strategy)
+    if (this.skillLevel <= 3) return Math.random() < 0.15;
+
+    // Skill 4-5: Sometimes flip
+    if (this.skillLevel <= 5) return Math.random() < 0.3;
 
     // Skill 6-8: Flip sometimes
     if (this.skillLevel <= 8) return Math.random() < 0.4;

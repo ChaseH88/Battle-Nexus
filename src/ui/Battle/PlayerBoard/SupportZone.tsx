@@ -18,9 +18,9 @@ import {
 
 export interface SupportZoneProps {
   player: PlayerState;
-  selectedHandCard?: string | null;
+  selectedHandCard: string | null;
   onActivateSupport?: (slot: number) => void;
-  onPlaySupport?: (slot: number, activate: boolean) => void;
+  onPlaySupport?: (slot: number) => void;
   isOpponent?: boolean;
 }
 
@@ -68,12 +68,9 @@ export const SupportZone = ({
               return handCard?.type === CardType.Support ||
                 handCard?.type === CardType.Action ? (
                 <SupportActions>
-                  <FaceDownButton onClick={() => onPlaySupport(i, false)}>
+                  <FaceDownButton onClick={() => onPlaySupport(i)}>
                     Set Face-Down
                   </FaceDownButton>
-                  <ActivateButton onClick={() => onPlaySupport(i, true)}>
-                    Activate
-                  </ActivateButton>
                 </SupportActions>
               ) : null;
             })()}
