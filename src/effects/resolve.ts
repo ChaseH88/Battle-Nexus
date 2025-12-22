@@ -3,11 +3,7 @@ import { effectsRegistry } from "./registry";
 import { EffectDefinition } from "./types";
 import { CardInterface } from "../cards";
 import { BattleEngine } from "../battle/BattleEngine";
-import {
-  executeEffect,
-  createEffectUtils,
-  EffectContext,
-} from "./effectHandlers";
+import { executeEffect, createEffectUtils, EffectContext } from "./handler";
 
 export function resolveEffectsForCard(params: {
   state: GameState;

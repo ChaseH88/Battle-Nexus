@@ -62,12 +62,22 @@ export const Creature = ({
         <span className={`atk ${isAtkModified ? "modified" : ""}`}>
           ATK: {atk}
           {isAtkModified && <span className="base-stat">({baseAtk})</span>}
+          {isAtkModified && (
+            <span className="stat-icon" title="Modified">
+              ⚡
+            </span>
+          )}
         </span>
       </div>
       <div className="defense">
         <span className={`def ${isDefModified ? "modified" : ""}`}>
           DEF: {def}
           {isDefModified && <span className="base-stat">({baseDef})</span>}
+          {isDefModified && (
+            <span className="stat-icon" title="Modified">
+              🛡️
+            </span>
+          )}
         </span>
       </div>
     </div>

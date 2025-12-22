@@ -13,11 +13,25 @@ interface PlayCreatureModalState {
   creatureName: string;
 }
 
+interface TargetSelectOption {
+  label: string;
+  value: any;
+}
+
+interface TargetSelectModalState {
+  isOpen: boolean;
+  title: string;
+  message?: string;
+  options: TargetSelectOption[];
+  onConfirm?: (value: any) => void;
+}
+
 interface UIState {
   modal: ModalState;
   playCreatureModal: PlayCreatureModalState;
   selectedHandCard: string | null;
   selectedAttacker: number | null;
+  targetSelectModal: TargetSelectModalState;
 }
 
 const initialState: UIState = {
@@ -31,6 +45,13 @@ const initialState: UIState = {
     isOpen: false,
     lane: 0,
     creatureName: "",
+  },
+  targetSelectModal: {
+    isOpen: false,
+    title: "",
+    message: "",
+    options: [],
+    onConfirm: undefined,
   },
   selectedHandCard: null,
   selectedAttacker: null,
@@ -58,6 +79,15 @@ export const uiSlice = createSlice({
     closePlayCreatureModal: (state) => {
       state.playCreatureModal = initialState.playCreatureModal;
     },
+    openTargetSelectModal: (
+      state,
+      action: PayloadAction<Omit<TargetSelectModalState, "isOpen">>
+    ) => {
+      state.targetSelectModal = { ...action.payload, isOpen: true };
+    },
+    closeTargetSelectModal: (state) => {
+      state.targetSelectModal = initialState.targetSelectModal;
+    },
     setSelectedHandCard: (state, action: PayloadAction<string | null>) => {
       state.selectedHandCard = action.payload;
     },
@@ -74,6 +104,8 @@ export const {
   closePlayCreatureModal,
   setSelectedHandCard,
   setSelectedAttacker,
+  openTargetSelectModal,
+  closeTargetSelectModal,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

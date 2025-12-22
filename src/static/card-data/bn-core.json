@@ -104,13 +104,25 @@
   },
   {
     "id": "ignite_burst",
-    "type": "ACTION",
+    "type": "SUPPORT",
     "name": "Ignite Burst",
-    "description": "Boost a Fire creature and extend an Ignite combo.",
+    "description": "Support: Choose an allied Fire creature. That creature gains +200 ATK and IGNITE while this support remains on the field.",
     "cost": 1,
-    "speed": "QUICK",
     "effectId": "boost_fire_and_extend_ignite",
+    "effectType": "CONTINUOUS",
+    "oncePerTurn": false,
+    "rarity": "R",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "purge_beacon",
+    "type": "SUPPORT",
+    "name": "Purge Beacon",
+    "description": "Support: When activated, remove one card from an opponent's support slot. Can be played face-down but can only be activated if an opponent has at least one support.",
+    "cost": 2,
+    "effectId": "purge_opponent_support",
     "effectType": "ONE_TIME",
+    "oncePerTurn": false,
     "rarity": "R",
     "set": "BN-CORE"
   },
@@ -124,18 +136,6 @@
     "effectId": "redirect_to_water_creature",
     "effectType": "ONE_TIME",
     "rarity": "C",
-    "set": "BN-CORE"
-  },
-  {
-    "id": "burning_field",
-    "type": "SUPPORT",
-    "name": "Burning Field",
-    "description": "Fire creatures gain +100 ATK and deal extra Ignite damage.",
-    "cost": 2,
-    "effectId": "global_fire_buff",
-    "effectType": "CONTINUOUS",
-    "oncePerTurn": false,
-    "rarity": "UR",
     "set": "BN-CORE"
   },
   {

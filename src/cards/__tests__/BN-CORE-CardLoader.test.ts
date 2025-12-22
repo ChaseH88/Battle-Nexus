@@ -23,17 +23,15 @@ describe("cards.json loader", () => {
   const instances = (bnCoreCardData as RawCard[]).map(createCardFromJson);
 
   it("loads all cards without error", () => {
-    expect(instances).toHaveLength(10);
+    expect(instances).toHaveLength(9);
   });
 
   it("creates correct class types", () => {
     const emberCub = instances.find((c) => c.id === "ember_cub");
     const igniteBurst = instances.find((c) => c.id === "ignite_burst");
-    const burningField = instances.find((c) => c.id === "burning_field");
 
     expect(emberCub).toBeInstanceOf(CreatureCard);
-    expect(igniteBurst).toBeInstanceOf(ActionCard);
-    expect(burningField).toBeInstanceOf(SupportCard);
+    expect(igniteBurst).toBeInstanceOf(SupportCard);
   });
 
   it("preserves important fields from JSON", () => {

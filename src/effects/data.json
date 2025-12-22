@@ -48,6 +48,46 @@
   },
 
   {
+    "id": "purge_opponent_support",
+    "name": "Purge Beacon",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "actions": [
+      {
+        "type": "MOVE",
+        "target": "ENEMY_CREATURE",
+        "destination": "DISCARD_PILE"
+      }
+    ]
+  },
+
+  {
+    "id": "boost_fire_and_extend_ignite",
+    "name": "Ignite Burst (Support)",
+    "timing": "PERSIST",
+    "trigger": "CONTINUOUS",
+    "stackable": false,
+    "actions": [
+      {
+        "type": "STAT_MOD",
+        "mode": "BOOST",
+        "target": "ALLY_CREATURE",
+        "filter": { "affinity": "FIRE" },
+        "atk": 200,
+        "duration": { "kind": "PERMANENT" }
+      },
+      {
+        "type": "KEYWORD",
+        "mode": "ADD",
+        "target": "ALLY_CREATURE",
+        "filter": { "affinity": "FIRE" },
+        "keywords": ["IGNITE"],
+        "duration": { "kind": "PERMANENT" }
+      }
+    ]
+  },
+
+  {
     "id": "conditional_fire_bonus",
     "name": "Blazing Advantage",
     "timing": "NORMAL",

@@ -17,6 +17,7 @@ import { AIControls } from "./Battle/AIControls";
 import { PlayerBoard } from "./Battle/PlayerBoard";
 import { Hand } from "./Battle/Hand";
 import { Modal, PlayCreatureModal } from "./Battle/Modal";
+import { TargetSelectModal } from "./Battle/Modal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   openModal,
@@ -25,6 +26,8 @@ import {
   closePlayCreatureModal,
   setSelectedHandCard,
   setSelectedAttacker,
+  openTargetSelectModal,
+  closeTargetSelectModal,
 } from "../store/uiSlice";
 import backgroundImage from "../assets/background.png";
 
@@ -140,7 +143,19 @@ export default function App() {
   const isGameOver = game.winnerIndex !== null;
 
   const handleDraw = () => {
-    engine.draw(game.activePlayer);
+    // Check if deck is empty before attempting draw
+    if (currentPlayer.deck.length === 0) {
+      // Auto-advance to main phase
+      if (game.phase === "DRAW") {
+        engine.state.hasDrawnThisTurn = true;
+        engine.state.phase = "MAIN";
+        engine.log(
+          `${currentPlayer.id} has no cards to draw - Main Phase begins`
+        );
+      }
+    } else {
+      engine.draw(game.activePlayer);
+    }
     refresh();
   };
 
@@ -212,6 +227,32 @@ export default function App() {
     }
     const card = currentPlayer.support[slot];
     if (!card || card.isActive) return;
+
+    // If this support requires a target selection (e.g. Purge Beacon), open the target modal
+    if (card.effectId === "purge_opponent_support") {
+      // Build options from opponent support slots
+      const opponentIndex = game.activePlayer === 0 ? 1 : 0;
+      const opponent = game.players[opponentIndex];
+      const options = opponent.support
+        .map((s, i) => ({ label: s ? s.name : `Slot ${i} (empty)`, value: i }))
+        .filter((o) => opponent.support[o.value] !== null);
+
+      dispatch(
+        openTargetSelectModal({
+          title: `Select opponent support to remove`,
+          message: `Choose a support card from ${opponent.id}`,
+          options,
+          onConfirm: (slotIndex: number) => {
+            const success = engine.activateSupport(game.activePlayer, slot, {
+              targetPlayer: opponentIndex,
+              targetLane: slotIndex,
+            });
+            if (success) refresh();
+          },
+        })
+      );
+      return;
+    }
 
     dispatch(
       openModal({
@@ -329,17 +370,14 @@ export default function App() {
           phase={game.phase}
           onNewGame={startNewGame}
         />
-
         <ActiveEffects
           activeEffects={game.activeEffects}
           players={game.players}
         />
-
         <AIControls
           aiSkillLevel={aiSkillLevel}
           onSkillChange={handleSkillChange}
         />
-
         <PlayerBoard
           player={opponent}
           koCount={game.koCount[game.activePlayer === 0 ? 1 : 0]}
@@ -348,7 +386,6 @@ export default function App() {
           selectedAttacker={selectedAttacker}
           onAttack={handleAttack}
         />
-
         <PlayerBoard
           player={currentPlayer}
           koCount={game.koCount[game.activePlayer]}
@@ -363,23 +400,20 @@ export default function App() {
           onToggleMode={handleToggleMode}
           onFlipFaceUp={handleFlipFaceUp}
         />
-
         <Hand
           hand={currentPlayer.hand}
           selectedHandCard={selectedHandCard}
           onSelectCard={(id) => dispatch(setSelectedHandCard(id))}
         />
-
         <Controls
           phase={game.phase}
           isGameOver={isGameOver}
           handleDraw={handleDraw}
           handleEndTurn={handleEndTurn}
           startNewGame={startNewGame}
-        />
-
+          deckSize={currentPlayer.deck.length}
+        />{" "}
         <GameLog log={game.log} />
-
         <PlayCreatureModal
           isOpen={playCreatureModal.isOpen}
           creatureName={playCreatureModal.creatureName || ""}
@@ -405,7 +439,6 @@ export default function App() {
           }}
           onCancel={() => dispatch(closePlayCreatureModal())}
         />
-
         <Modal
           isOpen={modal.isOpen}
           title={modal.title || ""}
@@ -413,6 +446,7 @@ export default function App() {
           onConfirm={modal.onConfirm || (() => {})}
           onCancel={() => dispatch(closeModal())}
         />
+        <TargetSelectModal />
       </div>
     </div>
   );

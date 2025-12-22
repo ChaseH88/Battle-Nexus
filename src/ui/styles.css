@@ -201,6 +201,12 @@ body {
   opacity: 0.7;
 }
 
+.card-stats .stat-icon {
+  margin-left: 6px;
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
 @keyframes statGlow {
   0%, 100% {
     text-shadow: 0 0 8px currentColor;

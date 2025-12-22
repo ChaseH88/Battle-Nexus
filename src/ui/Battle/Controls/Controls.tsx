@@ -6,6 +6,7 @@ interface ControlsProps extends Pick<GameState, "phase"> {
   handleDraw: () => void;
   handleEndTurn: () => void;
   startNewGame: () => void;
+  deckSize: number;
 }
 
 export const Controls = ({
@@ -14,14 +15,19 @@ export const Controls = ({
   handleDraw,
   handleEndTurn,
   startNewGame,
+  deckSize,
 }: ControlsProps) => (
   <ControlsContainer>
     <ControlButton
       onClick={handleDraw}
-      disabled={isGameOver || phase !== "DRAW"}
-      highlight={phase === "DRAW"}
+      disabled={isGameOver || phase !== "DRAW" || deckSize === 0}
+      highlight={phase === "DRAW" && deckSize > 0}
     >
-      {phase === "DRAW" ? "⚠️ Draw Card (Required)" : "Draw Card"}
+      {phase === "DRAW" && deckSize === 0
+        ? "No Cards to Draw"
+        : phase === "DRAW"
+        ? "⚠️ Draw Card (Required)"
+        : "Draw Card"}
     </ControlButton>
     <ControlButton onClick={handleEndTurn} disabled={isGameOver}>
       End Turn

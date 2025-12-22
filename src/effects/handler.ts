@@ -2,11 +2,12 @@ import { GameState } from "../battle/GameState";
 import { CardInterface, CardType, CreatureCard } from "../cards";
 import { BattleEngine } from "../battle/BattleEngine";
 import { fire_atk_boost_aura } from "./effect/fire_atk_boost_aura";
-import { global_fire_buff } from "./effect/global_fire_buff";
 import { draw_on_play } from "./effect/draw_on_play";
 import { ignite_direct_damage } from "./effect/ignite_direct_damage";
 import { conditional_fire_bonus } from "./effect/conditional_fire_bonus";
 import { draw_two_on_combat_ko } from "./effect/draw_two_on_combat_ko";
+import { boost_fire_and_extend_ignite } from "./effect/boost_fire_and_extend_ignite";
+import { purge_opponent_support } from "./effect/purge_opponent_support";
 
 /**
  * Effect Context - provides access to all game state and utility functions
@@ -152,12 +153,23 @@ export function createEffectUtils(
 
     drawCards: (playerIndex: 0 | 1, count: number) => {
       const player = state.players[playerIndex];
+      let drawnCount = 0;
       for (let i = 0; i < count; i++) {
         if (player.deck.length > 0) {
           const card = player.deck.shift()!;
           player.hand.push(card);
           state.log.push(`  ${player.id} drew ${card.name}`);
+          drawnCount++;
         }
+      }
+      // Log if couldn't draw all requested cards
+      if (drawnCount < count) {
+        const missed = count - drawnCount;
+        state.log.push(
+          `  ${player.id} could not draw ${missed} card${
+            missed > 1 ? "s" : ""
+          } (deck empty)`
+        );
       }
     },
 
@@ -224,11 +236,12 @@ export type EffectHandler = (context: EffectContext) => void;
  */
 export const effectHandlers: Record<string, EffectHandler> = {
   fire_atk_boost_aura,
-  global_fire_buff,
   draw_on_play,
   ignite_direct_damage,
   conditional_fire_bonus,
   draw_two_on_combat_ko,
+  boost_fire_and_extend_ignite,
+  purge_opponent_support,
 };
 
 /**
