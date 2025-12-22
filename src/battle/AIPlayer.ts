@@ -15,11 +15,17 @@ export class AIPlayer {
   private skillLevel: number;
   private playerIndex: 0 | 1;
   private engine: BattleEngine;
+  private onActionComplete?: () => void;
 
-  constructor(config: AIConfig, engine: BattleEngine) {
+  constructor(
+    config: AIConfig,
+    engine: BattleEngine,
+    onActionComplete?: () => void
+  ) {
     this.skillLevel = Math.max(1, Math.min(10, config.skillLevel)); // Clamp 1-10
     this.playerIndex = config.playerIndex;
     this.engine = engine;
+    this.onActionComplete = onActionComplete;
   }
 
   /**
@@ -40,6 +46,7 @@ export class AIPlayer {
     if (state.phase === "DRAW") {
       console.log("[AI] Draw phase - drawing card");
       this.engine.draw(this.playerIndex);
+      this.onActionComplete?.();
       await this.delay(300);
     }
 
@@ -105,6 +112,7 @@ export class AIPlayer {
       const laneIndex = this.chooseLaneForCreature(state, creature, emptyLanes);
 
       if (this.engine.playCreature(this.playerIndex, laneIndex, creature.id)) {
+        this.onActionComplete?.();
         await this.delay(400);
 
         // Lower skill = play fewer cards per turn
@@ -198,6 +206,7 @@ export class AIPlayer {
           shouldActivate
         )
       ) {
+        this.onActionComplete?.();
         await this.delay(400);
 
         // Lower skill = fewer spells per turn
@@ -243,6 +252,7 @@ export class AIPlayer {
       // Skill determines when to flip face-down cards
       if (this.shouldFlipSupport(state, i)) {
         this.engine.activateSupport(this.playerIndex, i);
+        this.onActionComplete?.();
         await this.delay(300);
       }
     }
@@ -277,6 +287,7 @@ export class AIPlayer {
 
       if (target !== null) {
         this.engine.attack(this.playerIndex, laneIndex, target);
+        this.onActionComplete?.();
         await this.delay(500);
       }
     }
@@ -378,6 +389,7 @@ export class AIPlayer {
         if (opponentCreature && opponentCreature.atk > creature.atk) {
           if (creature.mode === "ATTACK" && Math.random() < 0.6) {
             this.engine.toggleCreatureMode(this.playerIndex, laneIndex);
+            this.onActionComplete?.();
             await this.delay(300);
           }
         }
@@ -394,6 +406,7 @@ export class AIPlayer {
             // Switch to defense if we'd lose badly
             if (wouldLose && creature.def > creature.atk) {
               this.engine.toggleCreatureMode(this.playerIndex, laneIndex);
+              this.onActionComplete?.();
               await this.delay(300);
             }
           } else {
@@ -403,6 +416,7 @@ export class AIPlayer {
             // Switch to attack if we can win
             if (canSurvive && shouldAttack && Math.random() < 0.7) {
               this.engine.toggleCreatureMode(this.playerIndex, laneIndex);
+              this.onActionComplete?.();
               await this.delay(300);
             }
           }
@@ -410,6 +424,7 @@ export class AIPlayer {
           // No opponent - prefer attack mode for direct attacks
           if (creature.mode === "DEFENSE" && Math.random() < 0.8) {
             this.engine.toggleCreatureMode(this.playerIndex, laneIndex);
+            this.onActionComplete?.();
             await this.delay(300);
           }
         }

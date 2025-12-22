@@ -83,6 +83,12 @@ export interface GameLogEvent<
   // Typed payload (per event type) + raw line for debugging
   data?: TData;
   raw?: string; // original unparsed string (optional)
+
+  // State snapshot for replay/undo - only included on major state changes
+  stateSnapshot?: GameStateSnapshot;
+
+  // Flag to indicate this is a reversible action (for undo)
+  reversible?: boolean;
 }
 
 // Specific event data types
@@ -145,16 +151,56 @@ export interface ModeChangedData {
   newMode: "ATTACK" | "DEFENSE";
 }
 
+// State snapshot for replay/undo functionality
+export interface GameStateSnapshot {
+  turn: number;
+  phase: Phase;
+  currentPlayerIndex: 0 | 1;
+  hasDrawnThisTurn: boolean;
+  koCount: [number, number];
+  winnerIndex: number | null;
+  players: {
+    id: string;
+    deckSize: number;
+    handSize: number;
+    hp: number;
+    creatures: Array<{
+      id: string;
+      name: string;
+      hp: number;
+      atk: number;
+      def: number;
+      mode: "ATTACK" | "DEFENSE";
+      isFaceDown: boolean;
+      activeEffects: string[];
+    } | null>;
+    support: Array<{
+      id: string;
+      name: string;
+      isActive: boolean;
+    } | null>;
+    discardSize: number;
+  }[];
+  activeEffects: Array<{
+    id: string;
+    name: string;
+    sourceCardId: string;
+    turnsRemaining: number | null;
+  }>;
+}
+
 /**
  * GameLogger class - manages structured logging for the battle system
  */
 export class GameLogger {
   private events: GameLogEvent[] = [];
   private sequence = 0;
+  private snapshotOnMajorEvents = true; // Enable automatic state snapshots
 
-  constructor() {
+  constructor(options?: { snapshotOnMajorEvents?: boolean }) {
     this.events = [];
     this.sequence = 0;
+    this.snapshotOnMajorEvents = options?.snapshotOnMajorEvents ?? true;
   }
 
   /**
@@ -172,6 +218,39 @@ export class GameLogger {
   }
 
   /**
+   * Get events by type
+   */
+  getEventsByType<T extends GameLogEventType>(type: T): GameLogEvent<T>[] {
+    return this.events.filter((e) => e.type === type) as GameLogEvent<T>[];
+  }
+
+  /**
+   * Get events for a specific turn
+   */
+  getEventsByTurn(turn: number): GameLogEvent[] {
+    return this.events.filter((e) => e.turn === turn);
+  }
+
+  /**
+   * Get the last event with a state snapshot
+   */
+  getLastSnapshot(): GameLogEvent | null {
+    for (let i = this.events.length - 1; i >= 0; i--) {
+      if (this.events[i].stateSnapshot) {
+        return this.events[i];
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get all reversible events (for undo functionality)
+   */
+  getReversibleEvents(): GameLogEvent[] {
+    return this.events.filter((e) => e.reversible);
+  }
+
+  /**
    * Clear all log events
    */
   clear(): void {
@@ -180,59 +259,167 @@ export class GameLogger {
   }
 
   /**
+   * Export log as JSON for network transmission or storage
+   */
+  toJSON(): string {
+    return JSON.stringify({
+      events: this.events,
+      sequence: this.sequence,
+      exportedAt: Date.now(),
+    });
+  }
+
+  /**
+   * Import log from JSON
+   */
+  fromJSON(json: string): void {
+    const data = JSON.parse(json);
+    this.events = data.events || [];
+    this.sequence = data.sequence || 0;
+  }
+
+  /**
+   * Create a state snapshot from current game state
+   */
+  createSnapshot(state: any): GameStateSnapshot {
+    return {
+      turn: state.turn,
+      phase: state.phase,
+      currentPlayerIndex: state.currentPlayerIndex,
+      hasDrawnThisTurn: state.hasDrawnThisTurn,
+      koCount: [...state.koCount] as [number, number],
+      winnerIndex: state.winnerIndex,
+      players: state.players.map((p: any) => ({
+        id: p.id,
+        deckSize: p.deck?.length || 0,
+        handSize: p.hand?.length || 0,
+        hp: p.hp,
+        creatures: (p.lanes || p.creatures || []).map((c: any) =>
+          c
+            ? {
+                id: c.id,
+                name: c.name,
+                hp: c.hp,
+                atk: c.atk,
+                def: c.def,
+                mode: c.mode,
+                isFaceDown: c.isFaceDown,
+                activeEffects: c.activeEffects?.map((e: any) => e.id) || [],
+              }
+            : null
+        ),
+        support: (p.support || []).map((s: any) =>
+          s
+            ? {
+                id: s.id,
+                name: s.name,
+                isActive: s.isActive,
+              }
+            : null
+        ),
+        discardSize: p.discardPile?.length || 0,
+      })),
+      activeEffects: (state.activeEffects || []).map((e: any) => ({
+        id: e.id,
+        name: e.name,
+        sourceCardId: e.sourceCardId,
+        turnsRemaining: e.turnsRemaining,
+      })),
+    };
+  }
+
+  /**
    * Generic log method
    */
   log<TType extends GameLogEventType, TData = unknown>(
-    params: Omit<GameLogEvent<TType, TData>, "id" | "seq" | "ts">
+    params: Omit<GameLogEvent<TType, TData>, "id" | "seq" | "ts">,
+    gameState?: any
   ): void {
+    const shouldSnapshot =
+      this.snapshotOnMajorEvents && gameState && this.isMajorEvent(params.type);
+
     const event: GameLogEvent<TType, TData> = {
       id: generateUUID(),
       seq: this.sequence++,
       ts: Date.now(),
       ...params,
+      ...(shouldSnapshot && { stateSnapshot: this.createSnapshot(gameState) }),
     };
     this.events.push(event);
+  }
+
+  /**
+   * Check if event type should trigger a state snapshot
+   */
+  private isMajorEvent(type: GameLogEventType): boolean {
+    return [
+      "TURN_START",
+      "PHASE_CHANGE",
+      "CARD_PLAYED",
+      "ATTACK_DECLARED",
+      "CARD_DESTROYED",
+      "GAME_END",
+    ].includes(type);
   }
 
   /**
    * Convenience methods for common events
    */
 
-  gameStart(turn: number, startingPlayer: PlayerId): void {
-    this.log({
-      turn,
-      phase: "DRAW",
-      actor: startingPlayer,
-      type: "GAME_START",
-      message: `Turn ${turn} begins - ${
-        startingPlayer === 0 ? "Player 1" : "Player 2"
-      }'s turn`,
-      severity: "INFO",
-    });
-  }
-
-  turnStart(turn: number, activePlayer: PlayerId, playerName: string): void {
-    this.log({
-      turn,
-      phase: "DRAW",
-      actor: activePlayer,
-      type: "TURN_START",
-      message: `Turn ${turn} - ${playerName}'s turn`,
-      severity: "INFO",
-      entities: {
-        players: [activePlayer],
+  gameStart(turn: number, startingPlayer: PlayerId, gameState?: any): void {
+    this.log(
+      {
+        turn,
+        phase: "DRAW",
+        actor: startingPlayer,
+        type: "GAME_START",
+        message: `Turn ${turn} begins - ${
+          startingPlayer === 0 ? "Player 1" : "Player 2"
+        }'s turn`,
+        severity: "INFO",
       },
-    });
+      gameState
+    );
   }
 
-  phaseChange(turn: number, phase: Phase, message: string): void {
-    this.log({
-      turn,
-      phase,
-      type: "PHASE_CHANGE",
-      message,
-      severity: "INFO",
-    });
+  turnStart(
+    turn: number,
+    activePlayer: PlayerId,
+    playerName: string,
+    gameState?: any
+  ): void {
+    this.log(
+      {
+        turn,
+        phase: "DRAW",
+        actor: activePlayer,
+        type: "TURN_START",
+        message: `Turn ${turn} - ${playerName}'s turn`,
+        severity: "INFO",
+        entities: {
+          players: [activePlayer],
+        },
+      },
+      gameState
+    );
+  }
+
+  phaseChange(
+    turn: number,
+    phase: Phase,
+    message: string,
+    gameState?: any
+  ): void {
+    this.log(
+      {
+        turn,
+        phase,
+        type: "PHASE_CHANGE",
+        message,
+        severity: "INFO",
+      },
+      gameState
+    );
   }
 
   cardDrawn(
@@ -242,25 +429,30 @@ export class GameLogger {
     playerName: string,
     cardId: string,
     cardName: string,
-    deckRemaining: number
+    deckRemaining: number,
+    gameState?: any
   ): void {
-    this.log<"CARD_DRAWN", CardDrawnData>({
-      turn,
-      phase,
-      actor: player,
-      type: "CARD_DRAWN",
-      message: `${playerName} drew ${cardName}`,
-      severity: "INFO",
-      entities: {
-        players: [player],
-        cards: [{ id: cardId, name: cardName }],
+    this.log<"CARD_DRAWN", CardDrawnData>(
+      {
+        turn,
+        phase,
+        actor: player,
+        type: "CARD_DRAWN",
+        message: `${playerName} drew ${cardName}`,
+        severity: "INFO",
+        entities: {
+          players: [player],
+          cards: [{ id: cardId, name: cardName }],
+        },
+        data: {
+          cardId,
+          cardName,
+          deckRemaining,
+        },
+        reversible: false, // Drawing cards is not reversible
       },
-      data: {
-        cardId,
-        cardName,
-        deckRemaining,
-      },
-    });
+      gameState
+    );
   }
 
   cardPlayed(
@@ -274,7 +466,8 @@ export class GameLogger {
       slot?: number;
       faceDown?: boolean;
       mode?: "ATTACK" | "DEFENSE";
-    }
+    },
+    gameState?: any
   ): void {
     const { lane, slot, faceDown, mode } = options;
     let message = `${playerName} played ${card.name}`;

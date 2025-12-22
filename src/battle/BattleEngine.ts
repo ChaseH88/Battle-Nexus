@@ -67,7 +67,8 @@ export class BattleEngine {
       player.id,
       topCard.id,
       topCard.name,
-      player.deck.length
+      player.deck.length,
+      this.state // Pass state for snapshot
     );
 
     // Mark that player has drawn this turn
@@ -76,7 +77,12 @@ export class BattleEngine {
     // Automatically move to main phase after drawing
     if (this.state.phase === "DRAW") {
       this.state.phase = "MAIN";
-      this.logger.phaseChange(this.state.turn, "MAIN", "Main Phase begins");
+      this.logger.phaseChange(
+        this.state.turn,
+        "MAIN",
+        "Main Phase begins",
+        this.state // Pass state for snapshot
+      );
     }
 
     resolveEffectsForCard({
@@ -120,7 +126,8 @@ export class BattleEngine {
       playerIndex as 0 | 1,
       player.id,
       { id: card.id, name: card.name, type: "Creature" },
-      { lane, faceDown, mode }
+      { lane, faceDown, mode },
+      this.state // Pass state for snapshot
     );
 
     // Apply any persistent active effects (supports/global buffs) to this creature
