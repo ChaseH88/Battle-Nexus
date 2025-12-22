@@ -5,6 +5,7 @@ import { Card } from "../Card";
 
 export interface CreatureZoneProps {
   player: PlayerState;
+  currentPlayerState?: PlayerState; // To check attacker mode when displaying opponent board
   selectedHandCard?: string | null;
   selectedAttacker?: number | null;
   isOpponent?: boolean;
@@ -18,6 +19,7 @@ export interface CreatureZoneProps {
 
 export const CreatureZone = ({
   player,
+  currentPlayerState,
   selectedHandCard,
   selectedAttacker,
   isOpponent = false,
@@ -46,18 +48,53 @@ export const CreatureZone = ({
             selectedHandCard={selectedHandCard}
           />
 
-          {/* Opponent attack buttons */}
-          {isOpponent && selectedAttacker !== null && onAttack && (
-            <button
-              className="attack-here"
-              onClick={() => onAttack(i)}
-              disabled={isFirstTurn}
-            >
-              {isFirstTurn
-                ? "Cannot Attack (Turn 1)"
-                : `Attack ${card ? "Creature" : "Directly"}`}
-            </button>
-          )}
+          {/* Opponent attack buttons - only show for creatures or first empty lane */}
+          {isOpponent &&
+            typeof selectedAttacker === "number" &&
+            onAttack &&
+            currentPlayerState &&
+            (() => {
+              // Check if the selected attacker is in defense mode
+              const attackerCard = currentPlayerState.lanes[
+                selectedAttacker
+              ] as CreatureCard | null;
+              const isDefenseMode = attackerCard?.mode === "DEFENSE";
+
+              // Don't show attack button if attacker is in defense mode
+              if (isDefenseMode) return null;
+
+              // Check if opponent has any creatures
+              const opponentHasCreatures = player.lanes.some((c) => c !== null);
+
+              // If this lane has a creature, always show attack button
+              if (card) {
+                return (
+                  <button
+                    className="attack-here"
+                    onClick={() => onAttack(i)}
+                    disabled={isFirstTurn}
+                  >
+                    {isFirstTurn ? "Cannot Attack (Turn 1)" : "Attack Creature"}
+                  </button>
+                );
+              }
+
+              // For empty lanes: only show "Attack Directly" if opponent has NO creatures
+              // AND this is the first empty lane (to avoid multiple direct attack buttons)
+              if (!opponentHasCreatures && i === 0) {
+                return (
+                  <button
+                    className="attack-here attack-direct"
+                    onClick={() => onAttack(i)}
+                    disabled={isFirstTurn}
+                  >
+                    {isFirstTurn ? "Cannot Attack (Turn 1)" : "Attack Directly"}
+                  </button>
+                );
+              }
+
+              return null;
+            })()}
 
           {/* Current player creature controls */}
           {!isOpponent && card && card.type === CardType.Creature && (

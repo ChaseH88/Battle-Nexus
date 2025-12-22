@@ -2,6 +2,7 @@ import { styled } from "@mui/material/styles";
 import { Box, Typography } from "@mui/material";
 
 export const GameLogContainer = styled(Box)(({ theme }) => ({
+  position: "relative",
   background:
     "linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%)",
   borderRadius: "16px",

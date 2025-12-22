@@ -423,6 +423,14 @@ export class BattleEngine {
       return;
     }
 
+    // Cannot attack if creature is in defense mode
+    if (attacker.mode === "DEFENSE") {
+      this.log(
+        `${attacker.name} cannot attack while in defense mode! Switch to attack mode first.`
+      );
+      return;
+    }
+
     // Check if creature has already attacked this turn
     if (attacker.hasAttackedThisTurn) {
       this.log(`${attacker.name} has already attacked this turn!`);
@@ -483,74 +491,89 @@ export class BattleEngine {
     }
 
     // lane combat with HP system based on modes
-    // ATTACK MODE vs ATTACK MODE: Both creatures deal damage to each other
-    // ATTACK MODE vs DEFENSE MODE: Attacker deals damage based on ATK - DEF
+    // ATTACK MODE vs ATTACK MODE: Attacker deals full ATK, defender counters with (ATK - attacker's ATK)
+    // ATTACK MODE vs DEFENSE MODE: ATK - DEF damage, but NO counter-attack (safe defense)
 
     if (attacker.mode === "ATTACK" && defender.mode === "ATTACK") {
-      // Both in attack mode - simultaneous damage
-      const damageToDefender = Math.max(0, attacker.atk - defender.atk);
+      // Both in attack mode - attacker gets advantage
+      // Attacker deals full damage, defender only counters with the difference
+      const damageToDefender = attacker.atk;
       const damageToAttacker = Math.max(0, defender.atk - attacker.atk);
 
-      if (damageToDefender > 0) {
-        defender.currentHp -= damageToDefender;
-        this.log(
-          `${attacker.name} (ATK: ${attacker.atk}) vs ${defender.name} (ATK: ${defender.atk}) - ${defender.name} takes ${damageToDefender} damage`
-        );
-        this.log(`${defender.name} HP: ${defender.currentHp}/${defender.hp}`);
-      } else if (damageToDefender === 0) {
-        this.log(
-          `${attacker.name} (ATK: ${attacker.atk}) vs ${defender.name} (ATK: ${defender.atk}) - Equal strength, no damage!`
-        );
-      }
+      this.log(
+        `⚔️ CLASH! ${attacker.name} (ATK: ${attacker.atk}) vs ${defender.name} (ATK: ${defender.atk})`
+      );
 
+      // Attacker deals full damage
+      defender.currentHp -= damageToDefender;
+      this.log(
+        `  → ${attacker.name} strikes first! ${defender.name} takes ${damageToDefender} damage! HP: ${defender.currentHp}/${defender.hp}`
+      );
+
+      // Defender counters only if they have higher ATK
       if (damageToAttacker > 0) {
         attacker.currentHp -= damageToAttacker;
         this.log(
-          `${defender.name} counter-attacks - ${attacker.name} takes ${damageToAttacker} damage`
+          `  → ${defender.name} counters for ${damageToAttacker} damage! ${attacker.name} HP: ${attacker.currentHp}/${attacker.hp}`
         );
-        this.log(`${attacker.name} HP: ${attacker.currentHp}/${attacker.hp}`);
+      } else {
+        this.log(
+          `  → ${defender.name} couldn't counter effectively! ${attacker.name} HP: ${attacker.currentHp}/${attacker.hp}`
+        );
       }
 
       // Check if defender is defeated
       if (defender.currentHp <= 0) {
         opponent.lanes[targetLane] = null;
         opponent.discardPile.push(defender);
-        this.log(`${defender.name} was destroyed!`);
+        this.log(`💀 ${defender.name} was destroyed!`);
         this.registerKO(playerIndex, defender);
       }
 
-      // Check if attacker is defeated
+      // Check if attacker is defeated (only if defender had higher ATK)
       if (attacker.currentHp <= 0) {
         this.state.players[playerIndex].lanes[attackerLane] = null;
         this.state.players[playerIndex].discardPile.push(attacker);
-        this.log(`${attacker.name} was destroyed in the exchange!`);
+        this.log(`💀 ${attacker.name} was destroyed by the counter-attack!`);
         this.registerKO(opponentIndex, attacker);
       }
     } else if (attacker.mode === "ATTACK" && defender.mode === "DEFENSE") {
-      // Attacker vs defender in defense mode - ATK vs DEF
-      const damageToDefender = Math.max(0, attacker.atk - defender.def);
+      // Defender in defense mode - reduces damage and NO counter-attack
+      const rawDamage = attacker.atk;
+      const blockedDamage = defender.def;
+      const damageToDefender = Math.max(0, rawDamage - blockedDamage);
+
+      this.log(
+        `🛡️ DEFENSE! ${attacker.name} (ATK: ${attacker.atk}) attacks ${defender.name} (DEF: ${defender.def})`
+      );
 
       if (damageToDefender > 0) {
         defender.currentHp -= damageToDefender;
         this.log(
-          `${attacker.name} (ATK: ${attacker.atk}) attacked ${defender.name} (DEF: ${defender.def}) for ${damageToDefender} damage`
+          `  → ${defender.name} blocked ${blockedDamage} damage, took ${damageToDefender} damage! HP: ${defender.currentHp}/${defender.hp}`
         );
-        this.log(`${defender.name} HP: ${defender.currentHp}/${defender.hp}`);
 
         // Check if defender is defeated
         if (defender.currentHp <= 0) {
           opponent.lanes[targetLane] = null;
           opponent.discardPile.push(defender);
-          this.log(`${defender.name} was destroyed!`);
+          this.log(`💀 ${defender.name} was destroyed!`);
           this.registerKO(playerIndex, defender);
         }
       } else {
-        // Attacker failed to penetrate defense
+        // Attacker failed to penetrate defense - NO DAMAGE AT ALL
         this.log(
-          `${attacker.name} (ATK: ${attacker.atk}) failed to penetrate ${defender.name}'s defense (DEF: ${defender.def})`
+          `  → ${defender.name}'s defense completely blocked the attack! (blocked ${blockedDamage} damage)`
         );
-        this.log(`${defender.name} blocked the attack!`);
+        this.log(
+          `  → ${attacker.name} dealt no damage and took no counter-damage!`
+        );
       }
+
+      // Key advantage: Attacker takes NO damage when attacking defense mode
+      this.log(
+        `  → ${attacker.name} is safe from counter-attacks! HP: ${attacker.currentHp}/${attacker.hp}`
+      );
     }
   }
 

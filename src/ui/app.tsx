@@ -312,6 +312,12 @@ export default function App() {
     }
     const creature = player1.lanes[lane];
     if (!creature) return;
+
+    // Cannot select creatures in defense mode as attackers
+    if (creature.mode === "DEFENSE") {
+      return;
+    }
+
     dispatch(setSelectedAttacker(lane));
     dispatch(setSelectedHandCard(null));
   };
@@ -406,6 +412,7 @@ export default function App() {
         />
         <PlayerBoard
           player={player2}
+          currentPlayerState={player1}
           koCount={gameState.koCount[1]}
           isOpponent={true}
           isFirstTurn={gameState.turn === 1 && gameState.activePlayer === 0}

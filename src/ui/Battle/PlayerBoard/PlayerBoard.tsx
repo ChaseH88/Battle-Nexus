@@ -21,6 +21,7 @@ interface PlayerBoardProps
       | "onFlipFaceUp"
     > {
   player: PlayerState;
+  currentPlayerState?: PlayerState; // Pass to CreatureZone for checking attacker mode
   koCount: number;
   isOpponent?: boolean;
   isFirstTurn?: boolean;
@@ -30,6 +31,7 @@ interface PlayerBoardProps
 
 export const PlayerBoard = ({
   player,
+  currentPlayerState,
   koCount,
   isOpponent = false,
   isFirstTurn = false,
@@ -68,6 +70,7 @@ export const PlayerBoard = ({
       {isOpponent && SupportZoneComponent}
       <CreatureZone
         player={player}
+        currentPlayerState={currentPlayerState}
         selectedHandCard={selectedHandCard}
         selectedAttacker={selectedAttacker}
         isOpponent={isOpponent}

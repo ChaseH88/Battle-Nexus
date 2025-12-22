@@ -53,8 +53,11 @@ export const Creature = ({
         {affinity}
       </div>
     </div>
-    <div className="card-mode-badge" style={{ fontSize: "10px" }}>
-      {mode}
+    <div
+      className="card-mode-badge"
+      style={{ fontSize: "10px", fontWeight: "bold" }}
+    >
+      {mode === "ATTACK" ? "⚔️ ATTACK" : "🛡️ DEFENSE"}
     </div>
     <div
       style={{
@@ -79,15 +82,21 @@ export const Creature = ({
         fontSize: "10px",
       }}
     >
-      <div className="card-hp">
-        <span className="hp-label">HP:</span>
+      <div
+        className="card-hp"
+        style={{
+          fontWeight: "bold",
+          color: currentHp < hp * 0.3 ? "#ef4444" : "#22c55e",
+        }}
+      >
+        <span className="hp-label">❤️ HP:</span>
         <span className={`hp-value ${currentHp < hp * 0.3 ? "low" : ""}`}>
           {currentHp}/{hp}
         </span>
       </div>
-      <div className="attack">
+      <div className="attack" style={{ opacity: mode === "ATTACK" ? 1 : 0.5 }}>
         <span className={`atk ${isAtkModified ? "modified" : ""}`}>
-          ATK: {atk}
+          ⚔️ ATK: {atk}
           {isAtkModified && <span className="base-stat">({baseAtk})</span>}
           {isAtkModified && (
             <span className="stat-icon" title="Modified">
@@ -96,13 +105,16 @@ export const Creature = ({
           )}
         </span>
       </div>
-      <div className="defense">
+      <div
+        className="defense"
+        style={{ opacity: mode === "DEFENSE" ? 1 : 0.5 }}
+      >
         <span className={`def ${isDefModified ? "modified" : ""}`}>
-          DEF: {def}
+          🛡️ DEF: {def}
           {isDefModified && <span className="base-stat">({baseDef})</span>}
           {isDefModified && (
             <span className="stat-icon" title="Modified">
-              🛡️
+              ⚡
             </span>
           )}
         </span>

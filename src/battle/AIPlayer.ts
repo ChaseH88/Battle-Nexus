@@ -278,56 +278,79 @@ export class AIPlayer {
     const opponent = state.players[this.playerIndex === 0 ? 1 : 0];
     const attacker = player.lanes[attackerLane] as CreatureCard;
 
-    // Skill 1-3: Attack same lane only
-    if (this.skillLevel <= 3) {
-      const target = opponent.lanes[attackerLane];
-      return target ? attackerLane : null;
+    // Check if attacker is in defense mode - cannot attack
+    if (attacker.mode === "DEFENSE") {
+      return null;
     }
 
-    // Skill 4-6: Attack same lane or direct if empty
-    if (this.skillLevel <= 6) {
-      return attackerLane;
-    }
+    // Check if opponent has any creatures at all
+    const opponentCreatures = opponent.lanes.filter((c) => c !== null);
+    const hasOpponentCreatures = opponentCreatures.length > 0;
 
-    // Skill 7-10: Analyze all possible targets
-    const possibleTargets: { lane: number; score: number }[] = [];
-
-    for (let i = 0; i < opponent.lanes.length; i++) {
-      const target = opponent.lanes[i] as CreatureCard | null;
-      let score = 0;
-
-      if (target) {
-        // Can we destroy it?
-        if (attacker.atk - target.def >= target.currentHp) score += 5;
-        // Can we damage it safely?
-        if (attacker.atk > target.def && target.atk <= attacker.def) score += 3;
-        // Target low HP creatures
-        score += (1000 - target.currentHp) / 200;
-        // Avoid suicidal attacks
-        if (target.atk - attacker.def >= attacker.currentHp) score -= 4;
-      } else {
-        // Direct attack = KO point
-        score += 6;
+    // If opponent has creatures, we MUST attack a creature (cannot attack empty lanes)
+    if (hasOpponentCreatures) {
+      // Skill 1-3: Attack same lane if it has a creature
+      if (this.skillLevel <= 3) {
+        const target = opponent.lanes[attackerLane];
+        return target ? attackerLane : null;
       }
 
-      possibleTargets.push({ lane: i, score });
+      // Skill 4-6: Attack any creature lane (prefer same lane)
+      if (this.skillLevel <= 6) {
+        const target = opponent.lanes[attackerLane];
+        if (target) return attackerLane;
+
+        // Find first lane with a creature
+        const firstCreatureLane = opponent.lanes.findIndex((c) => c !== null);
+        return firstCreatureLane !== -1 ? firstCreatureLane : null;
+      }
+
+      // Skill 7-10: Analyze all creature targets intelligently
+      const possibleTargets: { lane: number; score: number }[] = [];
+
+      for (let i = 0; i < opponent.lanes.length; i++) {
+        const target = opponent.lanes[i] as CreatureCard | null;
+        if (!target) continue; // Skip empty lanes when opponent has creatures
+
+        let score = 0;
+
+        // Can we destroy it?
+        if (attacker.mode === "ATTACK" && target.mode === "ATTACK") {
+          if (attacker.atk >= target.currentHp) score += 5;
+        } else if (attacker.mode === "ATTACK" && target.mode === "DEFENSE") {
+          if (attacker.atk - target.def >= target.currentHp) score += 5;
+        }
+
+        // Target low HP creatures
+        score += (1000 - target.currentHp) / 200;
+
+        // Avoid suicidal attacks (taking too much counter damage)
+        if (target.mode === "ATTACK" && target.atk > attacker.atk) {
+          const counterDamage = target.atk - attacker.atk;
+          if (counterDamage >= attacker.currentHp) score -= 4;
+        }
+
+        possibleTargets.push({ lane: i, score });
+      }
+
+      possibleTargets.sort((a, b) => b.score - a.score);
+
+      // Skill 9-10: Choose best target
+      if (this.skillLevel >= 9 && possibleTargets[0]) {
+        return possibleTargets[0].lane;
+      }
+
+      // Skill 7-8: Choose from top 2 targets
+      const topTargets = possibleTargets.slice(0, 2);
+      if (topTargets.length > 0) {
+        return topTargets[Math.floor(Math.random() * topTargets.length)].lane;
+      }
+
+      return null;
     }
 
-    possibleTargets.sort((a, b) => b.score - a.score);
-
-    // Skill 9-10: Choose best target
-    if (this.skillLevel >= 9 && possibleTargets[0].score > 0) {
-      return possibleTargets[0].lane;
-    }
-
-    // Skill 7-8: Choose from top 2 targets
-    const topTargets = possibleTargets.filter((t) => t.score > 0).slice(0, 2);
-    if (topTargets.length > 0) {
-      return topTargets[Math.floor(Math.random() * topTargets.length)].lane;
-    }
-
-    // Default: attack same lane if any target available
-    return attackerLane;
+    // Opponent has NO creatures - direct attack for KO point (any lane works, use lane 0)
+    return 0;
   }
 
   /**
