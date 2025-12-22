@@ -80,8 +80,8 @@
   },
 
   {
-    "id": "heal_on_combat_ko",
-    "name": "Victory Renewal",
+    "id": "draw_two_on_combat_ko",
+    "name": "Desperate Measures",
     "timing": "NORMAL",
     "trigger": "ON_DESTROY",
     "actions": [

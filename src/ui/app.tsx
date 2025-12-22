@@ -26,6 +26,7 @@ import {
   setSelectedHandCard,
   setSelectedAttacker,
 } from "../store/uiSlice";
+import backgroundImage from "../assets/background.png";
 
 function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
@@ -294,99 +295,125 @@ export default function App() {
   };
 
   return (
-    <div className="game-container">
-      <GameHeader
-        isGameOver={isGameOver}
-        winnerName={game.players[game.winnerIndex!]?.id || ""}
-        turn={game.turn}
-        currentPlayerName={currentPlayer.id}
-        phase={game.phase}
-        onNewGame={startNewGame}
-      />
-
-      <ActiveEffects
-        activeEffects={game.activeEffects}
-        players={game.players}
-      />
-
-      <AIControls
-        aiSkillLevel={aiSkillLevel}
-        onSkillChange={handleSkillChange}
-      />
-
-      <PlayerBoard
-        player={opponent}
-        koCount={game.koCount[game.activePlayer === 0 ? 1 : 0]}
-        isOpponent={true}
-        isFirstTurn={game.turn === 1 && game.activePlayer === 0}
-        selectedAttacker={selectedAttacker}
-        onAttack={handleAttack}
-      />
-
-      <PlayerBoard
-        player={currentPlayer}
-        koCount={game.koCount[game.activePlayer]}
-        isOpponent={false}
-        isFirstTurn={game.turn === 1 && game.activePlayer === 0}
-        selectedHandCard={selectedHandCard}
-        selectedAttacker={selectedAttacker}
-        onPlayCreature={handlePlayCreatureClick}
-        onPlaySupport={handlePlaySupport}
-        onActivateSupport={handleActivateSupport}
-        onSelectAttacker={handleSelectAttacker}
-        onToggleMode={handleToggleMode}
-        onFlipFaceUp={handleFlipFaceUp}
-      />
-
-      <Hand
-        hand={currentPlayer.hand}
-        selectedHandCard={selectedHandCard}
-        onSelectCard={(id) => dispatch(setSelectedHandCard(id))}
-      />
-
-      <Controls
-        phase={game.phase}
-        isGameOver={isGameOver}
-        handleDraw={handleDraw}
-        handleEndTurn={handleEndTurn}
-        startNewGame={startNewGame}
-      />
-
-      <GameLog log={game.log} />
-
-      <PlayCreatureModal
-        isOpen={playCreatureModal.isOpen}
-        creatureName={playCreatureModal.creatureName || ""}
-        onPlayFaceUpAttack={() => {
-          if (playCreatureModal.isOpen) {
-            handlePlayCreature(playCreatureModal.lane!, false, "ATTACK");
-          }
+    <div
+      style={{
+        position: "relative",
+      }}
+    >
+      <div
+        className="background"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: -1,
         }}
-        onPlayFaceUpDefense={() => {
-          if (playCreatureModal.isOpen) {
-            handlePlayCreature(playCreatureModal.lane!, false, "DEFENSE");
-          }
-        }}
-        onPlayFaceDownAttack={() => {
-          if (playCreatureModal.isOpen) {
-            handlePlayCreature(playCreatureModal.lane!, true, "ATTACK");
-          }
-        }}
-        onPlayFaceDownDefense={() => {
-          if (playCreatureModal.isOpen) {
-            handlePlayCreature(playCreatureModal.lane!, true, "DEFENSE");
-          }
-        }}
-        onCancel={() => dispatch(closePlayCreatureModal())}
-      />
+      >
+        <img
+          src={backgroundImage}
+          style={{
+            width: "100vw",
+            height: "100vh",
+            minHeight: 1000,
+          }}
+        />
+      </div>
+      <div className="game-container">
+        <GameHeader
+          isGameOver={isGameOver}
+          winnerName={game.players[game.winnerIndex!]?.id || ""}
+          turn={game.turn}
+          currentPlayerName={currentPlayer.id}
+          phase={game.phase}
+          onNewGame={startNewGame}
+        />
 
-      <Modal
-        isOpen={modal.isOpen}
-        title={modal.title || ""}
-        message={modal.message || ""}
-        onConfirm={modal.onConfirm || (() => {})}
-        onCancel={() => dispatch(closeModal())}
-      />
+        <ActiveEffects
+          activeEffects={game.activeEffects}
+          players={game.players}
+        />
+
+        <AIControls
+          aiSkillLevel={aiSkillLevel}
+          onSkillChange={handleSkillChange}
+        />
+
+        <PlayerBoard
+          player={opponent}
+          koCount={game.koCount[game.activePlayer === 0 ? 1 : 0]}
+          isOpponent={true}
+          isFirstTurn={game.turn === 1 && game.activePlayer === 0}
+          selectedAttacker={selectedAttacker}
+          onAttack={handleAttack}
+        />
+
+        <PlayerBoard
+          player={currentPlayer}
+          koCount={game.koCount[game.activePlayer]}
+          isOpponent={false}
+          isFirstTurn={game.turn === 1 && game.activePlayer === 0}
+          selectedHandCard={selectedHandCard}
+          selectedAttacker={selectedAttacker}
+          onPlayCreature={handlePlayCreatureClick}
+          onPlaySupport={handlePlaySupport}
+          onActivateSupport={handleActivateSupport}
+          onSelectAttacker={handleSelectAttacker}
+          onToggleMode={handleToggleMode}
+          onFlipFaceUp={handleFlipFaceUp}
+        />
+
+        <Hand
+          hand={currentPlayer.hand}
+          selectedHandCard={selectedHandCard}
+          onSelectCard={(id) => dispatch(setSelectedHandCard(id))}
+        />
+
+        <Controls
+          phase={game.phase}
+          isGameOver={isGameOver}
+          handleDraw={handleDraw}
+          handleEndTurn={handleEndTurn}
+          startNewGame={startNewGame}
+        />
+
+        <GameLog log={game.log} />
+
+        <PlayCreatureModal
+          isOpen={playCreatureModal.isOpen}
+          creatureName={playCreatureModal.creatureName || ""}
+          onPlayFaceUpAttack={() => {
+            if (playCreatureModal.isOpen) {
+              handlePlayCreature(playCreatureModal.lane!, false, "ATTACK");
+            }
+          }}
+          onPlayFaceUpDefense={() => {
+            if (playCreatureModal.isOpen) {
+              handlePlayCreature(playCreatureModal.lane!, false, "DEFENSE");
+            }
+          }}
+          onPlayFaceDownAttack={() => {
+            if (playCreatureModal.isOpen) {
+              handlePlayCreature(playCreatureModal.lane!, true, "ATTACK");
+            }
+          }}
+          onPlayFaceDownDefense={() => {
+            if (playCreatureModal.isOpen) {
+              handlePlayCreature(playCreatureModal.lane!, true, "DEFENSE");
+            }
+          }}
+          onCancel={() => dispatch(closePlayCreatureModal())}
+        />
+
+        <Modal
+          isOpen={modal.isOpen}
+          title={modal.title || ""}
+          message={modal.message || ""}
+          onConfirm={modal.onConfirm || (() => {})}
+          onCancel={() => dispatch(closeModal())}
+        />
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { GameState } from "../battle/GameState";
-import { effectsRegistry } from "./effects";
+import { effectsRegistry } from "./registry";
 import { EffectDefinition } from "./types";
 import { CardInterface } from "../cards";
 import { BattleEngine } from "../battle/BattleEngine";

@@ -7,6 +7,8 @@ import {
   TurnInfo,
   PhaseIndicator,
 } from "./styled";
+import logo from "../../../assets/battle-nexus.png";
+import { Box } from "@mui/material";
 
 interface GameHeaderProps {
   isGameOver: boolean;
@@ -26,7 +28,13 @@ export const GameHeader = ({
   onNewGame,
 }: GameHeaderProps) => (
   <GameHeaderContainer>
-    <GameTitle variant="h1">Battle Nexus</GameTitle>
+    <Box mb={2}>
+      <img
+        src={logo}
+        alt="Battle Nexus Logo"
+        style={{ height: 100, border: "1px solid #ffffff30" }}
+      />
+    </Box>
     {isGameOver ? (
       <GameOverBox>
         <GameOverTitle variant="h2">

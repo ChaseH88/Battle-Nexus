@@ -1,6 +1,12 @@
 import { GameState } from "../battle/GameState";
 import { CardInterface, CardType, CreatureCard } from "../cards";
 import { BattleEngine } from "../battle/BattleEngine";
+import { fire_atk_boost_aura } from "./effect/fire_atk_boost_aura";
+import { global_fire_buff } from "./effect/global_fire_buff";
+import { draw_on_play } from "./effect/draw_on_play";
+import { ignite_direct_damage } from "./effect/ignite_direct_damage";
+import { conditional_fire_bonus } from "./effect/conditional_fire_bonus";
+import { draw_two_on_combat_ko } from "./effect/draw_two_on_combat_ko";
 
 /**
  * Effect Context - provides access to all game state and utility functions
@@ -217,87 +223,12 @@ export type EffectHandler = (context: EffectContext) => void;
  * Each effect ID can have a custom handler function that executes custom logic
  */
 export const effectHandlers: Record<string, EffectHandler> = {
-  // Fire ATK boost aura - gives +100 ATK to all Fire creatures
-  fire_atk_boost_aura: (ctx) => {
-    const allies = ctx.utils.getAllyCreatures(ctx.ownerIndex);
-    const fireCreatures = ctx.utils.filterByAffinity(allies, "FIRE");
-
-    fireCreatures.forEach((creature) => {
-      ctx.utils.modifyCreatureStats(creature, 100, undefined);
-    });
-
-    // Add as persistent effect with tracking
-    ctx.utils.addActiveEffect(
-      `fire_atk_boost_aura_${ctx.sourceCard.id}`,
-      "Flame Surge",
-      ctx.sourceCard,
-      ctx.ownerIndex,
-      undefined, // permanent
-      "+100 ATK to Fire creatures",
-      fireCreatures.map((c) => c.id),
-      { atk: 100 }
-    );
-  },
-
-  // Global fire buff - Burning Field effect
-  global_fire_buff: (ctx) => {
-    const allies = ctx.utils.getAllyCreatures(ctx.ownerIndex);
-    const fireCreatures = ctx.utils.filterByAffinity(allies, "FIRE");
-
-    fireCreatures.forEach((creature) => {
-      ctx.utils.modifyCreatureStats(creature, 100, undefined);
-    });
-
-    // Add as persistent effect with tracking
-    ctx.utils.addActiveEffect(
-      `global_fire_buff_${ctx.sourceCard.id}`,
-      "Burning Field",
-      ctx.sourceCard,
-      ctx.ownerIndex,
-      undefined, // permanent while card is active
-      "+100 ATK to Fire creatures",
-      fireCreatures.map((c) => c.id),
-      { atk: 100 }
-    );
-  },
-
-  // Draw cards effect
-  draw_on_play: (ctx) => {
-    ctx.utils.drawCards(ctx.ownerIndex, 1);
-  },
-
-  // Direct damage to opponent
-  ignite_direct_damage: (ctx) => {
-    // Since we don't have player HP, we could implement this differently
-    // For now, just log it
-    ctx.utils.log(`  ${ctx.sourceCard.name} deals 2 direct damage to opponent`);
-  },
-
-  // Conditional fire bonus
-  conditional_fire_bonus: (ctx) => {
-    if (ctx.sourceCard.type === CardType.Creature) {
-      const creature = ctx.sourceCard as unknown as CreatureCard;
-      if (creature.affinity === "FIRE") {
-        ctx.utils.modifyCreatureStats(creature, 200, undefined);
-
-        // Add temporary effect for end of turn
-        ctx.utils.addActiveEffect(
-          `conditional_fire_bonus_${ctx.sourceCard.id}`,
-          "Fire Bonus",
-          ctx.sourceCard,
-          ctx.ownerIndex,
-          1, // 1 turn
-          "+200 ATK (Fire affinity)"
-        );
-      }
-    }
-  },
-
-  // Heal on combat KO - but repurposed as card draw since no player HP
-  heal_on_combat_ko: (ctx) => {
-    ctx.utils.drawCards(ctx.ownerIndex, 1);
-    ctx.utils.log(`  ${ctx.sourceCard.name} triggers: draw 1 card`);
-  },
+  fire_atk_boost_aura,
+  global_fire_buff,
+  draw_on_play,
+  ignite_direct_damage,
+  conditional_fire_bonus,
+  draw_two_on_combat_ko,
 };
 
 /**
