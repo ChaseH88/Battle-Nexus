@@ -37,7 +37,7 @@ export const GameHeader = ({
     </Box>
     {isGameOver ? (
       <GameOverBox>
-        <GameOverTitle variant="h2">
+        <GameOverTitle variant="h2" data-testid="winner-message">
           Game Over! {winnerName} Wins!
         </GameOverTitle>
         <NewGameButton onClick={onNewGame}>New Game</NewGameButton>

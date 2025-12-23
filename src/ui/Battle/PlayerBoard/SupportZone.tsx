@@ -39,7 +39,7 @@ export const SupportZone = ({
     </SupportZoneTitle>
     <SupportSlots>
       {player.support.map((card, i) => (
-        <SupportSlot key={i}>
+        <SupportSlot key={i} data-testid={`support-slot-${i}`}>
           <Card
             card={card}
             onClick={

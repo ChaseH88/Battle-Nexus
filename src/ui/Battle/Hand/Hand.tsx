@@ -27,7 +27,12 @@ export const Hand = ({
       <Box sx={{ opacity: isHovered ? 1 : 1, transition: "opacity 0.3s" }}>
         <HandCards height={305}>
           {hand.map((card) => (
-            <div key={card.id}>
+            <div
+              key={card.id}
+              data-testid="hand-card"
+              data-card-name={card.name}
+              data-card-type={card.type}
+            >
               <Card
                 card={card}
                 onClick={() => onSelectCard(card.id)}

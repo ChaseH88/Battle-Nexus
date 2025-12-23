@@ -40,10 +40,18 @@ export const PlayCreatureModal = ({
         <PlayOptions>
           <PlayOptionGroup>
             <PlayOptionTitle>Face-Up</PlayOptionTitle>
-            <PlayOptionButton mode="attack" onClick={onPlayFaceUpAttack}>
+            <PlayOptionButton
+              mode="attack"
+              data-testid="play-attack-button"
+              onClick={onPlayFaceUpAttack}
+            >
               Attack Mode
             </PlayOptionButton>
-            <PlayOptionButton mode="defense" onClick={onPlayFaceUpDefense}>
+            <PlayOptionButton
+              mode="defense"
+              data-testid="play-defense-button"
+              onClick={onPlayFaceUpDefense}
+            >
               Defense Mode
             </PlayOptionButton>
           </PlayOptionGroup>

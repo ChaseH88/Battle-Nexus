@@ -55,7 +55,7 @@ export const GameLog = ({ log }: GameLogProps) => {
   };
 
   return (
-    <GameLogContainer>
+    <GameLogContainer data-testid="game-log">
       <GameLogTitle>Game Log</GameLogTitle>
       <Box
         position="sticky"

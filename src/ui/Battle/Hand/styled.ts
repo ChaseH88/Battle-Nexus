@@ -11,7 +11,7 @@ export const HandZone = styled(Box)(({ theme }) => ({
   left: "50%",
   width: "100vw",
   transform: "translateX(-50%)",
-  zIndex: 1000,
+  zIndex: 900,
 }));
 
 export const HandTitle = styled(Typography)(({ theme }) => ({

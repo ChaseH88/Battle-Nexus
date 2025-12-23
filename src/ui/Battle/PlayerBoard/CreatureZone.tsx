@@ -36,7 +36,13 @@ export const CreatureZone = ({
     <h4>{isOpponent ? "Creatures" : "Your Creatures"}</h4>
     <div className="lanes">
       {player.lanes.map((card, i) => (
-        <div key={i} className="lane">
+        <div
+          key={i}
+          className="lane"
+          data-testid={
+            isOpponent ? `opponent-creature-lane-${i}` : `creature-lane-${i}`
+          }
+        >
           <div className="lane-label">Lane {i}</div>
           <Card
             card={card}
@@ -76,6 +82,7 @@ export const CreatureZone = ({
                 return (
                   <button
                     className="attack-here"
+                    data-testid={`attack-button-lane-${i}`}
                     onClick={() => onAttack(i)}
                     disabled={isFirstTurn}
                   >
@@ -90,6 +97,7 @@ export const CreatureZone = ({
                 return (
                   <button
                     className="attack-here attack-direct"
+                    data-testid="attack-button"
                     onClick={() => onAttack(i)}
                     disabled={isFirstTurn}
                   >
@@ -137,7 +145,11 @@ export const CreatureZone = ({
                 (c) => c.id === selectedHandCard
               );
               return handCard?.type === CardType.Creature ? (
-                <button className="play-here" onClick={() => onPlayCreature(i)}>
+                <button
+                  className="play-here"
+                  data-testid={`play-creature-lane-${i}`}
+                  onClick={() => onPlayCreature(i)}
+                >
                   Play Here
                 </button>
               ) : null;

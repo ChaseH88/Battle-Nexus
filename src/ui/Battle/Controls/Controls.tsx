@@ -24,6 +24,7 @@ export const Controls = ({
     {isPlayerTurn && (
       <>
         <ControlButton
+          data-testid="draw-button"
           onClick={handleDraw}
           disabled={isGameOver || phase !== "DRAW" || deckSize === 0}
           highlight={phase === "DRAW" && deckSize > 0}
@@ -33,6 +34,7 @@ export const Controls = ({
             : `Draw (${deckSize})`}
         </ControlButton>
         <ControlButton
+          data-testid="end-turn-button"
           onClick={handleEndTurn}
           disabled={isGameOver || phase === "DRAW"}
         >
@@ -40,7 +42,11 @@ export const Controls = ({
         </ControlButton>
       </>
     )}
-    <ControlButton onClick={startNewGame} disabled={!isPlayerTurn}>
+    <ControlButton
+      data-testid="new-game-button"
+      onClick={startNewGame}
+      disabled={!isPlayerTurn}
+    >
       New Game
     </ControlButton>
   </ControlsContainer>

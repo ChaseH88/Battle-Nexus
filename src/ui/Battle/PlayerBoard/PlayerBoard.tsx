@@ -74,7 +74,12 @@ export const PlayerBoard = ({
     <PlayerBoardContainer isopponent={isOpponent ? "true" : "false"}>
       <PlayerInfo>
         <PlayerName variant="h3">{player.id}</PlayerName>
-        <PlayerStat className="kos">KOs: {koCount}/3</PlayerStat>
+        <PlayerStat
+          className="kos"
+          data-testid={isOpponent ? "opponent-ko-count" : "player-ko-count"}
+        >
+          KOs: {koCount}/3
+        </PlayerStat>
         <PlayerStat>Deck: {player.deck.length}</PlayerStat>
         {isOpponent && <PlayerStat>Hand: {player.hand.length}</PlayerStat>}
         <DiscardPile cards={player.discardPile} />
