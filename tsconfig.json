@@ -7,7 +7,27 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@battle": ["src/battle"],
+      "@battle/*": ["src/battle/*"],
+      "@cards": ["src/cards"],
+      "@cards/*": ["src/cards/*"],
+      "@effects": ["src/effects"],
+      "@effects/*": ["src/effects/*"],
+      "@ui": ["src/ui"],
+      "@ui/*": ["src/ui/*"],
+      "@store": ["src/store"],
+      "@store/*": ["src/store/*"],
+      "@hooks": ["src/hooks"],
+      "@hooks/*": ["src/hooks/*"],
+      "@static": ["src/static"],
+      "@static/*": ["src/static/*"],
+      "@assets": ["src/assets"],
+      "@assets/*": ["src/assets/*"]
+    }
   },
   "include": ["src"]
 }

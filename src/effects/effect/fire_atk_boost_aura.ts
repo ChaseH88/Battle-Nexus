@@ -1,4 +1,4 @@
-import { EffectContext } from "../handler";
+import { EffectContext } from "@effects/handler";
 
 /**
  * Effect Handler for Fire ATK Boost Aura

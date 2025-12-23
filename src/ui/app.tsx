@@ -66,7 +66,6 @@ export default function App() {
     gameState,
     currentPlayer,
     opponent,
-    isPlayerTurn,
     isGameOver,
     winner,
     initializeGame,

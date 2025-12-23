@@ -1,4 +1,4 @@
-import { ActionCard } from "../../../cards/ActionCard";
+import { ActionCard } from "@cards/ActionCard";
 
 interface ActionProps
   extends Pick<

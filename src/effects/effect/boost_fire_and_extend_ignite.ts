@@ -1,12 +1,13 @@
-import { EffectContext } from "../handler";
+import { EffectContext } from "@effects/handler";
+import { GameState } from "@battle/GameState";
+import { EffectMetadata } from "@effects/metadata";
+import { Affinity } from "@cards";
 
 /**
- * Effect: Boost a Fire creature and extend Ignite combo
- * - Player can choose a target lane (UI integration). If no lane provided,
- *   auto-targets the allied Fire creature with highest ATK.
- * - Grants +200 ATK and adds the IGNITE keyword while the source card
- *   remains on the field (persistent).
- * - If no valid Fire creatures exist, the effect fails (card will be discarded by engine)
+ * Ignite Burst Effect
+ * Boosts a Fire creature with +200 ATK and grants IGNITE keyword
+ *
+ * Handler function with metadata as static properties
  */
 export const boost_fire_and_extend_ignite = (ctx: EffectContext) => {
   // Prefer explicit player choice if provided via eventData.lane
@@ -66,3 +67,51 @@ export const boost_fire_and_extend_ignite = (ctx: EffectContext) => {
     { atk: 200 }
   );
 };
+
+// Attach metadata as static properties on the function
+boost_fire_and_extend_ignite.metadata = {
+  id: "boost_fire_and_extend_ignite",
+  name: "Ignite Burst",
+  description: "+200 ATK and IGNITE to target Fire creature",
+
+  canActivate: (state: GameState, ownerIndex: 0 | 1) => {
+    const player = state.players[ownerIndex];
+    const fireCreatures = player.lanes.filter(
+      (c) => c !== null && c.affinity === Affinity.Fire
+    );
+
+    return {
+      canActivate: fireCreatures.length > 0,
+      reason:
+        fireCreatures.length > 0
+          ? undefined
+          : "You have no Fire creatures on the field",
+    };
+  },
+
+  targeting: {
+    required: true,
+    targetType: "ALLY_FIRE_CREATURE" as const,
+    description: "Select Fire creature to boost",
+    allowMultiple: false,
+    filter: { affinity: Affinity.Fire },
+  },
+
+  getValidTargets: (state: GameState, ownerIndex: 0 | 1) => {
+    const player = state.players[ownerIndex];
+
+    return player.lanes
+      .map((creature, lane) => ({
+        creature,
+        lane,
+      }))
+      .filter(
+        (item) => item.creature && item.creature.affinity === Affinity.Fire
+      )
+      .map(({ creature, lane }) => ({
+        label: `${creature!.name} (Lane ${lane + 1}) - ${creature!.atk} ATK`,
+        value: lane,
+        metadata: { lane, creature },
+      }));
+  },
+} as EffectMetadata;

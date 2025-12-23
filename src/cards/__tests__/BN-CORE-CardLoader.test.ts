@@ -23,7 +23,7 @@ describe("cards.json loader", () => {
   const instances = (bnCoreCardData as RawCard[]).map(createCardFromJson);
 
   it("loads all cards without error", () => {
-    expect(instances).toHaveLength(9);
+    expect(instances).toHaveLength(12);
   });
 
   it("creates correct class types", () => {

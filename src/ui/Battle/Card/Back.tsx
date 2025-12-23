@@ -1,5 +1,5 @@
 import { CSSProperties, useMemo } from "react";
-import backImage from "../../../assets/card-back.png";
+import backImage from "@/assets/card-back.png";
 
 interface BackProps {
   onClick?: () => void;

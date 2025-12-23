@@ -1,5 +1,5 @@
-import { CardType, CreatureCard } from "../../cards";
-import { EffectContext } from "../handler";
+import { CardType, CreatureCard } from "@cards";
+import { EffectContext } from "@effects/handler";
 
 /**
  * Effect Handler for Conditional Fire Bonus

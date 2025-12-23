@@ -1,4 +1,4 @@
-import { EffectContext } from "../handler";
+import { EffectContext } from "@effects/handler";
 
 /**
  * Effect Handler for Heal on Combat KO

@@ -1,4 +1,4 @@
-import { SupportCard } from "../../../cards/SupportCard";
+import { SupportCard } from "@cards/SupportCard";
 
 interface SupportProps
   extends Pick<

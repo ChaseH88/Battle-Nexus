@@ -1,16 +1,16 @@
-import { CreatureCard } from "../../../cards/CreatureCard";
-import fireAffinity from "../../../assets/fire.png";
-import waterAffinity from "../../../assets/water.png";
-import grassAffinity from "../../../assets/grass.png";
-import lightningAffinity from "../../../assets/lightning.png";
-import iceAffinity from "../../../assets/ice.png";
-import windAffinity from "../../../assets/wind.png";
-import metalAffinity from "../../../assets/metal.png";
-import lightAffinity from "../../../assets/light.png";
-import shadowAffinity from "../../../assets/shadow.png";
-import psychicAffinity from "../../../assets/psychic.png";
+import { CreatureCard } from "@cards/CreatureCard";
+import fireAffinity from "@assets/affinity/fire.png";
+import waterAffinity from "@assets/affinity/water.png";
+import grassAffinity from "@assets/affinity/grass.png";
+import lightningAffinity from "@assets/affinity/lightning.png";
+import iceAffinity from "@assets/affinity/ice.png";
+import windAffinity from "@assets/affinity/wind.png";
+import metalAffinity from "@assets/affinity/metal.png";
+import lightAffinity from "@assets/affinity/light.png";
+import shadowAffinity from "@assets/affinity/shadow.png";
+import psychicAffinity from "@assets/affinity/psychic.png";
 
-import { Affinity } from "../../../cards";
+import { Affinity } from "@cards";
 import { useCallback } from "react";
 
 interface CreatureProps

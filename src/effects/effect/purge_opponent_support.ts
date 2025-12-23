@@ -1,11 +1,12 @@
-import { EffectContext } from "../handler";
-import { Zone } from "../../battle/zones";
+import { EffectContext } from "@effects/handler";
+import { GameState } from "@battle/GameState";
+import { EffectMetadata } from "@effects/metadata";
 
 /**
- * Effect Handler for Purge Beacon
- * - Removes one card from an opponent's support slot.
- * - Prefers explicit target via eventData.targetPlayer and eventData.targetLane (support slot index).
- * - If no explicit target provided, removes the first occupied support slot.
+ * Purge Beacon Effect
+ * Removes one card from opponent's support zone
+ *
+ * Handler function with metadata as static properties
  */
 export const purge_opponent_support = (ctx: EffectContext) => {
   // Determine target player (opponent) - allow explicit override
@@ -54,3 +55,51 @@ export const purge_opponent_support = (ctx: EffectContext) => {
     `  ${card.name} was removed from opponent's support slot ${slotToRemove}`
   );
 };
+
+// Attach metadata as static properties on the function
+purge_opponent_support.metadata = {
+  id: "purge_opponent_support",
+  name: "Purge Beacon",
+  description: "Remove one card from opponent's support zone",
+
+  canActivate: (state: GameState, ownerIndex: 0 | 1) => {
+    const opponentIndex = ownerIndex === 0 ? 1 : 0;
+    const opponent = state.players[opponentIndex];
+    const hasSupport = opponent.support.some((s) => s !== null);
+
+    return {
+      canActivate: hasSupport,
+      reason: hasSupport
+        ? undefined
+        : "Opponent has no support cards to remove",
+    };
+  },
+
+  targeting: {
+    required: true,
+    targetType: "OPPONENT_SUPPORT" as const,
+    description: "Select opponent support card to remove",
+    allowMultiple: false,
+  },
+
+  getValidTargets: (state: GameState, ownerIndex: 0 | 1) => {
+    const opponentIndex = ownerIndex === 0 ? 1 : 0;
+    const opponent = state.players[opponentIndex];
+
+    return opponent.support
+      .map((card, index) => ({
+        label: card
+          ? card.isFaceDown
+            ? `Face-down card in slot ${index + 1}`
+            : card.name
+          : null,
+        value: index,
+        metadata: { slot: index, card },
+      }))
+      .filter((option) => option.label !== null) as Array<{
+      label: string;
+      value: number;
+      metadata: any;
+    }>;
+  },
+} as EffectMetadata;
