@@ -14,6 +14,7 @@ import { PlayerBoard } from "./Battle/PlayerBoard";
 import { Hand } from "./Battle/Hand";
 import { Modal, PlayCreatureModal } from "./Battle/Modal";
 import { TargetSelectModal } from "./Battle/Modal";
+import { CardDetailModal } from "./Battle/Modal/CardDetailModal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   openModal,
@@ -24,6 +25,7 @@ import {
   setSelectedAttacker,
   openTargetSelectModal,
   closeTargetSelectModal,
+  openCardDetailModal,
 } from "../store/uiSlice";
 import backgroundImage from "../assets/background.png";
 import { useBattleEngine } from "../hooks/useBattleEngine";
@@ -367,6 +369,52 @@ export default function App() {
     // Note: AI skill change will take effect on next game
   };
 
+  const handleCreatureDoubleClick = (lane: number, playerIndex: 0 | 1) => {
+    const player = gameState.players[playerIndex];
+    const card = player.lanes[lane];
+    if (!card) return;
+
+    // Get active effects that affect this card
+    const cardEffects = gameState.activeEffects.filter((effect) =>
+      effect.affectedCardIds?.includes(card.id)
+    );
+
+    dispatch(
+      openCardDetailModal({
+        card,
+        activeEffects: cardEffects,
+      })
+    );
+  };
+
+  const handleSupportDoubleClick = (slot: number, playerIndex: 0 | 1) => {
+    const player = gameState.players[playerIndex];
+    const card = player.support[slot];
+    if (!card) return;
+
+    // Get active effects that affect this card
+    const cardEffects = gameState.activeEffects.filter((effect) =>
+      effect.affectedCardIds?.includes(card.id)
+    );
+
+    dispatch(
+      openCardDetailModal({
+        card,
+        activeEffects: cardEffects,
+      })
+    );
+  };
+
+  const handleHandCardDoubleClick = (card: CardInterface) => {
+    // Hand cards don't have active effects on them yet
+    dispatch(
+      openCardDetailModal({
+        card,
+        activeEffects: [],
+      })
+    );
+  };
+
   return (
     <div
       style={{
@@ -418,6 +466,8 @@ export default function App() {
           isFirstTurn={gameState.turn === 1 && gameState.activePlayer === 0}
           selectedAttacker={selectedAttacker}
           onAttack={handleAttack}
+          onCreatureDoubleClick={(lane) => handleCreatureDoubleClick(lane, 1)}
+          onSupportDoubleClick={(slot) => handleSupportDoubleClick(slot, 1)}
         />
         <PlayerBoard
           player={player1}
@@ -432,11 +482,14 @@ export default function App() {
           onSelectAttacker={handleSelectAttacker}
           onToggleMode={handleToggleMode}
           onFlipFaceUp={handleFlipFaceUp}
+          onCreatureDoubleClick={(lane) => handleCreatureDoubleClick(lane, 0)}
+          onSupportDoubleClick={(slot) => handleSupportDoubleClick(slot, 0)}
         />
         <Hand
           hand={player1.hand}
           selectedHandCard={selectedHandCard}
           onSelectCard={(id) => dispatch(setSelectedHandCard(id))}
+          onCardDoubleClick={handleHandCardDoubleClick}
         />
         <Controls
           phase={gameState.phase}
@@ -481,6 +534,7 @@ export default function App() {
           onCancel={() => dispatch(closeModal())}
         />
         <TargetSelectModal />
+        <CardDetailModal />
       </div>
     </div>
   );

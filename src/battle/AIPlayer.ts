@@ -277,11 +277,16 @@ export class AIPlayer {
     const player = state.players[this.playerIndex];
     const opponent = state.players[this.playerIndex === 0 ? 1 : 0];
     const attacker = player.lanes[attackerLane] as CreatureCard;
+    const opponentIndex = this.playerIndex === 0 ? 1 : 0;
 
     // Check if attacker is in defense mode - cannot attack
     if (attacker.mode === "DEFENSE") {
       return null;
     }
+
+    // Check if we're at risk of losing (opponent needs 1 more KO to win)
+    const aiKOs = state.koCount[this.playerIndex];
+    const isAtRiskOfLosing = aiKOs >= 2; // If we have 2 KOs, one more means we lose
 
     // Check if opponent has any creatures at all
     const opponentCreatures = opponent.lanes.filter((c) => c !== null);
@@ -314,34 +319,68 @@ export class AIPlayer {
 
         let score = 0;
 
-        // Can we destroy it?
+        // Calculate if we would destroy the target
+        let wouldDestroyTarget = false;
         if (attacker.mode === "ATTACK" && target.mode === "ATTACK") {
-          if (attacker.atk >= target.currentHp) score += 5;
+          wouldDestroyTarget = attacker.atk >= target.currentHp;
+          if (wouldDestroyTarget) score += 5;
         } else if (attacker.mode === "ATTACK" && target.mode === "DEFENSE") {
-          if (attacker.atk - target.def >= target.currentHp) score += 5;
+          const damageDealt = Math.max(0, attacker.atk - target.def);
+          wouldDestroyTarget = damageDealt >= target.currentHp;
+          if (wouldDestroyTarget) score += 5;
+        }
+
+        // Calculate if we would be destroyed in return
+        let wouldBeDestroyed = false;
+        if (target.mode === "ATTACK") {
+          const counterDamage = Math.max(0, target.atk - attacker.atk);
+          wouldBeDestroyed = counterDamage >= attacker.currentHp;
+        }
+
+        // CRITICAL: If we're at risk of losing (2 KOs), NEVER make an attack where we would be destroyed
+        // unless we can guarantee destroying the target and it would give us a winning position
+        if (isAtRiskOfLosing && wouldBeDestroyed) {
+          // Only acceptable if we destroy them AND they're also at 2 KOs (mutual destruction = draw/stalemate)
+          // OR if destroying this creature would give us a winning advantage
+          const opponentKOs = state.koCount[opponentIndex];
+          const isOpponentAlsoAtRisk = opponentKOs >= 2;
+
+          if (!wouldDestroyTarget || !isOpponentAlsoAtRisk) {
+            // This attack would lose us the game - absolutely avoid it
+            score -= 1000; // Massive penalty
+          }
+        } else {
+          // Normal case: avoid suicidal attacks (but not as critical)
+          if (wouldBeDestroyed) {
+            score -= 4;
+          }
         }
 
         // Target low HP creatures
         score += (1000 - target.currentHp) / 200;
-
-        // Avoid suicidal attacks (taking too much counter damage)
-        if (target.mode === "ATTACK" && target.atk > attacker.atk) {
-          const counterDamage = target.atk - attacker.atk;
-          if (counterDamage >= attacker.currentHp) score -= 4;
-        }
 
         possibleTargets.push({ lane: i, score });
       }
 
       possibleTargets.sort((a, b) => b.score - a.score);
 
+      // If we're at risk of losing, filter out any targets with extremely negative scores (losing moves)
+      const viableTargets = isAtRiskOfLosing
+        ? possibleTargets.filter((t) => t.score > -500)
+        : possibleTargets;
+
+      // If no viable targets exist (all would lose the game), don't attack
+      if (viableTargets.length === 0) {
+        return null;
+      }
+
       // Skill 9-10: Choose best target
-      if (this.skillLevel >= 9 && possibleTargets[0]) {
-        return possibleTargets[0].lane;
+      if (this.skillLevel >= 9 && viableTargets[0]) {
+        return viableTargets[0].lane;
       }
 
       // Skill 7-8: Choose from top 2 targets
-      const topTargets = possibleTargets.slice(0, 2);
+      const topTargets = viableTargets.slice(0, 2);
       if (topTargets.length > 0) {
         return topTargets[Math.floor(Math.random() * topTargets.length)].lane;
       }

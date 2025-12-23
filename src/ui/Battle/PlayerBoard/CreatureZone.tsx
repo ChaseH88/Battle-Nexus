@@ -15,6 +15,7 @@ export interface CreatureZoneProps {
   onAttack?: (targetLane: number) => void;
   onToggleMode?: (lane: number) => void;
   onFlipFaceUp?: (lane: number) => void;
+  onCardDoubleClick?: (lane: number) => void;
 }
 
 export const CreatureZone = ({
@@ -29,6 +30,7 @@ export const CreatureZone = ({
   onAttack,
   onToggleMode,
   onFlipFaceUp,
+  onCardDoubleClick,
 }: CreatureZoneProps) => (
   <div className="creature-zone">
     <h4>{isOpponent ? "Creatures" : "Your Creatures"}</h4>
@@ -42,6 +44,9 @@ export const CreatureZone = ({
               !isOpponent && card && !isFirstTurn && onSelectAttacker
                 ? () => onSelectAttacker(i)
                 : undefined
+            }
+            onDoubleClick={
+              card && onCardDoubleClick ? () => onCardDoubleClick(i) : undefined
             }
             isSelected={!isOpponent && selectedAttacker === i}
             showFaceDown={isOpponent}

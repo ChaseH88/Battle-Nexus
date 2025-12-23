@@ -1,10 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { CardInterface } from "../cards/types";
+import { ActiveEffect } from "../battle/GameState";
 
 interface ModalState {
   isOpen: boolean;
   title: string;
   message: string;
   onConfirm?: () => void;
+}
+
+interface CardDetailModalState {
+  isOpen: boolean;
+  card: CardInterface | null;
+  activeEffects: ActiveEffect[];
 }
 
 interface PlayCreatureModalState {
@@ -32,6 +40,7 @@ interface UIState {
   selectedHandCard: string | null;
   selectedAttacker: number | null;
   targetSelectModal: TargetSelectModalState;
+  cardDetailModal: CardDetailModalState;
 }
 
 const initialState: UIState = {
@@ -52,6 +61,11 @@ const initialState: UIState = {
     message: "",
     options: [],
     onConfirm: undefined,
+  },
+  cardDetailModal: {
+    isOpen: false,
+    card: null,
+    activeEffects: [],
   },
   selectedHandCard: null,
   selectedAttacker: null,
@@ -94,6 +108,22 @@ export const uiSlice = createSlice({
     setSelectedAttacker: (state, action: PayloadAction<number | null>) => {
       state.selectedAttacker = action.payload;
     },
+    openCardDetailModal: (
+      state,
+      action: PayloadAction<{
+        card: CardInterface;
+        activeEffects: ActiveEffect[];
+      }>
+    ) => {
+      state.cardDetailModal = {
+        isOpen: true,
+        card: action.payload.card,
+        activeEffects: action.payload.activeEffects,
+      };
+    },
+    closeCardDetailModal: (state) => {
+      state.cardDetailModal = initialState.cardDetailModal;
+    },
   },
 });
 
@@ -106,6 +136,8 @@ export const {
   setSelectedAttacker,
   openTargetSelectModal,
   closeTargetSelectModal,
+  openCardDetailModal,
+  closeCardDetailModal,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

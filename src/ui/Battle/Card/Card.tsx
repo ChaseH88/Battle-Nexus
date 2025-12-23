@@ -10,6 +10,7 @@ import { CreatureCard } from "../../../cards";
 interface CardProps {
   card: CardInterface | null;
   onClick?: () => void;
+  onDoubleClick?: () => void;
   isSelected?: boolean;
   showFaceDown?: boolean;
   selectedHandCard?: string | null;
@@ -18,6 +19,7 @@ interface CardProps {
 export const Card = ({
   card,
   onClick,
+  onDoubleClick,
   isSelected,
   showFaceDown,
   selectedHandCard,
@@ -64,6 +66,7 @@ export const Card = ({
         (support || action) && (support || action)!.isActive ? "active" : ""
       }`}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
       style={{ width: 160, height: 253, display: "inline-block" }}
     >
       {creature && (

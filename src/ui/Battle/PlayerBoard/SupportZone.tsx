@@ -22,6 +22,7 @@ export interface SupportZoneProps {
   onActivateSupport?: (slot: number) => void;
   onPlaySupport?: (slot: number) => void;
   isOpponent?: boolean;
+  onCardDoubleClick?: (slot: number) => void;
 }
 
 export const SupportZone = ({
@@ -30,6 +31,7 @@ export const SupportZone = ({
   onActivateSupport,
   onPlaySupport,
   isOpponent = false,
+  onCardDoubleClick,
 }: SupportZoneProps) => (
   <SupportZoneContainer>
     <SupportZoneTitle>
@@ -54,6 +56,9 @@ export const SupportZone = ({
                     }
                   }
                 : undefined
+            }
+            onDoubleClick={
+              card && onCardDoubleClick ? () => onCardDoubleClick(i) : undefined
             }
             showFaceDown={isOpponent}
           />

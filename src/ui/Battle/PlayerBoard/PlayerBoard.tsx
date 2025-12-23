@@ -27,6 +27,8 @@ interface PlayerBoardProps
   isFirstTurn?: boolean;
   selectedHandCard?: string | null;
   selectedAttacker?: number | null;
+  onCreatureDoubleClick?: (lane: number) => void;
+  onSupportDoubleClick?: (slot: number) => void;
 }
 
 export const PlayerBoard = ({
@@ -44,6 +46,8 @@ export const PlayerBoard = ({
   onAttack,
   onToggleMode,
   onFlipFaceUp,
+  onCreatureDoubleClick,
+  onSupportDoubleClick,
 }: PlayerBoardProps) => {
   const SupportZoneComponent = useMemo(
     () => (
@@ -53,9 +57,17 @@ export const PlayerBoard = ({
         onActivateSupport={onActivateSupport}
         onPlaySupport={onPlaySupport}
         isOpponent={isOpponent}
+        onCardDoubleClick={onSupportDoubleClick}
       />
     ),
-    [player, selectedHandCard, onActivateSupport, onPlaySupport, isOpponent]
+    [
+      player,
+      selectedHandCard,
+      onActivateSupport,
+      onPlaySupport,
+      isOpponent,
+      onSupportDoubleClick,
+    ]
   );
 
   return (
@@ -80,6 +92,7 @@ export const PlayerBoard = ({
         onAttack={onAttack}
         onToggleMode={onToggleMode}
         onFlipFaceUp={onFlipFaceUp}
+        onCardDoubleClick={onCreatureDoubleClick}
       />
       {!isOpponent && SupportZoneComponent}
     </PlayerBoardContainer>

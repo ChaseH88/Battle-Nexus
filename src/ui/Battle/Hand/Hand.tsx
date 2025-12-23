@@ -6,9 +6,15 @@ interface HandProps {
   hand: CardInterface[];
   selectedHandCard: string | null;
   onSelectCard: (cardId: string) => void;
+  onCardDoubleClick?: (card: CardInterface) => void;
 }
 
-export const Hand = ({ hand, selectedHandCard, onSelectCard }: HandProps) => (
+export const Hand = ({
+  hand,
+  selectedHandCard,
+  onSelectCard,
+  onCardDoubleClick,
+}: HandProps) => (
   <HandZone>
     <HandTitle>Your Hand</HandTitle>
     <HandCards>
@@ -17,6 +23,9 @@ export const Hand = ({ hand, selectedHandCard, onSelectCard }: HandProps) => (
           <Card
             card={card}
             onClick={() => onSelectCard(card.id)}
+            onDoubleClick={
+              onCardDoubleClick ? () => onCardDoubleClick(card) : undefined
+            }
             selectedHandCard={selectedHandCard}
           />
         </div>
