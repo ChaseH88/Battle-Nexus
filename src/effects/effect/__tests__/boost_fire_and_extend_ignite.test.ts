@@ -1,0 +1,258 @@
+import { CardType, ComboKeyword } from "@cards/types";
+import { CreatureCard } from "@cards/CreatureCard";
+import { boost_fire_and_extend_ignite } from "@effects/effect/boost_fire_and_extend_ignite";
+import { createEffectUtils } from "@effects/handler";
+import { createTestGame, drawMany } from "@/__tests__/testUtils";
+
+/**
+ * Boost Fire and Extend Ignite Effect Tests
+ * Tests the boost_fire_and_extend_ignite effect (Ignite Burst)
+ */
+describe("Effect: boost_fire_and_extend_ignite", () => {
+  it("boosts Fire creature ATK by +200", () => {
+    const { p1, p2, game, engine } = createTestGame();
+
+    drawMany(engine, 0, 10);
+
+    const fireCreature = p1.hand.find(
+      (c) =>
+        c.type === CardType.Creature && (c as CreatureCard).affinity === "FIRE"
+    );
+
+    if (fireCreature) {
+      engine.playCreature(0, 0, fireCreature.id);
+      const creature = p1.lanes[0] as CreatureCard;
+      const initialAtk = creature.atk;
+
+      // Execute the effect
+      boost_fire_and_extend_ignite({
+        state: game,
+        engine,
+        sourceCard: fireCreature,
+        ownerIndex: 0,
+        trigger: "ON_PLAY",
+        utils: createEffectUtils(game, engine),
+      });
+
+      // Should have +200 ATK
+      expect(creature.atk).toBe(initialAtk + 200);
+    }
+  });
+
+  it("grants IGNITE keyword if not present", () => {
+    const { p1, p2, game, engine } = createTestGame();
+
+    drawMany(engine, 0, 10);
+
+    const fireCreature = p1.hand.find(
+      (c) =>
+        c.type === CardType.Creature &&
+        (c as CreatureCard).affinity === "FIRE" &&
+        !(c as CreatureCard).keywords.includes(ComboKeyword.Ignite)
+    );
+
+    if (fireCreature) {
+      engine.playCreature(0, 0, fireCreature.id);
+      const creature = p1.lanes[0] as CreatureCard;
+
+      expect(creature.keywords.includes(ComboKeyword.Ignite)).toBe(false);
+
+      // Execute the effect
+      boost_fire_and_extend_ignite({
+        state: game,
+        engine,
+        sourceCard: fireCreature,
+        ownerIndex: 0,
+        trigger: "ON_PLAY",
+        utils: createEffectUtils(game, engine),
+      });
+
+      // Should have IGNITE keyword
+      expect(creature.keywords.includes(ComboKeyword.Ignite)).toBe(true);
+    }
+  });
+
+  it("does not duplicate IGNITE keyword", () => {
+    const { p1, p2, game, engine } = createTestGame();
+
+    drawMany(engine, 0, 10);
+
+    const fireCreature = p1.hand.find(
+      (c) =>
+        c.type === CardType.Creature &&
+        (c as CreatureCard).affinity === "FIRE" &&
+        (c as CreatureCard).keywords.includes(ComboKeyword.Ignite)
+    );
+
+    if (fireCreature) {
+      engine.playCreature(0, 0, fireCreature.id);
+      const creature = p1.lanes[0] as CreatureCard;
+
+      const igniteCount = creature.keywords.filter(
+        (k) => k === ComboKeyword.Ignite
+      ).length;
+
+      // Execute the effect
+      boost_fire_and_extend_ignite({
+        state: game,
+        engine,
+        sourceCard: fireCreature,
+        ownerIndex: 0,
+        trigger: "ON_PLAY",
+        utils: createEffectUtils(game, engine),
+      });
+
+      // Should not add duplicate IGNITE
+      const newIgniteCount = creature.keywords.filter(
+        (k) => k === ComboKeyword.Ignite
+      ).length;
+      expect(newIgniteCount).toBe(igniteCount);
+    }
+  });
+
+  it("targets specific lane when provided in eventData", () => {
+    const { p1, p2, game, engine } = createTestGame();
+
+    drawMany(engine, 0, 15);
+
+    const fireCreatures = p1.hand
+      .filter(
+        (c) =>
+          c.type === CardType.Creature &&
+          (c as CreatureCard).affinity === "FIRE"
+      )
+      .slice(0, 2);
+
+    if (fireCreatures.length >= 2) {
+      engine.playCreature(0, 0, fireCreatures[0].id);
+      engine.playCreature(0, 1, fireCreatures[1].id);
+
+      const creature0 = p1.lanes[0] as CreatureCard;
+      const creature1 = p1.lanes[1] as CreatureCard;
+
+      const atk0 = creature0.atk;
+      const atk1 = creature1.atk;
+
+      // Target lane 1 specifically
+      boost_fire_and_extend_ignite({
+        state: game,
+        engine,
+        sourceCard: fireCreatures[0],
+        ownerIndex: 0,
+        trigger: "ON_PLAY",
+        eventData: { lane: 1 },
+        utils: createEffectUtils(game, engine),
+      });
+
+      // Only creature in lane 1 should be boosted
+      expect(creature0.atk).toBe(atk0);
+      expect(creature1.atk).toBe(atk1 + 200);
+    }
+  });
+
+  it("fails gracefully when no Fire creatures exist", () => {
+    const { p1, p2, game, engine } = createTestGame();
+
+    drawMany(engine, 0, 10);
+
+    const waterCreature = p1.hand.find(
+      (c) =>
+        c.type === CardType.Creature && (c as CreatureCard).affinity === "WATER"
+    );
+
+    if (waterCreature) {
+      engine.playCreature(0, 0, waterCreature.id);
+
+      // Execute effect with no Fire creatures
+      expect(() => {
+        boost_fire_and_extend_ignite({
+          state: game,
+          engine,
+          sourceCard: waterCreature,
+          ownerIndex: 0,
+          trigger: "ON_PLAY",
+          utils: createEffectUtils(game, engine),
+        });
+      }).not.toThrow();
+    }
+  });
+
+  it("targets highest ATK Fire creature when auto-targeting", () => {
+    const { p1, p2, game, engine } = createTestGame();
+
+    drawMany(engine, 0, 15);
+
+    const fireCreatures = p1.hand
+      .filter(
+        (c) =>
+          c.type === CardType.Creature &&
+          (c as CreatureCard).affinity === "FIRE"
+      )
+      .slice(0, 2);
+
+    if (fireCreatures.length >= 2) {
+      engine.playCreature(0, 0, fireCreatures[0].id);
+      engine.playCreature(0, 1, fireCreatures[1].id);
+
+      const creature0 = p1.lanes[0] as CreatureCard;
+      const creature1 = p1.lanes[1] as CreatureCard;
+
+      // Determine which has higher ATK
+      const higherAtkCreature =
+        creature0.atk >= creature1.atk ? creature0 : creature1;
+      const initialAtk = higherAtkCreature.atk;
+
+      // Execute without specifying lane (auto-target)
+      boost_fire_and_extend_ignite({
+        state: game,
+        engine,
+        sourceCard: fireCreatures[0],
+        ownerIndex: 0,
+        trigger: "ON_PLAY",
+        utils: createEffectUtils(game, engine),
+      });
+
+      // Highest ATK creature should be boosted
+      expect(higherAtkCreature.atk).toBe(initialAtk + 200);
+    }
+  });
+
+  it("adds active effect tracking", () => {
+    const { p1, p2, game, engine } = createTestGame();
+
+    drawMany(engine, 0, 10);
+
+    const fireCreature = p1.hand.find(
+      (c) =>
+        c.type === CardType.Creature && (c as CreatureCard).affinity === "FIRE"
+    );
+
+    if (fireCreature) {
+      engine.playCreature(0, 0, fireCreature.id);
+
+      const initialEffectCount = game.activeEffects.length;
+
+      // Execute the effect
+      boost_fire_and_extend_ignite({
+        state: game,
+        engine,
+        sourceCard: fireCreature,
+        ownerIndex: 0,
+        trigger: "ON_PLAY",
+        utils: createEffectUtils(game, engine),
+      });
+
+      // Should have added an active effect
+      expect(game.activeEffects.length).toBeGreaterThan(initialEffectCount);
+    }
+  });
+
+  it("has metadata for activation requirements", () => {
+    expect(boost_fire_and_extend_ignite.metadata).toBeDefined();
+    expect(boost_fire_and_extend_ignite.metadata?.canActivate).toBeDefined();
+    expect(boost_fire_and_extend_ignite.metadata?.targeting).toBeDefined();
+    expect(
+      boost_fire_and_extend_ignite.metadata?.getValidTargets
+    ).toBeDefined();
+  });
+});
