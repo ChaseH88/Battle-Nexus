@@ -16,6 +16,7 @@ export interface CreatureZoneProps {
   onToggleMode?: (lane: number) => void;
   onFlipFaceUp?: (lane: number) => void;
   onCardDoubleClick?: (lane: number) => void;
+  onActivateCreatureEffect?: (lane: number) => void; // New prop for activating creature effects
 }
 
 export const CreatureZone = ({
@@ -31,6 +32,7 @@ export const CreatureZone = ({
   onToggleMode,
   onFlipFaceUp,
   onCardDoubleClick,
+  onActivateCreatureEffect,
 }: CreatureZoneProps) => (
   <div className="creature-zone">
     <h4>{isOpponent ? "Creatures" : "Your Creatures"}</h4>
@@ -47,8 +49,20 @@ export const CreatureZone = ({
           <Card
             card={card}
             onClick={
-              !isOpponent && card && !isFirstTurn && onSelectAttacker
-                ? () => onSelectAttacker(i)
+              !isOpponent && card
+                ? () => {
+                    // Check if creature has activatable effect
+                    const creature = card as CreatureCard;
+                    if (
+                      creature.hasActivatableEffect &&
+                      creature.canActivateEffect &&
+                      onActivateCreatureEffect
+                    ) {
+                      onActivateCreatureEffect(i);
+                    } else if (!isFirstTurn && onSelectAttacker) {
+                      onSelectAttacker(i);
+                    }
+                  }
                 : undefined
             }
             onDoubleClick={
@@ -57,6 +71,12 @@ export const CreatureZone = ({
             isSelected={!isOpponent && selectedAttacker === i}
             showFaceDown={isOpponent}
             selectedHandCard={selectedHandCard}
+            canActivate={
+              !isOpponent &&
+              card !== null &&
+              (card as CreatureCard).hasActivatableEffect &&
+              (card as CreatureCard).canActivateEffect
+            }
           />
 
           {/* Opponent attack buttons - only show for creatures or first empty lane */}

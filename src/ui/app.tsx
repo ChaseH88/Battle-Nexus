@@ -68,6 +68,7 @@ export default function App() {
     playCreature,
     playSupport,
     activateSupport,
+    activateCreatureEffect,
     attack,
     toggleCreatureMode,
     endTurn,
@@ -446,6 +447,11 @@ export default function App() {
           onAttack={handleAttack}
           onCreatureDoubleClick={(lane) => handleCreatureDoubleClick(lane, 1)}
           onSupportDoubleClick={(slot) => handleSupportDoubleClick(slot, 1)}
+          onActivateCreatureEffect={(lane) => {
+            // For opponent board clicks we guard in CreatureZone; still route to engine
+            if (activateCreatureEffect && engine)
+              activateCreatureEffect(1, lane);
+          }}
         />
         <PlayerBoard
           player={player1}
@@ -457,6 +463,10 @@ export default function App() {
           onPlayCreature={handlePlayCreatureClick}
           onPlaySupport={handlePlaySupport}
           onActivateSupport={handleActivateSupport}
+          onActivateCreatureEffect={(lane) => {
+            if (activateCreatureEffect && engine)
+              activateCreatureEffect(0, lane);
+          }}
           onSelectAttacker={handleSelectAttacker}
           onToggleMode={handleToggleMode}
           onFlipFaceUp={handleFlipFaceUp}

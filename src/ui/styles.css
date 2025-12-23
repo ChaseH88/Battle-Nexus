@@ -251,6 +251,28 @@ body {
   }
 }
 
+@keyframes pulseBorder {
+  0%, 100% {
+    border-color: #fbbf24;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+  }
+  50% {
+    border-color: #f59e0b;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.9);
+  }
+}
+
+.card-slot.can-activate {
+  animation: pulseBorder 2s ease-in-out infinite;
+  cursor: pointer;
+}
+
+.card-slot.can-activate:hover {
+  border-color: #fbbf24;
+  box-shadow: 0 0 30px rgba(251, 191, 36, 1);
+  transform: translateY(-8px);
+}
+
 .card-slot.defeated {
   opacity: 0.5;
   filter: grayscale(100%);

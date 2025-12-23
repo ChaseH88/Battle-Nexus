@@ -61,6 +61,13 @@ export const SupportZone = ({
               card && onCardDoubleClick ? () => onCardDoubleClick(i) : undefined
             }
             showFaceDown={isOpponent}
+            canActivate={
+              !isOpponent &&
+              card !== null &&
+              (card.type === CardType.Support ||
+                card.type === CardType.Action) &&
+              (card.isFaceDown || !(card as SupportCard | ActionCard).isActive)
+            }
           />
           {!isOpponent &&
             !card &&

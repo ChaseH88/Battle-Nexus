@@ -39,6 +39,7 @@ export interface BattleEngineHookReturn {
   ) => boolean;
   playSupport: (playerIndex: number, slot: number, cardId: string) => boolean;
   activateSupport: (playerIndex: number, slot: number) => boolean;
+  activateCreatureEffect: (playerIndex: number, lane: number) => boolean;
   attack: (
     playerIndex: number,
     attackerLane: number,
@@ -177,6 +178,16 @@ export function useBattleEngine(): BattleEngineHookReturn {
     [engine, refresh]
   );
 
+  const activateCreatureEffect = useCallback(
+    (playerIndex: number, lane: number): boolean => {
+      if (!engine) return false;
+      const success = engine.activateCreatureEffect(playerIndex as 0 | 1, lane);
+      if (success) refresh();
+      return success;
+    },
+    [engine, refresh]
+  );
+
   const attack = useCallback(
     (playerIndex: number, attackerLane: number, targetLane: number) => {
       if (!engine) return;
@@ -264,6 +275,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
     playCreature,
     playSupport,
     activateSupport,
+    activateCreatureEffect,
     attack,
     toggleCreatureMode,
     endTurn,

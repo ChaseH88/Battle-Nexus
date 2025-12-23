@@ -19,6 +19,7 @@ interface PlayerBoardProps
       | "onAttack"
       | "onToggleMode"
       | "onFlipFaceUp"
+      | "onActivateCreatureEffect"
     > {
   player: PlayerState;
   currentPlayerState?: PlayerState; // Pass to CreatureZone for checking attacker mode
@@ -42,6 +43,7 @@ export const PlayerBoard = ({
   onPlayCreature,
   onPlaySupport,
   onActivateSupport,
+  onActivateCreatureEffect,
   onSelectAttacker,
   onAttack,
   onToggleMode,
@@ -98,6 +100,7 @@ export const PlayerBoard = ({
         onToggleMode={onToggleMode}
         onFlipFaceUp={onFlipFaceUp}
         onCardDoubleClick={onCreatureDoubleClick}
+        onActivateCreatureEffect={onActivateCreatureEffect}
       />
       {!isOpponent && SupportZoneComponent}
     </PlayerBoardContainer>

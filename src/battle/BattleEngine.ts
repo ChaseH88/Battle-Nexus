@@ -200,6 +200,97 @@ export class BattleEngine {
     return true;
   }
 
+  /**
+   * Activate a creature's effect from its lane
+   * Creatures with effects can activate them once per game (ONE_TIME) or multiple times (CONTINUOUS)
+   */
+  activateCreatureEffect(
+    playerIndex: 0 | 1,
+    lane: number,
+    eventData?: { targetLane?: number; targetPlayer?: 0 | 1 }
+  ): boolean {
+    if (this.state.winnerIndex !== null) return false;
+
+    // Must be in main phase
+    if (this.state.phase !== "MAIN") {
+      this.log("Cannot activate effects during draw phase. Draw a card first!");
+      return false;
+    }
+
+    const player = this.state.players[playerIndex];
+    const creature = player.lanes[lane];
+
+    if (!creature || creature.type !== CardType.Creature) {
+      this.log("No creature in that lane!");
+      return false;
+    }
+
+    if (!creature.effectId) {
+      this.log(`${creature.name} has no activatable effect!`);
+      return false;
+    }
+
+    // Check if effect can be activated
+    if (!creature.canActivateEffect) {
+      this.log(
+        `${creature.name}'s effect has already been activated and can only be used once!`
+      );
+      return false;
+    }
+
+    // Use metadata system to check activation requirements
+    const activationCheck = canActivateEffect(
+      creature.effectId,
+      this.state,
+      playerIndex
+    );
+
+    if (!activationCheck.canActivate) {
+      this.log(
+        `${creature.name}'s effect cannot be activated - ${
+          activationCheck.reason || "requirements not met"
+        }`
+      );
+      return false;
+    }
+
+    // Mark as activated for ONE_TIME effects
+    if (creature.effectType === "ONE_TIME") {
+      creature.hasActivatedEffect = true;
+    }
+
+    // Mark as activated this turn (for all effect types)
+    creature.hasActivatedEffectThisTurn = true;
+
+    // Resolve the effect
+    resolveEffectsForCard({
+      state: this.state,
+      engine: this,
+      sourceCard: creature,
+      ownerIndex: playerIndex,
+      cardEffectId: creature.effectId,
+      trigger: "ON_PLAY", // Treat creature effect activation like support activation
+      eventData,
+    });
+
+    this.logger.cardActivated(
+      this.state.turn,
+      this.state.phase,
+      playerIndex,
+      player.id,
+      { id: creature.id, name: creature.name },
+      lane
+    );
+
+    this.log(
+      `${player.id} activated ${creature.name}'s effect from lane ${lane}${
+        creature.effectType === "ONE_TIME" ? " (one-time effect)" : ""
+      }`
+    );
+
+    return true;
+  }
+
   activateSupport(
     playerIndex: 0 | 1,
     slot: number,
@@ -560,12 +651,13 @@ export class BattleEngine {
   endTurn() {
     if (this.state.winnerIndex !== null) return; // game finished
 
-    // Reset hasAttackedThisTurn and hasChangedModeThisTurn for all creatures on the current player's field
+    // Reset hasAttackedThisTurn, hasChangedModeThisTurn, and hasActivatedEffectThisTurn for all creatures on the current player's field
     const currentPlayer = this.state.players[this.state.activePlayer];
     currentPlayer.lanes.forEach((creature) => {
       if (creature && creature.type === CardType.Creature) {
         creature.hasAttackedThisTurn = false;
         creature.hasChangedModeThisTurn = false;
+        creature.hasActivatedEffectThisTurn = false;
       }
     });
 

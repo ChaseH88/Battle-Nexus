@@ -14,6 +14,7 @@ interface CardProps {
   isSelected?: boolean;
   showFaceDown?: boolean;
   selectedHandCard?: string | null;
+  canActivate?: boolean; // New prop to show pulsing border
 }
 
 export const Card = ({
@@ -23,6 +24,7 @@ export const Card = ({
   isSelected,
   showFaceDown,
   selectedHandCard,
+  canActivate = false,
 }: CardProps) => {
   if (!card) {
     return (
@@ -64,7 +66,7 @@ export const Card = ({
         creature && creature.isFaceDown ? "face-down" : ""
       } ${
         (support || action) && (support || action)!.isActive ? "active" : ""
-      }`}
+      } ${canActivate ? "can-activate" : ""}`}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       style={{ width: 160, height: 253, display: "inline-block" }}
