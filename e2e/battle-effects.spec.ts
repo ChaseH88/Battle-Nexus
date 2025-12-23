@@ -12,9 +12,11 @@ test.describe("Battle Engine - Effect System", () => {
   }) => {
     await page.goto("/");
     await expect(page.locator(".game-container")).toBeVisible();
-    
+
     // Wait for game initialization
-    await expect(page.locator('text=/Phase: (DRAW|MAIN)/')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("text=/Phase: (DRAW|MAIN)/")).toBeVisible({
+      timeout: 10000,
+    });
     await page.waitForTimeout(500);
 
     // Helper: Check game log for specific text
@@ -26,8 +28,10 @@ test.describe("Battle Engine - Effect System", () => {
 
     // We should have cards in hand from initialization
     // If in DRAW phase, move to MAIN
-    const currentPhase = await page.locator('text=/Phase: (DRAW|MAIN)/').textContent();
-    if (currentPhase?.includes('DRAW')) {
+    const currentPhase = await page
+      .locator("text=/Phase: (DRAW|MAIN)/")
+      .textContent();
+    if (currentPhase?.includes("DRAW")) {
       await page.click('[data-testid="draw-button"]');
       await page.waitForTimeout(500);
     }
@@ -49,12 +53,14 @@ test.describe("Battle Engine - Effect System", () => {
     await expect(creature).toBeVisible();
   });
 
-  test('triggers ON_ATTACK effect when creature attacks', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('.game-container')).toBeVisible();
-    
+  test("triggers ON_ATTACK effect when creature attacks", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator(".game-container")).toBeVisible();
+
     // Wait for game initialization
-    await expect(page.locator('text=/Phase: (DRAW|MAIN)/')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("text=/Phase: (DRAW|MAIN)/")).toBeVisible({
+      timeout: 10000,
+    });
     await page.waitForTimeout(500);
 
     const checkGameLog = async (searchText: string): Promise<boolean> => {
@@ -64,8 +70,10 @@ test.describe("Battle Engine - Effect System", () => {
     };
 
     // Move to MAIN phase if needed
-    const currentPhase = await page.locator('text=/Phase: (DRAW|MAIN)/').textContent();
-    if (currentPhase?.includes('DRAW')) {
+    const currentPhase = await page
+      .locator("text=/Phase: (DRAW|MAIN)/")
+      .textContent();
+    if (currentPhase?.includes("DRAW")) {
       await page.click('[data-testid="draw-button"]');
       await page.waitForTimeout(500);
     }
@@ -117,17 +125,21 @@ test.describe("Battle Engine - Effect System", () => {
     }
   });
 
-  test('support cards can be played and activated', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('.game-container')).toBeVisible();
-    
+  test("support cards can be played and activated", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator(".game-container")).toBeVisible();
+
     // Wait for game initialization
-    await expect(page.locator('text=/Phase: (DRAW|MAIN)/')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("text=/Phase: (DRAW|MAIN)/")).toBeVisible({
+      timeout: 10000,
+    });
     await page.waitForTimeout(500);
 
     // Move to MAIN phase if needed
-    const currentPhase = await page.locator('text=/Phase: (DRAW|MAIN)/').textContent();
-    if (currentPhase?.includes('DRAW')) {
+    const currentPhase = await page
+      .locator("text=/Phase: (DRAW|MAIN)/")
+      .textContent();
+    if (currentPhase?.includes("DRAW")) {
       await page.click('[data-testid="draw-button"]');
       await page.waitForTimeout(500);
     }

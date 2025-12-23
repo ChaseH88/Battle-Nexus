@@ -9,14 +9,16 @@ import { test, expect } from "@playwright/test";
 test.describe("Battle Engine - KO and Win Logic", () => {
   test("tracks KOs and declares a winner at 3 KOs", async ({ page }) => {
     // Navigate to the game
-    await page.goto('/');
+    await page.goto("/");
 
     // Wait for game to load completely
-    await expect(page.locator('.game-container')).toBeVisible();
-    
+    await expect(page.locator(".game-container")).toBeVisible();
+
     // Wait for game to initialize - check for phase indicator
-    await expect(page.locator('text=/Phase: (DRAW|MAIN)/')).toBeVisible({ timeout: 10000 });
-    
+    await expect(page.locator("text=/Phase: (DRAW|MAIN)/")).toBeVisible({
+      timeout: 10000,
+    });
+
     // If we're in MAIN phase already, that's fine - we can start playing
     // Give it a moment for all React state to settle
     await page.waitForTimeout(500);
@@ -35,14 +37,16 @@ test.describe("Battle Engine - KO and Win Logic", () => {
     // Helper: Draw cards
     const drawCard = async () => {
       // Check if we're in DRAW phase
-      const phase = await page.locator('text=/Phase: (DRAW|MAIN)/').textContent();
-      
-      if (phase?.includes('MAIN')) {
+      const phase = await page
+        .locator("text=/Phase: (DRAW|MAIN)/")
+        .textContent();
+
+      if (phase?.includes("MAIN")) {
         // Already in MAIN phase, end turn to get back to DRAW
         await page.click('[data-testid="end-turn-button"]');
         await page.waitForTimeout(2000); // Wait for AI turn
       }
-      
+
       // Now draw
       await page.click('[data-testid="draw-button"]');
       await page.waitForTimeout(300); // Wait for animation
