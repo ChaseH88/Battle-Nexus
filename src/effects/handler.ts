@@ -1,4 +1,4 @@
-import { GameState } from "../battle/GameState";
+import { GameState, getOpponentIndex } from "../battle/GameState";
 import { CardInterface, CardType, CreatureCard } from "../cards";
 import { BattleEngine } from "../battle/BattleEngine";
 import { fire_atk_boost_aura } from "./effect/fire_atk_boost_aura";
@@ -99,7 +99,7 @@ export function createEffectUtils(
     },
 
     getEnemyCreatures: (playerIndex: 0 | 1) => {
-      const opponentIndex = playerIndex === 0 ? 1 : 0;
+      const opponentIndex = getOpponentIndex(playerIndex);
       return state.players[opponentIndex].lanes.filter(
         (c) => c !== null && c.type === CardType.Creature
       ) as unknown as CreatureCard[];

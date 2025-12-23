@@ -1,4 +1,4 @@
-import { GameState } from "./GameState";
+import { GameState, getOpponentIndex } from "./GameState";
 import { BattleEngine } from "./BattleEngine";
 import { Card } from "../cards/Card";
 import { CreatureCard } from "../cards/CreatureCard";
@@ -68,7 +68,7 @@ export class AIPlayer {
    */
   private async executeMainPhase(state: GameState): Promise<void> {
     const player = state.players[this.playerIndex];
-    const opponent = state.players[this.playerIndex === 0 ? 1 : 0];
+    const opponent = state.players[getOpponentIndex(this.playerIndex)];
 
     // 1. Play creatures (priority increases with skill)
     if (this.shouldPlayCreatures()) {
@@ -131,7 +131,7 @@ export class AIPlayer {
     creature: CreatureCard,
     emptyLanes: number[]
   ): number {
-    const opponent = state.players[this.playerIndex === 0 ? 1 : 0];
+    const opponent = state.players[getOpponentIndex(this.playerIndex)];
 
     // Skill 1-3: Random placement
     if (this.skillLevel <= 3) {
@@ -253,7 +253,7 @@ export class AIPlayer {
    */
   private async performAttacks(state: GameState): Promise<void> {
     const player = state.players[this.playerIndex];
-    const opponent = state.players[this.playerIndex === 0 ? 1 : 0];
+    const opponent = state.players[getOpponentIndex(this.playerIndex)];
 
     for (let laneIndex = 0; laneIndex < player.lanes.length; laneIndex++) {
       const attacker = player.lanes[laneIndex] as CreatureCard | null;
@@ -277,9 +277,9 @@ export class AIPlayer {
     attackerLane: number
   ): number | null {
     const player = state.players[this.playerIndex];
-    const opponent = state.players[this.playerIndex === 0 ? 1 : 0];
+    const opponent = state.players[getOpponentIndex(this.playerIndex)];
     const attacker = player.lanes[attackerLane] as CreatureCard;
-    const opponentIndex = this.playerIndex === 0 ? 1 : 0;
+    const opponentIndex = getOpponentIndex(this.playerIndex);
 
     // Check if attacker is in defense mode - cannot attack
     if (attacker.mode === "DEFENSE") {
@@ -413,7 +413,7 @@ export class AIPlayer {
    */
   private async adjustCreatureModes(state: GameState): Promise<void> {
     const player = state.players[this.playerIndex];
-    const opponent = state.players[this.playerIndex === 0 ? 1 : 0];
+    const opponent = state.players[getOpponentIndex(this.playerIndex)];
 
     for (let laneIndex = 0; laneIndex < player.lanes.length; laneIndex++) {
       const creature = player.lanes[laneIndex] as CreatureCard | null;

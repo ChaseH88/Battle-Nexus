@@ -1,6 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { BattleEngine } from "../battle/BattleEngine";
-import { GameState, createGameState } from "../battle/GameState";
+import {
+  GameState,
+  createGameState,
+  getOpponentIndex,
+} from "../battle/GameState";
 import { createPlayerState } from "../battle/PlayerState";
 import { AIPlayer } from "../battle/AIPlayer";
 import { CardInterface } from "../cards/types";
@@ -230,7 +234,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
     ? gameState.players[gameState.activePlayer]
     : null;
   const opponent = gameState
-    ? gameState.players[gameState.activePlayer === 0 ? 1 : 0]
+    ? gameState.players[getOpponentIndex(gameState.activePlayer)]
     : null;
   const isPlayerTurn = gameState?.activePlayer === 0;
   const isAITurn = gameState?.activePlayer === 1;

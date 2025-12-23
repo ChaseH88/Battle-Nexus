@@ -1,5 +1,5 @@
 import { EffectContext } from "@effects/handler";
-import { GameState } from "@battle/GameState";
+import { GameState, getOpponentIndex } from "@battle/GameState";
 import { EffectMetadata } from "@effects/metadata";
 
 /**
@@ -10,7 +10,7 @@ import { EffectMetadata } from "@effects/metadata";
  */
 export const purge_opponent_support = (ctx: EffectContext) => {
   // Determine target player (opponent) - allow explicit override
-  let targetPlayer: 0 | 1 = ctx.ownerIndex === 0 ? 1 : 0;
+  let targetPlayer: 0 | 1 = getOpponentIndex(ctx.ownerIndex);
   if (typeof ctx.eventData?.targetPlayer === "number") {
     targetPlayer = ctx.eventData!.targetPlayer as 0 | 1;
   }
@@ -63,7 +63,7 @@ purge_opponent_support.metadata = {
   description: "Remove one card from opponent's support zone",
 
   canActivate: (state: GameState, ownerIndex: 0 | 1) => {
-    const opponentIndex = ownerIndex === 0 ? 1 : 0;
+    const opponentIndex = getOpponentIndex(ownerIndex);
     const opponent = state.players[opponentIndex];
     const hasSupport = opponent.support.some((s) => s !== null);
 
@@ -83,7 +83,7 @@ purge_opponent_support.metadata = {
   },
 
   getValidTargets: (state: GameState, ownerIndex: 0 | 1) => {
-    const opponentIndex = ownerIndex === 0 ? 1 : 0;
+    const opponentIndex = getOpponentIndex(ownerIndex);
     const opponent = state.players[opponentIndex];
 
     return opponent.support

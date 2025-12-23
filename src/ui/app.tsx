@@ -29,12 +29,7 @@ import {
 } from "../store/uiSlice";
 import backgroundImage from "../assets/background.png";
 import { useBattleEngine } from "../hooks/useBattleEngine";
-import {
-  canActivateEffect,
-  effectRequiresTargeting,
-  getEffectTargets,
-  getEffectMetadata,
-} from "../effects/metadata";
+import { getEffectMetadata } from "../effects/metadata";
 
 function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
@@ -205,10 +200,15 @@ export default function App() {
 
     // Check if card is face down - must flip and activate
     if (card.isFaceDown) {
-      // Use metadata system to check if effect requires targeting
-      if (card.effectId && effectRequiresTargeting(card.effectId)) {
+      // Get metadata once and use it for all checks
+      const metadata = card.effectId ? getEffectMetadata(card.effectId) : null;
+      const requiresTargeting = metadata?.targeting?.required ?? false;
+
+      if (card.effectId && requiresTargeting) {
         // Check if activation is possible
-        const activationCheck = canActivateEffect(card.effectId, gameState, 0);
+        const activationCheck = metadata?.canActivate
+          ? metadata.canActivate(gameState, 0)
+          : { canActivate: true };
 
         if (!activationCheck.canActivate) {
           dispatch(
@@ -226,9 +226,8 @@ export default function App() {
           return;
         }
 
-        // Get valid targets from metadata
-        const options = getEffectTargets(card.effectId, gameState, 0);
-        const metadata = getEffectMetadata(card.effectId);
+        // Get valid targets
+        const options = metadata?.getValidTargets?.(gameState, 0) || [];
 
         if (options.length === 0) {
           dispatch(
