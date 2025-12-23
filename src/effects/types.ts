@@ -111,6 +111,39 @@ export type EffectAction =
   | KeywordAction
   | ConditionalAction;
 
+/* -------------------- ACTIVATION REQUIREMENTS -------------------- */
+
+export interface ActivationRequirement {
+  type: "HAS_TARGET" | "MIN_COUNT" | "CUSTOM";
+  description: string; // User-friendly message for UI
+
+  // For HAS_TARGET: what kind of target is needed
+  targetType?:
+    | "OPPONENT_SUPPORT"
+    | "ALLY_CREATURE"
+    | "ENEMY_CREATURE"
+    | "ALLY_FIRE_CREATURE";
+
+  // For MIN_COUNT: minimum number of valid targets
+  minCount?: number;
+
+  // Custom validation function name (optional, for complex requirements)
+  customCheck?: string;
+}
+
+export interface TargetingConfig {
+  required: boolean; // Does this effect require targeting?
+  targetType:
+    | "OPPONENT_SUPPORT"
+    | "ALLY_CREATURE"
+    | "ENEMY_CREATURE"
+    | "ALLY_FIRE_CREATURE"
+    | "ANY_CREATURE";
+  filter?: CardFilter; // Additional filters for valid targets
+  allowMultiple?: boolean; // Can target multiple cards?
+  description: string; // UI prompt for target selection
+}
+
 /* -------------------- EFFECT DEFINITIONS -------------------- */
 
 export interface EffectDefinition {
@@ -119,6 +152,12 @@ export interface EffectDefinition {
   timing: EffectTiming;
   trigger: EffectTrigger;
   actions: EffectAction[];
+
+  // Activation requirements (checked before allowing activation)
+  activationRequirements?: ActivationRequirement[];
+
+  // Targeting configuration (for UI target selection)
+  targeting?: TargetingConfig;
 
   stackable?: boolean; // multiple copies active
   chainable?: boolean; // can add to effect stack

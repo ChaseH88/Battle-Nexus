@@ -6,6 +6,12 @@ export const HandZone = styled(Box)(({ theme }) => ({
   borderRadius: "15px",
   padding: "20px",
   marginBottom: "20px",
+  position: "fixed",
+  bottom: "20px",
+  left: "50%",
+  width: "100vw",
+  transform: "translateX(-50%)",
+  zIndex: 1000,
 }));
 
 export const HandTitle = styled(Typography)(({ theme }) => ({
@@ -17,6 +23,7 @@ export const HandTitle = styled(Typography)(({ theme }) => ({
 
 export const HandCards = styled(Box)(({ theme }) => ({
   display: "flex",
+  justifyContent: "center",
   gap: "15px",
   overflowX: "auto",
   padding: "10px",

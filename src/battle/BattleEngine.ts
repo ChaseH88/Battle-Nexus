@@ -6,6 +6,7 @@ import { moveCard } from "./ZoneEngine";
 import { Zone } from "./zones";
 import { resolveEffectsForCard } from "../effects/resolve";
 import { effectsRegistry } from "../effects/registry";
+import { canActivateEffect } from "../effects/metadata";
 
 export class BattleEngine {
   constructor(public state: GameState) {}
@@ -226,43 +227,22 @@ export class BattleEngine {
       return false;
     }
 
-    // Special activation condition for Purge Beacon: opponent must have at least one support to remove
-    if (card.effectId === "purge_opponent_support") {
-      const opponentIndex = getOpponentIndex(playerIndex as 0 | 1);
-      const opponent = this.state.players[opponentIndex];
-      const hasSupport = opponent.support.some((s) => s !== null);
-      if (!hasSupport) {
-        // Flip face up but effect fails - discard the card
-        card.isFaceDown = false;
-        card.isActive = false;
-        this.log(
-          `${card.name} was activated but no opponent support cards present - effect fails`
-        );
-        moveCard(
-          this.state,
-          playerIndex,
-          Zone.Support0,
-          Zone.DiscardPile,
-          card.id,
-          {
-            fromLane: slot,
-          }
-        );
-        this.log(`${card.name} was moved to the discard pile`);
-        return true; // Activation succeeded but effect failed
-      }
-    }
+    // Use metadata system to check activation requirements
+    if (card.effectId) {
+      const activationCheck = canActivateEffect(
+        card.effectId,
+        this.state,
+        playerIndex
+      );
 
-    // Special activation condition for Ignite Burst: must have at least one Fire creature
-    if (card.effectId === "boost_fire_and_extend_ignite") {
-      const allies = player.lanes.filter((c) => c !== null);
-      const fireCreatures = allies.filter((c) => c!.affinity === "FIRE");
-      if (fireCreatures.length === 0) {
+      if (!activationCheck.canActivate) {
         // Flip face up but effect fails - discard the card
         card.isFaceDown = false;
         card.isActive = false;
         this.log(
-          `${card.name} was activated but no Fire creatures present - effect fails`
+          `${card.name} was activated but activation requirements not met - ${
+            activationCheck.reason || "effect fails"
+          }`
         );
         moveCard(
           this.state,

@@ -29,10 +29,8 @@ export const Controls = ({
           highlight={phase === "DRAW" && deckSize > 0}
         >
           {phase === "DRAW" && deckSize === 0
-            ? "No Cards to Draw"
-            : phase === "DRAW"
-            ? "⚠️ Draw Card (Required)"
-            : "Draw Card"}
+            ? "Deck Empty"
+            : `Draw (${deckSize})`}
         </ControlButton>
         <ControlButton
           onClick={handleEndTurn}

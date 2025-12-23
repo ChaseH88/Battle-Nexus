@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card";
 import { HandZone, HandTitle, HandCards } from "./styled";
+import { Box } from "@mui/material";
 
 interface HandProps {
   hand: CardInterface[];
@@ -14,22 +16,30 @@ export const Hand = ({
   selectedHandCard,
   onSelectCard,
   onCardDoubleClick,
-}: HandProps) => (
-  <HandZone>
-    <HandTitle>Your Hand</HandTitle>
-    <HandCards>
-      {hand.map((card) => (
-        <div key={card.id}>
-          <Card
-            card={card}
-            onClick={() => onSelectCard(card.id)}
-            onDoubleClick={
-              onCardDoubleClick ? () => onCardDoubleClick(card) : undefined
-            }
-            selectedHandCard={selectedHandCard}
-          />
-        </div>
-      ))}
-    </HandCards>
-  </HandZone>
-);
+}: HandProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <HandZone
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Box sx={{ opacity: isHovered ? 1 : 1, transition: "opacity 0.3s" }}>
+        <HandCards height={305}>
+          {hand.map((card) => (
+            <div key={card.id}>
+              <Card
+                card={card}
+                onClick={() => onSelectCard(card.id)}
+                onDoubleClick={
+                  onCardDoubleClick ? () => onCardDoubleClick(card) : undefined
+                }
+                selectedHandCard={selectedHandCard}
+              />
+            </div>
+          ))}
+        </HandCards>
+      </Box>
+    </HandZone>
+  );
+};

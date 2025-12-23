@@ -46,11 +46,13 @@ export class AIPlayer {
     if (state.phase === "DRAW") {
       console.log("[AI] Draw phase - drawing card");
       this.engine.draw(this.playerIndex);
-      this.onActionComplete?.();
+      // Don't call onActionComplete here - it would trigger a re-render mid-turn
       await this.delay(300);
+      // After drawing, phase changes to MAIN automatically
     }
 
     // MAIN PHASE - AI makes strategic decisions
+    // Re-check phase after drawing (it may have changed from DRAW to MAIN)
     if (state.phase === "MAIN") {
       console.log("[AI] Main phase - executing actions");
       await this.executeMainPhase(state);

@@ -29,6 +29,12 @@ import {
 } from "../store/uiSlice";
 import backgroundImage from "../assets/background.png";
 import { useBattleEngine } from "../hooks/useBattleEngine";
+import {
+  canActivateEffect,
+  effectRequiresTargeting,
+  getEffectTargets,
+  getEffectMetadata,
+} from "../effects/metadata";
 
 function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
@@ -200,29 +206,37 @@ export default function App() {
 
     // Check if card is face down - must flip and activate
     if (card.isFaceDown) {
-      // If this support requires a target selection (e.g. Purge Beacon), open the target modal
-      if (card.effectId === "purge_opponent_support") {
-        // Build options from opponent support slots (including face down cards)
-        const opponentIndex = 1;
-        const opponentPlayer = gameState.players[opponentIndex];
-        const options = opponentPlayer.support
-          .map((s, i) => ({
-            label: s
-              ? s.isFaceDown
-                ? `Face-down card in slot ${i}`
-                : s.name
-              : `Slot ${i} (empty)`,
-            value: i,
-          }))
-          .filter((o) => opponentPlayer.support[o.value] !== null);
+      // Use metadata system to check if effect requires targeting
+      if (card.effectId && effectRequiresTargeting(card.effectId)) {
+        // Check if activation is possible
+        const activationCheck = canActivateEffect(card.effectId, gameState, 0);
+
+        if (!activationCheck.canActivate) {
+          dispatch(
+            openModal({
+              title: "Cannot Activate",
+              message: `${card.name}: ${activationCheck.reason}. The card will be discarded.`,
+              onConfirm: () => {
+                // Activate anyway - effect will fail and card will be discarded
+                engine.activateSupport(0 as 0 | 1, slot);
+                refresh();
+                dispatch(closeModal());
+              },
+            })
+          );
+          return;
+        }
+
+        // Get valid targets from metadata
+        const options = getEffectTargets(card.effectId, gameState, 0);
+        const metadata = getEffectMetadata(card.effectId);
 
         if (options.length === 0) {
           dispatch(
             openModal({
               title: "Cannot Activate",
-              message: `${card.name} requires an opponent support card to target, but none are available. The card will be discarded.`,
+              message: `${card.name} has no valid targets. The card will be discarded.`,
               onConfirm: () => {
-                // Activate anyway - effect will fail and card will be discarded
                 engine.activateSupport(0 as 0 | 1, slot);
                 refresh();
                 dispatch(closeModal());
@@ -232,60 +246,26 @@ export default function App() {
           return;
         }
 
+        // Open target selection modal with metadata-driven configuration
         dispatch(
           openTargetSelectModal({
-            title: `Select opponent support to remove`,
-            message: `Choose a support card from ${opponentPlayer.id}`,
+            title: metadata?.targeting?.description || "Select target",
+            message: `Choose a target for ${card.name}`,
             options,
-            onConfirm: (slotIndex: number) => {
-              // Call engine directly for target-based activation
-              engine.activateSupport(0 as 0 | 1, slot, {
-                targetPlayer: opponentIndex,
-                targetLane: slotIndex,
-              });
-              refresh();
-            },
-          })
-        );
-        return;
-      }
+            onConfirm: (targetValue: number) => {
+              // Determine what the target value represents based on effect type
+              const eventData: any = {};
 
-      // Handle cards that require targeting own Fire creatures (Ignite Burst)
-      if (card.effectId === "boost_fire_and_extend_ignite") {
-        const fireCreatures = player1.lanes
-          .map((c, i) => ({ creature: c, lane: i }))
-          .filter((item) => item.creature && item.creature.affinity === "FIRE");
+              if (metadata?.targeting?.targetType === "OPPONENT_SUPPORT") {
+                eventData.targetPlayer = 1;
+                eventData.targetLane = targetValue;
+              } else if (
+                metadata?.targeting?.targetType?.includes("CREATURE")
+              ) {
+                eventData.lane = targetValue;
+              }
 
-        if (fireCreatures.length === 0) {
-          dispatch(
-            openModal({
-              title: "Cannot Activate",
-              message: `${card.name} requires a Fire creature to target, but you have none in play. The card will be discarded.`,
-              onConfirm: () => {
-                // Activate anyway - effect will fail and card will be discarded
-                engine.activateSupport(0 as 0 | 1, slot);
-                refresh();
-                dispatch(closeModal());
-              },
-            })
-          );
-          return;
-        }
-
-        const options = fireCreatures.map(({ creature, lane }) => ({
-          label: `${creature!.name} (Lane ${lane + 1}) - ${creature!.atk} ATK`,
-          value: lane,
-        }));
-
-        dispatch(
-          openTargetSelectModal({
-            title: `Select Fire creature to boost`,
-            message: `Choose a Fire creature to gain +200 ATK and IGNITE`,
-            options,
-            onConfirm: (lane: number) => {
-              engine.activateSupport(0 as 0 | 1, slot, {
-                lane,
-              });
+              engine.activateSupport(0 as 0 | 1, slot, eventData);
               refresh();
             },
           })
