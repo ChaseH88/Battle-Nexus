@@ -1,12 +1,13 @@
-import { CardType, ComboKeyword } from "@cards/types";
+import { CardType } from "@cards/types";
 import { CreatureCard } from "@cards/CreatureCard";
 import { boost_fire_and_extend_ignite } from "@effects/effect/boost_fire_and_extend_ignite";
 import { createEffectUtils } from "@effects/handler";
 import { createTestGame, drawMany } from "@/__tests__/testUtils";
 
 /**
- * Boost Fire and Extend Ignite Effect Tests
+ * Boost Fire Effect Tests
  * Tests the boost_fire_and_extend_ignite effect (Ignite Burst)
+ * Now only boosts Fire creature ATK
  */
 describe("Effect: boost_fire_and_extend_ignite", () => {
   it("boosts Fire creature ATK by +200", () => {
@@ -36,77 +37,6 @@ describe("Effect: boost_fire_and_extend_ignite", () => {
 
       // Should have +200 ATK
       expect(creature.atk).toBe(initialAtk + 200);
-    }
-  });
-
-  it("grants IGNITE keyword if not present", () => {
-    const { p1, p2, game, engine } = createTestGame();
-
-    drawMany(engine, 0, 10);
-
-    const fireCreature = p1.hand.find(
-      (c) =>
-        c.type === CardType.Creature &&
-        (c as CreatureCard).affinity === "FIRE" &&
-        !(c as CreatureCard).keywords.includes(ComboKeyword.Ignite)
-    );
-
-    if (fireCreature) {
-      engine.playCreature(0, 0, fireCreature.id);
-      const creature = p1.lanes[0] as CreatureCard;
-
-      expect(creature.keywords.includes(ComboKeyword.Ignite)).toBe(false);
-
-      // Execute the effect
-      boost_fire_and_extend_ignite({
-        state: game,
-        engine,
-        sourceCard: fireCreature,
-        ownerIndex: 0,
-        trigger: "ON_PLAY",
-        utils: createEffectUtils(game, engine),
-      });
-
-      // Should have IGNITE keyword
-      expect(creature.keywords.includes(ComboKeyword.Ignite)).toBe(true);
-    }
-  });
-
-  it("does not duplicate IGNITE keyword", () => {
-    const { p1, p2, game, engine } = createTestGame();
-
-    drawMany(engine, 0, 10);
-
-    const fireCreature = p1.hand.find(
-      (c) =>
-        c.type === CardType.Creature &&
-        (c as CreatureCard).affinity === "FIRE" &&
-        (c as CreatureCard).keywords.includes(ComboKeyword.Ignite)
-    );
-
-    if (fireCreature) {
-      engine.playCreature(0, 0, fireCreature.id);
-      const creature = p1.lanes[0] as CreatureCard;
-
-      const igniteCount = creature.keywords.filter(
-        (k) => k === ComboKeyword.Ignite
-      ).length;
-
-      // Execute the effect
-      boost_fire_and_extend_ignite({
-        state: game,
-        engine,
-        sourceCard: fireCreature,
-        ownerIndex: 0,
-        trigger: "ON_PLAY",
-        utils: createEffectUtils(game, engine),
-      });
-
-      // Should not add duplicate IGNITE
-      const newIgniteCount = creature.keywords.filter(
-        (k) => k === ComboKeyword.Ignite
-      ).length;
-      expect(newIgniteCount).toBe(igniteCount);
     }
   });
 

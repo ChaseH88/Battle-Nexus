@@ -1,12 +1,11 @@
 import { Card } from "./Card";
-import { Affinity, CardInterface, CardType, ComboKeyword } from "./types";
+import { Affinity, CardInterface, CardType } from "./types";
 
 export interface CreatureCardArgs extends CardInterface {
   atk: number;
   def: number;
   hp: number;
   affinity: Affinity;
-  keywords?: ComboKeyword[];
   onSummonEffectId?: string;
   onAttackEffectId?: string;
 }
@@ -21,7 +20,6 @@ export class CreatureCard extends Card {
   mode: "ATTACK" | "DEFENSE";
   isFaceDown: boolean;
   readonly affinity: Affinity;
-  readonly keywords: ComboKeyword[];
   readonly onSummonEffectId?: string;
   readonly onAttackEffectId?: string;
 
@@ -42,7 +40,6 @@ export class CreatureCard extends Card {
     this.mode = "ATTACK"; // Default to attack mode
     this.isFaceDown = false; // Default to face-up
     this.affinity = args.affinity;
-    this.keywords = args.keywords ?? [];
     this.onSummonEffectId = args.onSummonEffectId;
     this.onAttackEffectId = args.onAttackEffectId;
   }

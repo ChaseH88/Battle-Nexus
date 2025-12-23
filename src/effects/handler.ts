@@ -63,10 +63,6 @@ export interface EffectUtils {
     creatures: CreatureCard[],
     affinity: string
   ) => CreatureCard[];
-  filterByKeywords: (
-    creatures: CreatureCard[],
-    keywords: string[]
-  ) => CreatureCard[];
 
   // Logging
   log: (message: string) => void;
@@ -217,12 +213,6 @@ export function createEffectUtils(
 
     filterByAffinity: (creatures: CreatureCard[], affinity: string) => {
       return creatures.filter((c) => c.affinity === affinity);
-    },
-
-    filterByKeywords: (creatures: CreatureCard[], keywords: string[]) => {
-      return creatures.filter((c) =>
-        keywords.every((kw) => c.keywords.includes(kw as any))
-      );
     },
 
     log: (message: string) => {

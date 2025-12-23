@@ -4,8 +4,8 @@ import { EffectMetadata } from "@effects/metadata";
 import { Affinity } from "@cards";
 
 /**
- * Ignite Burst Effect
- * Boosts a Fire creature with +200 ATK and grants IGNITE keyword
+ * Ignite Burst Effect (renamed to boost_fire_atk)
+ * Boosts a Fire creature with +200 ATK
  *
  * Handler function with metadata as static properties
  */
@@ -48,12 +48,7 @@ export const boost_fire_and_extend_ignite = (ctx: EffectContext) => {
 
   // Apply persistent ATK boost
   ctx.utils.modifyCreatureStats(target, 200, undefined);
-
-  // Grant IGNITE keyword if not already present
-  if (!(target as any).keywords.includes("IGNITE")) {
-    (target as any).keywords.push("IGNITE");
-    ctx.utils.log(`  ${(target as any).name} gained IGNITE`);
-  }
+  ctx.utils.log(`  ${(target as any).name} gained +200 ATK`);
 
   // Track as an active persistent effect while the source card remains
   ctx.utils.addActiveEffect(
@@ -62,7 +57,7 @@ export const boost_fire_and_extend_ignite = (ctx: EffectContext) => {
     ctx.sourceCard,
     ctx.ownerIndex,
     undefined, // permanent while source is on field
-    "+200 ATK and IGNITE (while on field)",
+    "+200 ATK (while on field)",
     [(target as any).id],
     { atk: 200 }
   );

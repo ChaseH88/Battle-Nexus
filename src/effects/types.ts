@@ -1,4 +1,4 @@
-import { Affinity, CardId, CardType, ComboKeyword } from "../cards";
+import { Affinity, CardId, CardType } from "../cards";
 
 /** When can the player choose to activate (or does it auto-fire)? */
 export type EffectTiming = "QUICK" | "NORMAL" | "PERSIST";
@@ -25,7 +25,6 @@ export type EffectTarget =
 export interface CardFilter {
   type?: CardType; // CREATURE/SUPPORT/ACTION
   affinity?: Affinity;
-  keywords?: ComboKeyword[];
   lane?: number; // for creature lanes 0..2
   supportSlot?: number; // for support slots 0..2
   idIn?: CardId[]; // optional explicit allow-list
@@ -69,20 +68,10 @@ export interface DrawDiscardAction {
   amount: number;
 }
 
-export interface KeywordAction {
-  type: "KEYWORD";
-  mode: "ADD" | "REMOVE";
-  target: EffectTarget;
-  filter?: CardFilter;
-  keywords: ComboKeyword[];
-  duration?: Duration;
-}
-
 /* -------------------- CONDITIONS -------------------- */
 
 export type Condition =
   | { check: "AFFINITY_MATCH"; affinity: Affinity } // usually compares source vs target
-  | { check: "KEYWORD_PRESENT"; keyword: ComboKeyword }
   | {
       check: "HP_THRESHOLD";
       target: "PLAYER" | "OPPONENT";

@@ -52,7 +52,6 @@ describe("Effects – Handler", () => {
     expect(utils).toHaveProperty("drawCards");
     expect(utils).toHaveProperty("discardCards");
     expect(utils).toHaveProperty("filterByAffinity");
-    expect(utils).toHaveProperty("filterByKeywords");
     expect(utils).toHaveProperty("log");
     expect(utils).toHaveProperty("addActiveEffect");
 
@@ -179,29 +178,6 @@ describe("Effects – Handler", () => {
     expect(Array.isArray(fireCreatures)).toBe(true);
     fireCreatures.forEach((creature) => {
       expect(creature.affinity).toBe("FIRE");
-    });
-  });
-
-  it("filterByKeywords returns creatures with matching keywords", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
-    const game = createGameState(p1, p2);
-    const engine = new BattleEngine(game);
-
-    drawMany(engine, 0, 10);
-
-    const creatures = p1.hand.filter((c) => c.type === CardType.Creature);
-    creatures.slice(0, 3).forEach((creature, i) => {
-      engine.playCreature(0, i, creature.id);
-    });
-
-    const utils = createEffectUtils(game, engine);
-    const allCreatures = utils.getAllyCreatures(0);
-    const keywordCreatures = utils.filterByKeywords(allCreatures, ["IGNITE"]);
-
-    expect(Array.isArray(keywordCreatures)).toBe(true);
-    keywordCreatures.forEach((creature) => {
-      expect(creature.keywords).toContain("IGNITE");
     });
   });
 

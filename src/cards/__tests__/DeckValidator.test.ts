@@ -20,7 +20,6 @@ function createMockCard(id: string, name: string, cost: number): CardInterface {
     def: 100,
     hp: 500,
     affinity: Affinity.Fire,
-    keywords: [],
     rarity: "C",
     set: "Base",
   });

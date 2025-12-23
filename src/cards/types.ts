@@ -8,7 +8,6 @@ export interface CardInterface {
   atk?: number;
   def?: number;
   affinity?: Affinity;
-  keywords?: ComboKeyword[];
   rarity: "C" | "R" | "SR" | "UR";
   set: "Base";
   effectId?: string;
@@ -37,12 +36,4 @@ export enum Affinity {
   Light = "LIGHT",
   Shadow = "SHADOW",
   Psychic = "PSYCHIC",
-}
-
-export enum ComboKeyword {
-  Ignite = "IGNITE",
-  Chain = "CHAIN",
-  Absorb = "ABSORB",
-  Strike = "STRIKE",
-  Charge = "CHARGE",
 }
