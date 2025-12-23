@@ -29,10 +29,14 @@ export enum CardType {
 export enum Affinity {
   Fire = "FIRE",
   Water = "WATER",
-  Earth = "EARTH",
+  Grass = "GRASS",
   Lightning = "LIGHTNING",
+  Ice = "ICE",
+  Wind = "WIND",
+  Metal = "METAL",
   Light = "LIGHT",
   Shadow = "SHADOW",
+  Psychic = "PSYCHIC",
 }
 
 export enum ComboKeyword {

@@ -77,7 +77,7 @@
     "atk": 250,
     "def": 250,
     "hp": 700,
-    "affinity": "EARTH",
+    "affinity": "GRASS",
     "keywords": ["CHARGE"],
     "rarity": "C",
     "set": "BN-CORE"
@@ -91,7 +91,7 @@
     "atk": 400,
     "def": 350,
     "hp": 1200,
-    "affinity": "EARTH",
+    "affinity": "GRASS",
     "keywords": ["CHARGE", "STRIKE"],
     "evolution": {
       "evolvesFromId": "terra_beetle",
