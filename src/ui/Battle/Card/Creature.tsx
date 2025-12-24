@@ -12,6 +12,7 @@ import psychicAffinity from "@assets/affinity/psychic.png";
 
 import { Affinity } from "@cards";
 import { useCallback } from "react";
+import { Cost } from "./Common/Cost";
 
 interface CreatureProps
   extends Pick<
@@ -30,6 +31,7 @@ interface CreatureProps
     | "affinity"
     | "name"
     | "type"
+    | "cost"
   > {}
 
 export const Creature = ({
@@ -47,6 +49,7 @@ export const Creature = ({
   affinity,
   name,
   type,
+  cost,
 }: CreatureProps) => {
   const getAffinityIcon = useCallback(
     (affinity: Affinity) => {
@@ -84,6 +87,7 @@ export const Creature = ({
       style={{ width: 160, height: 253, fontSize: "11px", padding: "8px" }}
     >
       <div>
+        <Cost cost={cost} affinity={affinity} />
         <div className="card-type" style={{ fontSize: "9px" }}>
           {type}
         </div>
