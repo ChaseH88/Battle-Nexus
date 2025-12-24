@@ -97,7 +97,6 @@ export type EffectAction =
   | MoveAction
   | DamageAction
   | DrawDiscardAction
-  | KeywordAction
   | ConditionalAction;
 
 /* -------------------- ACTIVATION REQUIREMENTS -------------------- */

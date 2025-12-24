@@ -1,15 +1,15 @@
 import { CardType } from "@cards/types";
 import { CreatureCard } from "@cards/CreatureCard";
-import { boost_fire_and_extend_ignite } from "@effects/effect/boost_fire_and_extend_ignite";
+import { boost_fire_atk } from "@effects/effect/boost_fire_atk";
 import { createEffectUtils } from "@effects/handler";
 import { createTestGame, drawMany } from "@/__tests__/testUtils";
 
 /**
  * Boost Fire Effect Tests
- * Tests the boost_fire_and_extend_ignite effect (Ignite Burst)
+ * Tests the boost_fire_atk effect (Ignite Burst)
  * Now only boosts Fire creature ATK
  */
-describe("Effect: boost_fire_and_extend_ignite", () => {
+describe("Effect: boost_fire_atk", () => {
   it("boosts Fire creature ATK by +200", () => {
     const { p1, p2, game, engine } = createTestGame();
 
@@ -26,7 +26,7 @@ describe("Effect: boost_fire_and_extend_ignite", () => {
       const initialAtk = creature.atk;
 
       // Execute the effect
-      boost_fire_and_extend_ignite({
+      boost_fire_atk({
         state: game,
         engine,
         sourceCard: fireCreature,
@@ -64,7 +64,7 @@ describe("Effect: boost_fire_and_extend_ignite", () => {
       const atk1 = creature1.atk;
 
       // Target lane 1 specifically
-      boost_fire_and_extend_ignite({
+      boost_fire_atk({
         state: game,
         engine,
         sourceCard: fireCreatures[0],
@@ -95,7 +95,7 @@ describe("Effect: boost_fire_and_extend_ignite", () => {
 
       // Execute effect with no Fire creatures
       expect(() => {
-        boost_fire_and_extend_ignite({
+        boost_fire_atk({
           state: game,
           engine,
           sourceCard: waterCreature,
@@ -133,7 +133,7 @@ describe("Effect: boost_fire_and_extend_ignite", () => {
       const initialAtk = higherAtkCreature.atk;
 
       // Execute without specifying lane (auto-target)
-      boost_fire_and_extend_ignite({
+      boost_fire_atk({
         state: game,
         engine,
         sourceCard: fireCreatures[0],
@@ -163,7 +163,7 @@ describe("Effect: boost_fire_and_extend_ignite", () => {
       const initialEffectCount = game.activeEffects.length;
 
       // Execute the effect
-      boost_fire_and_extend_ignite({
+      boost_fire_atk({
         state: game,
         engine,
         sourceCard: fireCreature,
@@ -178,11 +178,11 @@ describe("Effect: boost_fire_and_extend_ignite", () => {
   });
 
   it("has metadata for activation requirements", () => {
-    expect(boost_fire_and_extend_ignite.metadata).toBeDefined();
-    expect(boost_fire_and_extend_ignite.metadata?.canActivate).toBeDefined();
-    expect(boost_fire_and_extend_ignite.metadata?.targeting).toBeDefined();
+    expect(boost_fire_atk.metadata).toBeDefined();
+    expect(boost_fire_atk.metadata?.canActivate).toBeDefined();
+    expect(boost_fire_atk.metadata?.targeting).toBeDefined();
     expect(
-      boost_fire_and_extend_ignite.metadata?.getValidTargets
+      boost_fire_atk.metadata?.getValidTargets
     ).toBeDefined();
   });
 });

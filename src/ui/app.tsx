@@ -261,7 +261,8 @@ export default function App() {
               } else if (
                 metadata?.targeting?.targetType?.includes("CREATURE")
               ) {
-                eventData.lane = targetValue;
+                eventData.targetLane = targetValue;
+                eventData.lane = targetValue; // Also set lane for effect handler
               }
 
               engine.activateSupport(0 as 0 | 1, slot, eventData);

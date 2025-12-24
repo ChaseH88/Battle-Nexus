@@ -930,7 +930,42 @@ export class BattleEngine {
   ) {
     // Iterate all active effects and apply ones that match this creature
     this.state.activeEffects.forEach((effect) => {
-      const def = effectsRegistry[effect.id];
+      // Find the source card to get its effectId
+      let sourceCard: CardInterface | null = null;
+      const player = this.state.players[effect.playerIndex];
+
+      // Search for source card in support slots
+      for (const card of player.support) {
+        if (card && card.id === effect.sourceCardId) {
+          sourceCard = card;
+          break;
+        }
+      }
+
+      // If not found in support, try lanes
+      if (!sourceCard) {
+        for (const card of player.lanes) {
+          if (card && card.id === effect.sourceCardId) {
+            sourceCard = card;
+            break;
+          }
+        }
+      }
+
+      if (!sourceCard || !sourceCard.effectId) return;
+
+      // If the source card is a targeted support card, skip auto-applying to new creatures
+      // Targeted supports should only affect their original target
+      if (sourceCard.type === CardType.Support) {
+        const supportCard = sourceCard as any;
+        if (supportCard.targetCardId) {
+          // This is a targeted support - don't apply to other creatures
+          return;
+        }
+      }
+
+      // Look up the effect definition using the source card's effectId
+      const def = effectsRegistry[sourceCard.effectId];
       if (!def || !def.actions) return;
 
       def.actions.forEach((action: any) => {

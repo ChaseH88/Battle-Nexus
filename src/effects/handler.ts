@@ -6,7 +6,7 @@ import { draw_on_play } from "./effect/draw_on_play";
 import { ignite_direct_damage } from "./effect/ignite_direct_damage";
 import { conditional_fire_bonus } from "./effect/conditional_fire_bonus";
 import { draw_two_on_combat_ko } from "./effect/draw_two_on_combat_ko";
-import { boost_fire_and_extend_ignite } from "./effect/boost_fire_and_extend_ignite";
+import { boost_fire_atk } from "./effect/boost_fire_atk";
 import { purge_opponent_support } from "./effect/purge_opponent_support";
 
 /**
@@ -277,7 +277,7 @@ export const effectHandlers: Record<string, EffectHandler> = {
   ignite_direct_damage,
   conditional_fire_bonus,
   draw_two_on_combat_ko,
-  boost_fire_and_extend_ignite,
+  boost_fire_atk,
   purge_opponent_support,
 };
 

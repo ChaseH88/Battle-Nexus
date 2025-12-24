@@ -248,7 +248,7 @@ describe("BattleEngine – Support Card Lifecycle", () => {
         id: "ignite_burst",
         type: CardType.Support,
         name: "Ignite Burst",
-        effectId: "boost_fire_and_extend_ignite",
+        effectId: "boost_fire_atk",
         effectType: "CONTINUOUS",
       }) as SupportCard;
 

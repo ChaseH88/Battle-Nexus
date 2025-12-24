@@ -4,12 +4,12 @@ import { EffectMetadata } from "@effects/metadata";
 import { Affinity } from "@cards";
 
 /**
- * Ignite Burst Effect (renamed to boost_fire_atk)
+ * Ignite Burst Effect
  * Boosts a Fire creature with +200 ATK
  *
  * Handler function with metadata as static properties
  */
-export const boost_fire_and_extend_ignite = (ctx: EffectContext) => {
+export const boost_fire_atk = (ctx: EffectContext) => {
   // Prefer explicit player choice if provided via eventData.lane
   let target: any | null = null;
 
@@ -52,7 +52,7 @@ export const boost_fire_and_extend_ignite = (ctx: EffectContext) => {
 
   // Track as an active persistent effect while the source card remains
   ctx.utils.addActiveEffect(
-    `boost_fire_and_extend_ignite_${ctx.sourceCard.id}`,
+    `boost_fire_atk_${ctx.sourceCard.id}`,
     "Ignite Burst",
     ctx.sourceCard,
     ctx.ownerIndex,
@@ -64,8 +64,8 @@ export const boost_fire_and_extend_ignite = (ctx: EffectContext) => {
 };
 
 // Attach metadata as static properties on the function
-boost_fire_and_extend_ignite.metadata = {
-  id: "boost_fire_and_extend_ignite",
+boost_fire_atk.metadata = {
+  id: "boost_fire_atk",
   name: "Ignite Burst",
   description: "+200 ATK and IGNITE to target Fire creature",
 
