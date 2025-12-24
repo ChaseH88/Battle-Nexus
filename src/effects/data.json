@@ -5,6 +5,8 @@
     "timing": "PERSIST",
     "trigger": "CONTINUOUS",
     "stackable": true,
+    "persistent": true,
+    "description": "All Fire creatures gain +100 ATK while this remains active",
     "actions": [
       {
         "type": "STAT_MOD",
@@ -12,6 +14,27 @@
         "target": "ALLY_CREATURE",
         "filter": { "affinity": "FIRE" },
         "atk": 100,
+        "duration": { "kind": "PERMANENT" }
+      }
+    ]
+  },
+
+  {
+    "id": "boost_fire_atk",
+    "name": "Fire Boost",
+    "timing": "PERSIST",
+    "trigger": "CONTINUOUS",
+    "stackable": false,
+    "requiresTarget": true,
+    "targetType": "ALLY_FIRE_CREATURE",
+    "description": "Target Fire creature gains +200 ATK while this support remains active",
+    "actions": [
+      {
+        "type": "STAT_MOD",
+        "mode": "BOOST",
+        "target": "ALLY_CREATURE",
+        "filter": { "affinity": "FIRE" },
+        "atk": 200,
         "duration": { "kind": "PERMANENT" }
       }
     ]

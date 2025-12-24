@@ -291,6 +291,13 @@ export class BattleEngine {
     return true;
   }
 
+  /**
+   * Activates a support or action card from a face-down state
+   *
+   * Action cards: Always discarded after activation
+   * Support cards with targets: Stay active until target leaves field
+   * Support cards without targets (persistent): Stay active indefinitely
+   */
   activateSupport(
     playerIndex: 0 | 1,
     slot: number,
@@ -354,6 +361,20 @@ export class BattleEngine {
     card.isFaceDown = false;
     card.isActive = true;
 
+    // Track target for support cards if targeting is required
+    if (card.type === CardType.Support && eventData?.targetLane !== undefined) {
+      const supportCard = card as SupportCard;
+      supportCard.targetPlayerIndex = eventData.targetPlayer ?? playerIndex;
+      supportCard.targetLane = eventData.targetLane;
+
+      // Store the target card ID
+      const targetPlayer = this.state.players[supportCard.targetPlayerIndex];
+      const targetCreature = targetPlayer.lanes[supportCard.targetLane];
+      if (targetCreature) {
+        supportCard.targetCardId = targetCreature.id;
+      }
+    }
+
     this.log(
       `${player.id} flipped ${card.type.toLowerCase()} ${
         card.name
@@ -370,9 +391,8 @@ export class BattleEngine {
       eventData,
     });
 
-    // Discard ONE_TIME effect cards (both Action and Support) after activation
-    // CONTINUOUS effects remain on the field
-    if (card.effectType === "ONE_TIME") {
+    // Always discard ACTION cards after activation
+    if (card.type === CardType.Action) {
       moveCard(
         this.state,
         playerIndex,
@@ -383,10 +403,96 @@ export class BattleEngine {
           fromLane: slot,
         }
       );
-      this.log(`${card.name} resolved and was moved to the discard pile`);
+      this.log(
+        `${card.name} (Action) resolved and was moved to the discard pile`
+      );
     }
 
+    // Support cards with ONE_TIME effects also get discarded
+    else if (card.type === CardType.Support && card.effectType === "ONE_TIME") {
+      moveCard(
+        this.state,
+        playerIndex,
+        Zone.Support0,
+        Zone.DiscardPile,
+        card.id,
+        {
+          fromLane: slot,
+        }
+      );
+      this.log(
+        `${card.name} (Support - One Time) resolved and was moved to the discard pile`
+      );
+    }
+
+    // CONTINUOUS support cards stay on field
+    // - Persistent effects (no target): Stay until removed by effect
+    // - Targeted effects: Stay until target leaves field
+
     return true;
+  }
+
+  /**
+   * Checks all active support cards and removes those whose targets have left the field
+   * Called whenever a creature is removed from a lane
+   *
+   * Public method so effect handlers can call it when they remove creatures
+   */
+  checkAndRemoveTargetedSupports(
+    targetPlayerIndex: 0 | 1,
+    targetLane: number,
+    removedCardId?: string
+  ) {
+    // Check both players' support zones
+    for (let pIndex = 0; pIndex < 2; pIndex++) {
+      const player = this.state.players[pIndex];
+
+      for (let slot = 0; slot < player.support.length; slot++) {
+        const card = player.support[slot];
+
+        if (
+          card &&
+          card.type === CardType.Support &&
+          card.isActive &&
+          !card.isFaceDown
+        ) {
+          const supportCard = card as SupportCard;
+
+          // Check if this support was targeting the removed creature
+          if (
+            supportCard.targetPlayerIndex === targetPlayerIndex &&
+            supportCard.targetLane === targetLane &&
+            (removedCardId === undefined ||
+              supportCard.targetCardId === removedCardId)
+          ) {
+            // Target has left the field - discard this support
+            moveCard(
+              this.state,
+              pIndex as 0 | 1,
+              Zone.Support0,
+              Zone.DiscardPile,
+              supportCard.id,
+              {
+                fromLane: slot,
+              }
+            );
+            this.log(
+              `${supportCard.name} was discarded because its target left the field`
+            );
+            // Also remove any active effects that were provided by this support card
+            const effectsToRemove = this.state.activeEffects.filter(
+              (e) => e.sourceCardId === supportCard.id
+            );
+            effectsToRemove.forEach((e) => {
+              this.removeActiveEffect(e.id);
+              this.log(
+                `Removed persistent effect ${e.name} from ${supportCard.name}`
+              );
+            });
+          }
+        }
+      }
+    }
   }
 
   toggleCreatureMode(playerIndex: 0 | 1, lane: number): boolean {
@@ -599,6 +705,12 @@ export class BattleEngine {
         opponent.discardPile.push(defender);
         this.log(`💀 ${defender.name} was destroyed!`);
         this.registerKO(playerIndex, defender);
+        // Remove any support cards targeting this creature
+        this.checkAndRemoveTargetedSupports(
+          opponentIndex,
+          targetLane,
+          defender.id
+        );
       }
 
       // Check if attacker is defeated (only if defender had higher ATK)
@@ -607,6 +719,12 @@ export class BattleEngine {
         this.state.players[playerIndex].discardPile.push(attacker);
         this.log(`💀 ${attacker.name} was destroyed by the counter-attack!`);
         this.registerKO(opponentIndex, attacker);
+        // Remove any support cards targeting this creature
+        this.checkAndRemoveTargetedSupports(
+          playerIndex,
+          attackerLane,
+          attacker.id
+        );
       }
     } else if (attacker.mode === "ATTACK" && defender.mode === "DEFENSE") {
       // Defender in defense mode - reduces damage and NO counter-attack
@@ -630,6 +748,12 @@ export class BattleEngine {
           opponent.discardPile.push(defender);
           this.log(`💀 ${defender.name} was destroyed!`);
           this.registerKO(playerIndex, defender);
+          // Remove any support cards targeting this creature
+          this.checkAndRemoveTargetedSupports(
+            opponentIndex,
+            targetLane,
+            defender.id
+          );
         }
       } else {
         // Attacker failed to penetrate defense - NO DAMAGE AT ALL

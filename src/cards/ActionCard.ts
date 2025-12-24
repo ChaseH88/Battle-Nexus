@@ -8,6 +8,14 @@ export interface ActionCardArgs extends CardInterface {
   effectId: string;
 }
 
+/**
+ * ActionCard - Represents one-time action cards
+ *
+ * Action cards must be played face-down and activated manually.
+ * When activated, they resolve their effect once and are always sent to the discard pile.
+ *
+ * Players cannot manually discard action cards.
+ */
 export class ActionCard extends Card {
   readonly speed: ActionSpeed;
   readonly effectId: string;

@@ -78,6 +78,13 @@ export interface EffectUtils {
     affectedCardIds?: string[],
     statModifiers?: { atk?: number; def?: number }
   ) => void;
+
+  // Support card cleanup
+  checkAndRemoveTargetedSupports: (
+    targetPlayerIndex: 0 | 1,
+    targetLane: number,
+    removedCardId?: string
+  ) => void;
 }
 
 /**
@@ -238,6 +245,18 @@ export function createEffectUtils(
         description,
         affectedCardIds,
         statModifiers
+      );
+    },
+
+    checkAndRemoveTargetedSupports: (
+      targetPlayerIndex: 0 | 1,
+      targetLane: number,
+      removedCardId?: string
+    ) => {
+      engine.checkAndRemoveTargetedSupports(
+        targetPlayerIndex,
+        targetLane,
+        removedCardId
       );
     },
   };

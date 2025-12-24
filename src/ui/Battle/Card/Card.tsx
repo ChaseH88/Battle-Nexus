@@ -87,6 +87,7 @@ export const Card = ({
           affinity={creature.affinity}
           name={creature.name}
           type={creature.type}
+          cost={creature.cost}
         />
       )}
       {support && (
@@ -97,6 +98,8 @@ export const Card = ({
           cost={support.cost}
           isActive={support.isActive}
           isFaceDown={support.isFaceDown}
+          targetPlayerIndex={support.targetPlayerIndex}
+          targetLane={support.targetLane}
         />
       )}
       {action && (

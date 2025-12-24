@@ -4,7 +4,10 @@ interface SupportProps
   extends Pick<
     SupportCard,
     "name" | "type" | "description" | "cost" | "isActive" | "isFaceDown"
-  > {}
+  > {
+  targetPlayerIndex?: 0 | 1;
+  targetLane?: number;
+}
 
 export const Support = ({
   name,
@@ -68,6 +71,39 @@ export const Support = ({
           style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "4px" }}
         >
           {name}
+          {typeof targetLane === "number" && (
+            <div
+              className="support-target-tooltip"
+              title="This support will remain while the target is present"
+              style={{
+                fontSize: "10px",
+                color: "#444",
+                padding: "4px",
+                borderTop: "1px solid #eee",
+                marginTop: "6px",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  width: 14,
+                  height: 14,
+                  borderRadius: 7,
+                  background: "#f59e0b",
+                  color: "white",
+                  textAlign: "center",
+                  lineHeight: "14px",
+                  fontSize: 11,
+                }}
+              >
+                i
+              </span>
+              <span>This support will remain while its target is present</span>
+            </div>
+          )}
         </div>
         {cost !== undefined && (
           <div className="card-cost" style={{ fontSize: "10px" }}>
