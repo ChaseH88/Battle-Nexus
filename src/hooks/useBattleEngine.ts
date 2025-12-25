@@ -311,12 +311,12 @@ export function useBattleEngine(): BattleEngineHookReturn {
     activateSupport,
     activateTrap,
     activateCreatureEffect,
-    activateCreatureEffect,
     attack,
     toggleCreatureMode,
     endTurn,
 
     // Utility
     refresh,
+    ai,
   };
 }

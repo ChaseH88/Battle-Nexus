@@ -57,13 +57,14 @@ export default function App() {
   const [aiSkillLevel, setAiSkillLevel] = useState(5);
 
   // Ref to store trap activation callback - needs to be stable and have access to latest state
-  const trapActivationCallbackRef = useRef<
-    (
-      defenderIndex: 0 | 1,
-      attackerLane: number,
-      targetLane: number
-    ) => Promise<boolean>
-  >();
+  const trapActivationCallbackRef =
+    useRef<
+      (
+        defenderIndex: 0 | 1,
+        attackerLane: number,
+        targetLane: number
+      ) => Promise<boolean>
+    >();
 
   // Use the battle engine hook for all state management
   const {
@@ -84,6 +85,7 @@ export default function App() {
     toggleCreatureMode,
     endTurn,
     refresh,
+    ai,
   } = useBattleEngine();
 
   // Create stable trap activation callback
@@ -93,35 +95,55 @@ export default function App() {
       attackerLane: number,
       targetLane: number
     ): Promise<boolean> => {
-      // Only prompt human player (player 0)
-      if (defenderIndex !== 0 || !engine) return false;
+      if (!engine || !gameState) return false;
 
       const traps = engine.getActivatableTraps(defenderIndex);
       if (!traps || traps.length === 0) return false;
 
       const trap = traps[0];
 
-      return new Promise<boolean>((resolve) => {
-        dispatch(
-          openModal({
-            title: "Trap Activation",
-            message: `Your opponent is attacking! Activate ${trap.card.name}?`,
-            onConfirm: () => {
-              // Activate trap then resolve true
-              activateTrap(defenderIndex, trap.slot, { targetLane });
-              dispatch(closeModal());
-              resolve(true);
-            },
-            onCancel: () => {
-              // Don't activate trap
-              dispatch(closeModal());
-              resolve(false);
-            },
-          })
+      // If defender is AI (player 1), let AI decide
+      if (defenderIndex === 1 && ai) {
+        const shouldActivate = ai.shouldActivateTrap(
+          gameState,
+          trap.card,
+          attackerLane,
+          targetLane
         );
-      });
+
+        if (shouldActivate) {
+          activateTrap(defenderIndex, trap.slot, { targetLane });
+          return true;
+        }
+        return false;
+      }
+
+      // If defender is human (player 0), prompt them
+      if (defenderIndex === 0) {
+        return new Promise<boolean>((resolve) => {
+          dispatch(
+            openModal({
+              title: "Trap Activation",
+              message: `Your opponent is attacking! Activate ${trap.card.name}?`,
+              onConfirm: () => {
+                // Activate trap then resolve true
+                activateTrap(defenderIndex, trap.slot, { targetLane });
+                dispatch(closeModal());
+                resolve(true);
+              },
+              onCancel: () => {
+                // Don't activate trap
+                dispatch(closeModal());
+                resolve(false);
+              },
+            })
+          );
+        });
+      }
+
+      return false;
     },
-    [engine, activateTrap, dispatch]
+    [engine, gameState, ai, activateTrap, dispatch]
   );
 
   // Update ref whenever callback changes
@@ -136,7 +158,7 @@ export default function App() {
   const startNewGame = () => {
     const deck1 = allCards.map(cardFactory);
     const deck2 = allCards.map(cardFactory);
-    
+
     // Wrap trap callback in a function that uses the ref
     const trapCallback = async (
       defenderIndex: 0 | 1,

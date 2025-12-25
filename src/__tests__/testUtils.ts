@@ -6,6 +6,7 @@ import { SupportCard } from "@cards/SupportCard";
 import { BattleEngine } from "@battle/BattleEngine";
 import { createPlayerState } from "@battle/PlayerState";
 import { createGameState } from "@battle/GameState";
+import { AIPlayer } from "@battle/AIPlayer";
 
 /**
  * Factory function to create typed card instances from raw JSON data
@@ -43,6 +44,105 @@ export function drawMany(
 }
 
 /**
+ * Helper to advance to MAIN phase (calls draw once for player 0)
+ */
+export function enterMainPhase(engine: BattleEngine): void {
+  engine.draw(0);
+}
+
+/**
+ * Helper to create a test creature card
+ */
+export function createTestCreature(overrides: Partial<any> = {}): CreatureCard {
+  return cardFactory({
+    id: "test_creature",
+    type: CardType.Creature,
+    name: "Test Creature",
+    atk: 1000,
+    def: 800,
+    affinity: "Fire",
+    rarity: "Common",
+    cost: 2,
+    ...overrides,
+  }) as CreatureCard;
+}
+
+/**
+ * Helper to create a test support card
+ */
+export function createTestSupport(overrides: Partial<any> = {}): SupportCard {
+  return cardFactory({
+    id: "test_support",
+    type: CardType.Support,
+    name: "Test Support",
+    effectId: "draw_on_play",
+    effectType: "ONE_TIME",
+    cost: 1,
+    rarity: "Common",
+    ...overrides,
+  }) as SupportCard;
+}
+
+/**
+ * Helper to create a test action card
+ */
+export function createTestAction(overrides: Partial<any> = {}): ActionCard {
+  return cardFactory({
+    id: "test_action",
+    type: CardType.Action,
+    name: "Test Action",
+    effectId: "draw_on_play",
+    effectType: "ONE_TIME",
+    cost: 1,
+    rarity: "Common",
+    ...overrides,
+  }) as ActionCard;
+}
+
+/**
+ * Helper to add a card directly to a player's hand
+ */
+export function addCardToHand(
+  engine: BattleEngine,
+  playerIndex: 0 | 1,
+  card: CardInterface
+): void {
+  engine.state.players[playerIndex].hand.push(card);
+}
+
+/**
+ * Helper to play a creature in a specific lane
+ */
+export function playCreatureInLane(
+  engine: BattleEngine,
+  playerIndex: 0 | 1,
+  lane: number,
+  creature?: CreatureCard,
+  faceDown: boolean = false,
+  mode: "ATTACK" | "DEFENSE" = "ATTACK"
+): CreatureCard {
+  const card = creature || createTestCreature({ id: `creature_${Date.now()}` });
+  addCardToHand(engine, playerIndex, card);
+  engine.playCreature(playerIndex, lane, card.id, faceDown, mode);
+  return card;
+}
+
+/**
+ * Helper to play a support card in a specific slot
+ */
+export function playSupportInSlot(
+  engine: BattleEngine,
+  playerIndex: 0 | 1,
+  slot: number,
+  support?: SupportCard | ActionCard
+): SupportCard | ActionCard {
+  const card = support || createTestSupport({ id: `support_${Date.now()}` });
+  addCardToHand(engine, playerIndex, card);
+  engine.playSupport(playerIndex, slot, card.id);
+  return card;
+}
+
+/**
  * Creates a basic game setup with two players and a battle engine
  */
 export function createTestGame(
@@ -60,4 +160,24 @@ export function createTestGame(
   const engine = new BattleEngine(game);
 
   return { p1, p2, game, engine };
+}
+
+/**
+ * Creates a test game with AI player
+ */
+export function createTestGameWithAI(
+  skillLevel: number = 5,
+  deck1 = testDeck1,
+  deck2 = testDeck2
+): {
+  p1: ReturnType<typeof createPlayerState>;
+  p2: ReturnType<typeof createPlayerState>;
+  game: ReturnType<typeof createGameState>;
+  engine: BattleEngine;
+  ai: AIPlayer;
+} {
+  const { p1, p2, game, engine } = createTestGame(deck1, deck2);
+  const ai = new AIPlayer({ skillLevel, playerIndex: 1 }, engine);
+
+  return { p1, p2, game, engine, ai };
 }

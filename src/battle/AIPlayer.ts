@@ -5,6 +5,7 @@ import { CreatureCard } from "../cards/CreatureCard";
 import { SupportCard } from "../cards/SupportCard";
 import { ActionCard } from "../cards/ActionCard";
 import { CardType } from "../cards/types";
+import { effectsRegistry } from "../effects/registry";
 
 export interface AIConfig {
   skillLevel: number; // 1-10
@@ -233,6 +234,15 @@ export class AIPlayer {
       if (spellCard.isActive) continue;
       if (!spellCard.isFaceDown) continue; // Only activate face-down cards
 
+      // Check if this is a trap card (ON_DEFEND trigger) - skip it
+      if (spellCard.effectId) {
+        const effectDef = effectsRegistry[spellCard.effectId];
+        if (effectDef && effectDef.trigger === "ON_DEFEND") {
+          // This is a trap - can only be activated when opponent attacks
+          continue;
+        }
+      }
+
       // Skill determines when to flip face-down cards
       if (this.shouldFlipSupport(state, i)) {
         this.engine.activateSupport(this.playerIndex, i);
@@ -249,7 +259,7 @@ export class AIPlayer {
     // Skill 1-3: Very rarely flip (don't understand the strategy)
     if (this.skillLevel <= 3) return Math.random() < 0.15;
 
-    // Skill 4-5: Sometimes flip
+    // Skill 4-5: Sometimes flip randomly
     if (this.skillLevel <= 5) return Math.random() < 0.3;
 
     // Skill 6-8: Flip sometimes
@@ -257,6 +267,57 @@ export class AIPlayer {
 
     // Skill 9-10: Flip strategically (simulate "right timing")
     return Math.random() < 0.6;
+  }
+
+  /**
+   * Decide whether AI should activate its own trap when being attacked
+   * Called by the trap activation callback when human player attacks AI
+   */
+  public shouldActivateTrap(
+    state: GameState,
+    trapCard: SupportCard | ActionCard,
+    attackerLane: number,
+    targetLane: number
+  ): boolean {
+    const player = state.players[this.playerIndex];
+    const opponent = state.players[getOpponentIndex(this.playerIndex)];
+
+    // Get trap effect details
+    const effectDef = trapCard.effectId
+      ? effectsRegistry[trapCard.effectId]
+      : null;
+    if (!effectDef) return false;
+
+    // Mirror Force logic: Destroy all opponent attack-mode creatures
+    if (effectDef.id === "mirror_force") {
+      // Count opponent's attack-mode creatures
+      const attackModeCount = opponent.lanes.filter(
+        (c) => c && (c as CreatureCard).mode === "ATTACK"
+      ).length;
+
+      // Skill 1-3: Rarely activate (don't understand value)
+      if (this.skillLevel <= 3) return Math.random() < 0.2;
+
+      // Skill 4-5: Activate if multiple creatures
+      if (this.skillLevel <= 5) return attackModeCount >= 2;
+
+      // Skill 6-7: Activate if 2+ creatures OR about to lose board
+      if (this.skillLevel <= 7) {
+        const myCreatureCount = player.lanes.filter((c) => c !== null).length;
+        return attackModeCount >= 2 || myCreatureCount === 0;
+      }
+
+      // Skill 8-10: Strategic - activate if it clears board or saves from lethal
+      // Always activate if we have no creatures (direct attack defense)
+      const myCreatureCount = player.lanes.filter((c) => c !== null).length;
+      if (myCreatureCount === 0) return true;
+
+      // Activate if clears 2+ creatures
+      return attackModeCount >= 2;
+    }
+
+    // Default: activate based on skill (for future trap cards)
+    return Math.random() < this.skillLevel * 0.1;
   }
 
   /**
