@@ -223,6 +223,18 @@
     "set": "BN-CORE"
   },
   {
+    "id": "mirror_force",
+    "type": "SUPPORT",
+    "name": "Mirror Force",
+    "description": "Trap: When an opponent's creature attacks, destroy all of their attack position creatures.",
+    "cost": 3,
+    "effectId": "mirror_force",
+    "effectType": "ONE_TIME",
+    "oncePerTurn": false,
+    "rarity": "SR",
+    "set": "BN-CORE"
+  },
+  {
     "id": "crystal_sprite",
     "type": "CREATURE",
     "name": "Crystal Sprite",

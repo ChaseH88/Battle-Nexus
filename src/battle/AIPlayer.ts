@@ -16,16 +16,27 @@ export class AIPlayer {
   private playerIndex: 0 | 1;
   private engine: BattleEngine;
   private onActionComplete?: () => void;
+  private trapActivationCallback?: (
+    defenderIndex: 0 | 1,
+    attackerLane: number,
+    targetLane: number
+  ) => Promise<boolean>;
 
   constructor(
     config: AIConfig,
     engine: BattleEngine,
-    onActionComplete?: () => void
+    onActionComplete?: () => void,
+    trapActivationCallback?: (
+      defenderIndex: 0 | 1,
+      attackerLane: number,
+      targetLane: number
+    ) => Promise<boolean>
   ) {
     this.skillLevel = Math.max(1, Math.min(10, config.skillLevel)); // Clamp 1-10
     this.playerIndex = config.playerIndex;
     this.engine = engine;
     this.onActionComplete = onActionComplete;
+    this.trapActivationCallback = trapActivationCallback;
   }
 
   /**
@@ -262,6 +273,21 @@ export class AIPlayer {
       const target = this.chooseAttackTarget(state, laneIndex);
 
       if (target !== null) {
+        // Check if opponent has traps before attacking
+        const defenderIndex = getOpponentIndex(this.playerIndex);
+        if (this.trapActivationCallback) {
+          const trapActivated = await this.trapActivationCallback(
+            defenderIndex,
+            laneIndex,
+            target
+          );
+          // If trap was activated, state may have changed
+          if (trapActivated) {
+            this.onActionComplete?.();
+            await this.delay(500);
+          }
+        }
+
         this.engine.attack(this.playerIndex, laneIndex, target);
         this.onActionComplete?.();
         await this.delay(500);

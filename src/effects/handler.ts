@@ -8,6 +8,7 @@ import { conditional_fire_bonus } from "./effect/conditional_fire_bonus";
 import { draw_two_on_combat_ko } from "./effect/draw_two_on_combat_ko";
 import { boost_fire_atk } from "./effect/boost_fire_atk";
 import { purge_opponent_support } from "./effect/purge_opponent_support";
+import { mirror_force } from "./effect/mirror_force";
 
 /**
  * Effect Context - provides access to all game state and utility functions
@@ -279,6 +280,7 @@ export const effectHandlers: Record<string, EffectHandler> = {
   draw_two_on_combat_ko,
   boost_fire_atk,
   purge_opponent_support,
+  mirror_force,
 };
 
 /**

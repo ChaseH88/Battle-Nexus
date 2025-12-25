@@ -243,5 +243,21 @@
         ]
       }
     ]
+  },
+
+  {
+    "id": "mirror_force",
+    "name": "Mirror Force",
+    "timing": "IMMEDIATE",
+    "trigger": "ON_DEFEND",
+    "stackable": false,
+    "description": "When an opponent's creature attacks, destroy all of their attack position creatures",
+    "actions": [
+      {
+        "type": "DESTROY",
+        "target": "OPPONENT_CREATURE",
+        "filter": { "mode": "ATTACK" }
+      }
+    ]
   }
 ]

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { CardInterface, CardType } from "../cards/types";
 import { CreatureCard } from "../cards/CreatureCard";
 import { ActionCard } from "../cards/ActionCard";
@@ -30,6 +30,7 @@ import {
 import backgroundImage from "../assets/background.png";
 import { useBattleEngine } from "../hooks/useBattleEngine";
 import { getEffectMetadata } from "../effects/metadata";
+import { effectsRegistry } from "../effects/registry";
 
 function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
@@ -55,6 +56,15 @@ export default function App() {
 
   const [aiSkillLevel, setAiSkillLevel] = useState(5);
 
+  // Ref to store trap activation callback - needs to be stable and have access to latest state
+  const trapActivationCallbackRef = useRef<
+    (
+      defenderIndex: 0 | 1,
+      attackerLane: number,
+      targetLane: number
+    ) => Promise<boolean>
+  >();
+
   // Use the battle engine hook for all state management
   const {
     engine,
@@ -68,12 +78,56 @@ export default function App() {
     playCreature,
     playSupport,
     activateSupport,
+    activateTrap,
     activateCreatureEffect,
     attack,
     toggleCreatureMode,
     endTurn,
     refresh,
   } = useBattleEngine();
+
+  // Create stable trap activation callback
+  const trapActivationCallback = useCallback(
+    async (
+      defenderIndex: 0 | 1,
+      attackerLane: number,
+      targetLane: number
+    ): Promise<boolean> => {
+      // Only prompt human player (player 0)
+      if (defenderIndex !== 0 || !engine) return false;
+
+      const traps = engine.getActivatableTraps(defenderIndex);
+      if (!traps || traps.length === 0) return false;
+
+      const trap = traps[0];
+
+      return new Promise<boolean>((resolve) => {
+        dispatch(
+          openModal({
+            title: "Trap Activation",
+            message: `Your opponent is attacking! Activate ${trap.card.name}?`,
+            onConfirm: () => {
+              // Activate trap then resolve true
+              activateTrap(defenderIndex, trap.slot, { targetLane });
+              dispatch(closeModal());
+              resolve(true);
+            },
+            onCancel: () => {
+              // Don't activate trap
+              dispatch(closeModal());
+              resolve(false);
+            },
+          })
+        );
+      });
+    },
+    [engine, activateTrap, dispatch]
+  );
+
+  // Update ref whenever callback changes
+  useEffect(() => {
+    trapActivationCallbackRef.current = trapActivationCallback;
+  }, [trapActivationCallback]);
 
   useEffect(() => {
     startNewGame();
@@ -82,7 +136,24 @@ export default function App() {
   const startNewGame = () => {
     const deck1 = allCards.map(cardFactory);
     const deck2 = allCards.map(cardFactory);
-    initializeGame(deck1, deck2, aiSkillLevel);
+    
+    // Wrap trap callback in a function that uses the ref
+    const trapCallback = async (
+      defenderIndex: 0 | 1,
+      attackerLane: number,
+      targetLane: number
+    ): Promise<boolean> => {
+      if (trapActivationCallbackRef.current) {
+        return trapActivationCallbackRef.current(
+          defenderIndex,
+          attackerLane,
+          targetLane
+        );
+      }
+      return false;
+    };
+
+    initializeGame(deck1, deck2, aiSkillLevel, trapCallback);
     dispatch(setSelectedHandCard(null));
     dispatch(setSelectedAttacker(null));
   };
@@ -201,6 +272,16 @@ export default function App() {
 
     // Check if card is face down - must flip and activate
     if (card.isFaceDown) {
+      // Check if this is a trap card (ON_DEFEND trigger) - traps can't be manually activated
+      if (card.effectId) {
+        // Check the effect's trigger from the registry
+        const effectDef = effectsRegistry[card.effectId];
+        if (effectDef && effectDef.trigger === "ON_DEFEND") {
+          // This is a trap - cannot be manually activated
+          return;
+        }
+      }
+
       // Get metadata once and use it for all checks
       const metadata = card.effectId ? getEffectMetadata(card.effectId) : null;
       const requiresTargeting = metadata?.targeting?.required ?? false;
@@ -306,6 +387,39 @@ export default function App() {
 
   const handleAttack = (targetLane: number) => {
     if (selectedAttacker === null) return;
+
+    // Determine defender index
+    const defenderIndex = gameState.activePlayer === 0 ? 1 : 0;
+
+    // If defender is human (player 0) and they have face-down traps, prompt them
+    const traps = engine?.getActivatableTraps(defenderIndex) || [];
+    if (traps.length > 0 && defenderIndex === 0) {
+      const trap = traps[0];
+      dispatch(
+        openModal({
+          title: "Trap Activation",
+          message: `Your opponent is attacking! Activate ${trap.card.name}?`,
+          onConfirm: () => {
+            // Activate the trap (will resolve and be discarded)
+            activateTrap(defenderIndex, trap.slot, { targetLane });
+
+            // Proceed with the attack after trap resolution
+            attack(gameState.activePlayer, selectedAttacker, targetLane);
+            dispatch(setSelectedAttacker(null));
+            dispatch(closeModal());
+          },
+          onCancel: () => {
+            // Don't activate trap, just proceed with attack
+            attack(gameState.activePlayer, selectedAttacker, targetLane);
+            dispatch(setSelectedAttacker(null));
+            dispatch(closeModal());
+          },
+        })
+      );
+      return;
+    }
+
+    // No trap prompt needed — proceed with attack
     attack(gameState.activePlayer, selectedAttacker, targetLane);
     dispatch(setSelectedAttacker(null));
   };
@@ -520,7 +634,7 @@ export default function App() {
           title={modal.title || ""}
           message={modal.message || ""}
           onConfirm={modal.onConfirm || (() => {})}
-          onCancel={() => dispatch(closeModal())}
+          onCancel={modal.onCancel || (() => dispatch(closeModal()))}
         />
         <TargetSelectModal />
         <CardDetailModal />

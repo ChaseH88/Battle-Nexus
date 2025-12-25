@@ -433,6 +433,69 @@ export class BattleEngine {
   }
 
   /**
+   * Activate a trap card (ON_DEFEND trigger) during combat
+   * This is separate from activateSupport because traps have special timing
+   */
+  activateTrap(
+    playerIndex: 0 | 1,
+    slot: number,
+    eventData?: { lane?: number; targetLane?: number }
+  ): boolean {
+    const player = this.state.players[playerIndex];
+    const card = player.support[slot] as SupportCard | ActionCard | null;
+
+    if (
+      !card ||
+      (card.type !== CardType.Support && card.type !== CardType.Action)
+    ) {
+      return false;
+    }
+
+    if (!card.isFaceDown || card.isActive) {
+      return false;
+    }
+
+    // Verify this is a trap (ON_DEFEND trigger)
+    if (card.effectId) {
+      const effect = effectsRegistry[card.effectId];
+      if (!effect || effect.trigger !== "ON_DEFEND") {
+        this.log(`${card.name} is not a trap card!`);
+        return false;
+      }
+    }
+
+    // Flip face up and activate
+    card.isFaceDown = false;
+    card.isActive = true;
+
+    this.log(`⚠️ ${player.id} activates trap ${card.name}!`);
+
+    // Resolve the trap effect
+    resolveEffectsForCard({
+      state: this.state,
+      ownerIndex: playerIndex,
+      cardEffectId: card.effectId,
+      trigger: "ON_DEFEND",
+      sourceCard: card,
+      engine: this,
+      eventData,
+    });
+
+    // Traps are always discarded after activation
+    moveCard(
+      this.state,
+      playerIndex,
+      Zone.Support0,
+      Zone.DiscardPile,
+      card.id,
+      { fromLane: slot }
+    );
+    this.log(`${card.name} was sent to the discard pile`);
+
+    return true;
+  }
+
+  /**
    * Checks all active support cards and removes those whose targets have left the field
    * Called whenever a creature is removed from a lane
    *
@@ -922,6 +985,29 @@ export class BattleEngine {
         });
       }
     });
+  }
+
+  /**
+   * Get face-down support cards (traps) that can be activated on defend
+   * Returns an array of {card, slot} objects
+   */
+  getActivatableTraps(
+    playerIndex: 0 | 1
+  ): Array<{ card: SupportCard | ActionCard; slot: number }> {
+    const player = this.state.players[playerIndex];
+    const traps: Array<{ card: SupportCard | ActionCard; slot: number }> = [];
+
+    player.support.forEach((card, slot) => {
+      if (card && card.isFaceDown && !card.isActive && card.effectId) {
+        const effect = effectsRegistry[card.effectId];
+        // Check if this is an ON_DEFEND trigger effect
+        if (effect && effect.trigger === "ON_DEFEND") {
+          traps.push({ card: card as SupportCard | ActionCard, slot });
+        }
+      }
+    });
+
+    return traps;
   }
 
   private applyActiveEffectsToCreature(

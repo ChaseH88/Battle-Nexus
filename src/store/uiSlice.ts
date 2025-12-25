@@ -7,6 +7,7 @@ interface ModalState {
   title: string;
   message: string;
   onConfirm?: () => void;
+  onCancel?: () => void;
 }
 
 interface CardDetailModalState {
@@ -49,6 +50,7 @@ const initialState: UIState = {
     title: "",
     message: "",
     onConfirm: undefined,
+    onCancel: undefined,
   },
   playCreatureModal: {
     isOpen: false,

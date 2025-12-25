@@ -27,7 +27,12 @@ export interface BattleEngineHookReturn {
   initializeGame: (
     player1Deck: CardInterface[],
     player2Deck: CardInterface[],
-    aiSkillLevel?: number
+    aiSkillLevel?: number,
+    trapCallback?: (
+      defenderIndex: 0 | 1,
+      attackerLane: number,
+      targetLane: number
+    ) => Promise<boolean>
   ) => void;
   draw: (playerIndex: number) => void;
   playCreature: (
@@ -39,6 +44,11 @@ export interface BattleEngineHookReturn {
   ) => boolean;
   playSupport: (playerIndex: number, slot: number, cardId: string) => boolean;
   activateSupport: (playerIndex: number, slot: number) => boolean;
+  activateTrap: (
+    playerIndex: number,
+    slot: number,
+    eventData?: { lane?: number; targetLane?: number }
+  ) => boolean;
   activateCreatureEffect: (playerIndex: number, lane: number) => boolean;
   attack: (
     playerIndex: number,
@@ -85,7 +95,12 @@ export function useBattleEngine(): BattleEngineHookReturn {
     (
       player1Deck: CardInterface[],
       player2Deck: CardInterface[],
-      aiSkillLevel: number = 5
+      aiSkillLevel: number = 5,
+      trapCallback?: (
+        defenderIndex: 0 | 1,
+        attackerLane: number,
+        targetLane: number
+      ) => Promise<boolean>
     ) => {
       const p1 = createPlayerState("Player 1", [...player1Deck]);
       const p2 = createPlayerState("AI Opponent", [...player2Deck]);
@@ -112,11 +127,12 @@ export function useBattleEngine(): BattleEngineHookReturn {
 
       setEngine(newEngine);
 
-      // Initialize AI with refresh callback
+      // Initialize AI with refresh callback and trap callback
       const newAI = new AIPlayer(
         { skillLevel: aiSkillLevel, playerIndex: 1 },
         newEngine,
-        () => refreshRef.current()
+        () => refreshRef.current(),
+        trapCallback
       );
       setAI(newAI);
 
@@ -172,6 +188,24 @@ export function useBattleEngine(): BattleEngineHookReturn {
     (playerIndex: number, slot: number): boolean => {
       if (!engine) return false;
       const success = engine.activateSupport(playerIndex as 0 | 1, slot);
+      if (success) refresh();
+      return success;
+    },
+    [engine, refresh]
+  );
+
+  const activateTrap = useCallback(
+    (
+      playerIndex: number,
+      slot: number,
+      eventData?: { lane?: number; targetLane?: number }
+    ): boolean => {
+      if (!engine) return false;
+      const success = engine.activateTrap(
+        playerIndex as 0 | 1,
+        slot,
+        eventData
+      );
       if (success) refresh();
       return success;
     },
@@ -275,6 +309,8 @@ export function useBattleEngine(): BattleEngineHookReturn {
     playCreature,
     playSupport,
     activateSupport,
+    activateTrap,
+    activateCreatureEffect,
     activateCreatureEffect,
     attack,
     toggleCreatureMode,
