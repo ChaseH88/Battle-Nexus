@@ -17,6 +17,7 @@ export function resolveEffectsForCard(params: {
     targetLane?: number;
     targetPlayer?: 0 | 1;
   };
+  onEffectActivated?: (card: CardInterface, effectName: string) => void;
 }) {
   const {
     state,
@@ -26,6 +27,7 @@ export function resolveEffectsForCard(params: {
     sourceCard,
     engine,
     eventData,
+    onEffectActivated,
   } = params;
 
   if (!cardEffectId || !sourceCard || !engine) return;
@@ -48,6 +50,11 @@ export function resolveEffectsForCard(params: {
     effect.name,
     `Effect fired: ${effect.name} (${effect.id})`
   );
+
+  // Notify that effect is activating
+  if (onEffectActivated) {
+    onEffectActivated(sourceCard, effect.name);
+  }
 
   // Create effect context
   const context: EffectContext = {

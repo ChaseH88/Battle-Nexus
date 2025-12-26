@@ -485,7 +485,8 @@ export class AIPlayer {
    * Skill-based decision: should play creatures?
    */
   private shouldPlayCreatures(): boolean {
-    return Math.random() < 0.7 + this.skillLevel * 0.03;
+    // AI should always attempt to play creatures when available
+    return true;
   }
 
   /**
@@ -561,14 +562,16 @@ export class AIPlayer {
    * Skill-based decision: should play spells?
    */
   private shouldPlaySpells(): boolean {
-    return Math.random() < 0.4 + this.skillLevel * 0.05;
+    // AI should always attempt to play support/action cards when available
+    return true;
   }
 
   /**
    * Skill-based decision: should activate face-down supports?
    */
   private shouldActivateSupports(): boolean {
-    return this.skillLevel >= 5 && Math.random() < 0.3 + this.skillLevel * 0.04;
+    // Lower skill AI (1-4) doesn't activate strategically, higher skill always checks
+    return this.skillLevel >= 5;
   }
 
   /**

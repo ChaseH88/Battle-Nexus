@@ -7,8 +7,8 @@ export const ModalOverlay = styled(Box)(({ theme }) => ({
   left: 0,
   right: 0,
   bottom: 0,
-  background: "rgba(0, 0, 0, 0.85)",
-  backdropFilter: "blur(8px)",
+  background: "transparent",
+  backdropFilter: "blur(2px)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -21,13 +21,7 @@ export const ModalOverlay = styled(Box)(({ theme }) => ({
 }));
 
 export const ModalContent = styled(Box)(({ theme }) => ({
-  background:
-    "linear-gradient(135deg, rgba(30, 41, 82, 0.98) 0%, rgba(16, 24, 64, 0.98) 100%)",
-  border: "3px solid rgba(251, 191, 36, 0.5)",
-  borderRadius: "16px",
-  padding: "35px",
-  maxWidth: "550px",
-  width: "90%",
+  background: "transparent",
   boxShadow:
     "0 20px 60px rgba(0, 0, 0, 0.8), 0 0 60px rgba(251, 191, 36, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
   animation: "modalSlideIn 0.3s ease",

@@ -9,6 +9,7 @@ interface ControlsProps extends Pick<GameState, "phase"> {
   deckSize: number;
   isPlayerTurn?: boolean;
   showEndTurnButton?: boolean;
+  isShowingEffectNotification?: boolean;
 }
 
 export const Controls = ({
@@ -19,6 +20,7 @@ export const Controls = ({
   startNewGame,
   deckSize,
   isPlayerTurn = true,
+  isShowingEffectNotification = false,
 }: ControlsProps) => (
   <ControlsContainer>
     {isPlayerTurn && (
@@ -26,7 +28,12 @@ export const Controls = ({
         <ControlButton
           data-testid="draw-button"
           onClick={handleDraw}
-          disabled={isGameOver || phase !== "DRAW" || deckSize === 0}
+          disabled={
+            isGameOver ||
+            phase !== "DRAW" ||
+            deckSize === 0 ||
+            isShowingEffectNotification
+          }
           highlight={phase === "DRAW" && deckSize > 0}
         >
           {phase === "DRAW" && deckSize === 0
@@ -36,7 +43,9 @@ export const Controls = ({
         <ControlButton
           data-testid="end-turn-button"
           onClick={handleEndTurn}
-          disabled={isGameOver || phase === "DRAW"}
+          disabled={
+            isGameOver || phase === "DRAW" || isShowingEffectNotification
+          }
         >
           End Turn
         </ControlButton>
@@ -45,7 +54,7 @@ export const Controls = ({
     <ControlButton
       data-testid="new-game-button"
       onClick={startNewGame}
-      disabled={!isPlayerTurn}
+      disabled={!isPlayerTurn || isShowingEffectNotification}
     >
       New Game
     </ControlButton>

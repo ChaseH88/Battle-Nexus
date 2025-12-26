@@ -26,6 +26,10 @@ import {
   openTargetSelectModal,
   closeTargetSelectModal,
   openCardDetailModal,
+  closeCardDetailModal,
+  queueEffectNotification,
+  dequeueEffectNotification,
+  setShowingEffectNotification,
 } from "../store/uiSlice";
 import backgroundImage from "../assets/background.png";
 import { useBattleEngine } from "../hooks/useBattleEngine";
@@ -51,8 +55,14 @@ const allCards = (cardsData as any[])
 
 export default function App() {
   const dispatch = useAppDispatch();
-  const { selectedHandCard, selectedAttacker, modal, playCreatureModal } =
-    useAppSelector((state) => state.ui);
+  const {
+    selectedHandCard,
+    selectedAttacker,
+    modal,
+    playCreatureModal,
+    effectNotificationQueue,
+    isShowingEffectNotification,
+  } = useAppSelector((state) => state.ui);
 
   const [aiSkillLevel, setAiSkillLevel] = useState(5);
 
@@ -64,7 +74,7 @@ export default function App() {
         attackerLane: number,
         targetLane: number
       ) => Promise<boolean>
-    >();
+    >(undefined);
 
   // Use the battle engine hook for all state management
   const {
@@ -151,6 +161,55 @@ export default function App() {
     trapActivationCallbackRef.current = trapActivationCallback;
   }, [trapActivationCallback]);
 
+  // Wire BattleEngine effect callback into the UI queue
+  useEffect(() => {
+    if (!engine) return;
+
+    engine.onEffectActivated = (card, effectName) => {
+      dispatch(
+        queueEffectNotification({
+          card,
+          effectName,
+          activeEffects: gameState ? gameState.activeEffects : [],
+        })
+      );
+    };
+
+    return () => {
+      if (engine) engine.onEffectActivated = undefined;
+    };
+  }, [engine, dispatch, gameState]);
+
+  // Process the effect notification queue: show CardDetailModal for 1s per effect
+  useEffect(() => {
+    // Only process if we have items and we're not currently showing one
+    if (effectNotificationQueue.length === 0 || isShowingEffectNotification) {
+      return;
+    }
+
+    const next = effectNotificationQueue[0];
+
+    // Mark as showing and open modal
+    dispatch(setShowingEffectNotification(true));
+    dispatch(
+      openCardDetailModal({
+        card: next.card,
+        activeEffects: next.activeEffects,
+      })
+    );
+
+    // Auto-close after 1 second
+    const timer = setTimeout(() => {
+      dispatch(closeCardDetailModal());
+      dispatch(dequeueEffectNotification());
+      dispatch(setShowingEffectNotification(false));
+    }, 1000);
+
+    return () => clearTimeout(timer);
+    // Only re-run when queue changes, not when isShowingEffectNotification changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectNotificationQueue, dispatch]);
+
   useEffect(() => {
     startNewGame();
   }, []);
@@ -213,6 +272,7 @@ export default function App() {
   const isPlayer1Turn = gameState.activePlayer === 0;
 
   const handleDraw = () => {
+    if (isShowingEffectNotification) return;
     // Check if deck is empty before attempting draw
     if (player1.deck.length === 0) {
       // Auto-advance to main phase
@@ -231,6 +291,7 @@ export default function App() {
     faceDown: boolean = false,
     mode: "ATTACK" | "DEFENSE" = "ATTACK"
   ) => {
+    if (isShowingEffectNotification) return;
     if (!selectedHandCard) return;
     const card = player1.hand.find((c) => c.id === selectedHandCard);
     if (card?.type === CardType.Creature) {
@@ -249,6 +310,7 @@ export default function App() {
   };
 
   const handlePlayCreatureClick = (lane: number) => {
+    if (isShowingEffectNotification) return;
     if (checkNeedsToDraw()) {
       showDrawReminderModal();
       return;
@@ -266,6 +328,7 @@ export default function App() {
   };
 
   const handlePlaySupport = (slot: number) => {
+    if (isShowingEffectNotification) return;
     if (checkNeedsToDraw()) {
       showDrawReminderModal();
       return;
@@ -285,6 +348,7 @@ export default function App() {
   };
 
   const handleActivateSupport = (slot: number) => {
+    if (isShowingEffectNotification) return;
     if (checkNeedsToDraw()) {
       showDrawReminderModal();
       return;
@@ -408,6 +472,7 @@ export default function App() {
   };
 
   const handleAttack = (targetLane: number) => {
+    if (isShowingEffectNotification) return;
     if (selectedAttacker === null) return;
 
     // Determine defender index
@@ -624,6 +689,7 @@ export default function App() {
           startNewGame={startNewGame}
           deckSize={player1.deck.length}
           isPlayerTurn={gameState.activePlayer === 0}
+          isShowingEffectNotification={isShowingEffectNotification}
         />
         <GameLog log={gameState.log} />
         <PlayCreatureModal

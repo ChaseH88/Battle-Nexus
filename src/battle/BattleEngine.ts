@@ -9,6 +9,8 @@ import { effectsRegistry } from "../effects/registry";
 import { canActivateEffect } from "../effects/metadata";
 
 export class BattleEngine {
+  public onEffectActivated?: (card: CardInterface, effectName: string) => void;
+
   constructor(public state: GameState) {}
 
   // Legacy log method for simple strings (maintains compatibility)
@@ -91,6 +93,7 @@ export class BattleEngine {
       ownerIndex: playerIndex as 0 | 1,
       trigger: "ON_DRAW",
       cardEffectId: topCard.effectId,
+      onEffectActivated: this.onEffectActivated,
     });
   }
 
@@ -134,17 +137,8 @@ export class BattleEngine {
     // Apply any persistent active effects (supports/global buffs) to this creature
     this.applyActiveEffectsToCreature(playerIndex as 0 | 1, creature);
 
-    // Only trigger effects if played face-up
-    if (!faceDown) {
-      resolveEffectsForCard({
-        state: this.state,
-        ownerIndex: playerIndex as 0 | 1,
-        cardEffectId: card.effectId,
-        trigger: "ON_PLAY",
-        sourceCard: card,
-        engine: this,
-      });
-    }
+    // Note: Creature effects are NOT auto-triggered on play.
+    // They must be manually activated by clicking the creature after it's on the field.
 
     return true;
   }
@@ -271,6 +265,7 @@ export class BattleEngine {
       cardEffectId: creature.effectId,
       trigger: "ON_PLAY", // Treat creature effect activation like support activation
       eventData,
+      onEffectActivated: this.onEffectActivated,
     });
 
     this.logger.cardActivated(
@@ -389,6 +384,7 @@ export class BattleEngine {
       sourceCard: card,
       engine: this,
       eventData,
+      onEffectActivated: this.onEffectActivated,
     });
 
     // Always discard ACTION cards after activation
@@ -479,6 +475,7 @@ export class BattleEngine {
       sourceCard: card,
       engine: this,
       eventData,
+      onEffectActivated: this.onEffectActivated,
     });
 
     // Traps are always discarded after activation
@@ -610,6 +607,7 @@ export class BattleEngine {
       trigger: "ON_PLAY",
       sourceCard: creature,
       engine: this,
+      onEffectActivated: this.onEffectActivated,
     });
 
     return true;
@@ -685,6 +683,7 @@ export class BattleEngine {
       ownerIndex: playerIndex,
       cardEffectId: attacker.onAttackEffectId,
       trigger: "ON_ATTACK",
+      onEffectActivated: this.onEffectActivated,
     });
 
     const opponentIndex = getOpponentIndex(playerIndex);
@@ -838,8 +837,15 @@ export class BattleEngine {
   endTurn() {
     if (this.state.winnerIndex !== null) return; // game finished
 
-    // Reset hasAttackedThisTurn, hasChangedModeThisTurn, and hasActivatedEffectThisTurn for all creatures on the current player's field
+    // Log turn ending before switching players
     const currentPlayer = this.state.players[this.state.activePlayer];
+    this.logger.turnEnd(
+      this.state.turn,
+      this.state.activePlayer,
+      currentPlayer.id
+    );
+
+    // Reset hasAttackedThisTurn, hasChangedModeThisTurn, and hasActivatedEffectThisTurn for all creatures on the current player's field
     currentPlayer.lanes.forEach((creature) => {
       if (creature && creature.type === CardType.Creature) {
         creature.hasAttackedThisTurn = false;

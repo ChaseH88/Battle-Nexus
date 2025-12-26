@@ -68,6 +68,10 @@ body {
   gap: 8px;
 }
 
+.card-slot.no-hover {
+  pointer-events: none !important;
+}
+
 .card-slot:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
@@ -253,12 +257,12 @@ body {
 
 @keyframes pulseBorder {
   0%, 100% {
-    border-color: #fbbf24;
-    box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+    border-color: #60a5fa;
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.6);
   }
   50% {
-    border-color: #f59e0b;
-    box-shadow: 0 0 25px rgba(245, 158, 11, 0.9);
+    border-color: #3b82f6;
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.9);
   }
 }
 
@@ -268,8 +272,8 @@ body {
 }
 
 .card-slot.can-activate:hover {
-  border-color: #fbbf24;
-  box-shadow: 0 0 30px rgba(251, 191, 36, 1);
+  border-color: #93c5fd;
+  box-shadow: 0 0 30px rgba(147, 197, 253, 1);
   transform: translateY(-8px);
 }
 

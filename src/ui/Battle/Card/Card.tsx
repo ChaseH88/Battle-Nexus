@@ -15,6 +15,7 @@ interface CardProps {
   showFaceDown?: boolean;
   selectedHandCard?: string | null;
   canActivate?: boolean; // New prop to show pulsing border
+  disableHover?: boolean; // Disable hover animations (for modal display)
 }
 
 export const Card = ({
@@ -25,6 +26,7 @@ export const Card = ({
   showFaceDown,
   selectedHandCard,
   canActivate = false,
+  disableHover = false,
 }: CardProps) => {
   if (!card) {
     return (
@@ -66,7 +68,7 @@ export const Card = ({
         creature && creature.isFaceDown ? "face-down" : ""
       } ${
         (support || action) && (support || action)!.isActive ? "active" : ""
-      } ${canActivate ? "can-activate" : ""}`}
+      } ${canActivate ? "can-activate" : ""} ${disableHover ? "no-hover" : ""}`}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       style={{ width: 160, height: 253, display: "inline-block" }}

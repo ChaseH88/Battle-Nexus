@@ -177,4 +177,33 @@ describe("BattleEngine – Creature Effects", () => {
       expect(result).toBe(false);
     }
   });
+
+  it("does not auto-trigger creature effects when played", () => {
+    const { p1, p2, game, engine } = createTestGame();
+
+    drawMany(engine, 0, 10);
+
+    // Find a creature with draw effect
+    const drawCreature = p1.hand.find(
+      (c) =>
+        c.type === CardType.Creature &&
+        (c as CreatureCard).effectId === "draw_on_play"
+    );
+
+    if (drawCreature) {
+      const handSizeBefore = p1.hand.length;
+
+      // Play the creature
+      engine.playCreature(0, 0, drawCreature.id);
+
+      // Hand size should be reduced by 1 (the creature was removed from hand)
+      // If effect auto-triggered, it would draw 1 card, keeping hand size the same
+      expect(p1.hand.length).toBe(handSizeBefore - 1);
+
+      // Verify creature can still activate its effect manually
+      const laneCreature = p1.lanes[0] as CreatureCard;
+      expect(laneCreature.canActivateEffect).toBe(true);
+      expect(laneCreature.hasActivatedEffect).toBe(false);
+    }
+  });
 });

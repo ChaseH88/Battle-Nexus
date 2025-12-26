@@ -35,6 +35,12 @@ interface TargetSelectModalState {
   onConfirm?: (value: any) => void;
 }
 
+interface EffectNotification {
+  card: CardInterface;
+  effectName: string;
+  activeEffects: ActiveEffect[];
+}
+
 interface UIState {
   modal: ModalState;
   playCreatureModal: PlayCreatureModalState;
@@ -42,6 +48,8 @@ interface UIState {
   selectedAttacker: number | null;
   targetSelectModal: TargetSelectModalState;
   cardDetailModal: CardDetailModalState;
+  effectNotificationQueue: EffectNotification[];
+  isShowingEffectNotification: boolean;
 }
 
 const initialState: UIState = {
@@ -71,6 +79,8 @@ const initialState: UIState = {
   },
   selectedHandCard: null,
   selectedAttacker: null,
+  effectNotificationQueue: [],
+  isShowingEffectNotification: false,
 };
 
 export const uiSlice = createSlice({
@@ -126,6 +136,18 @@ export const uiSlice = createSlice({
     closeCardDetailModal: (state) => {
       state.cardDetailModal = initialState.cardDetailModal;
     },
+    queueEffectNotification: (
+      state,
+      action: PayloadAction<EffectNotification>
+    ) => {
+      state.effectNotificationQueue.push(action.payload);
+    },
+    dequeueEffectNotification: (state) => {
+      state.effectNotificationQueue.shift();
+    },
+    setShowingEffectNotification: (state, action: PayloadAction<boolean>) => {
+      state.isShowingEffectNotification = action.payload;
+    },
   },
 });
 
@@ -140,6 +162,9 @@ export const {
   closeTargetSelectModal,
   openCardDetailModal,
   closeCardDetailModal,
+  queueEffectNotification,
+  dequeueEffectNotification,
+  setShowingEffectNotification,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;
