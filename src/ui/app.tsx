@@ -35,6 +35,7 @@ import backgroundImage from "../assets/background.png";
 import { useBattleEngine } from "../hooks/useBattleEngine";
 import { getEffectMetadata } from "../effects/metadata";
 import { effectsRegistry } from "../effects/registry";
+import { loadDeckFromLocalStorage, hasSavedDeck } from "../utils/deckLoader";
 
 function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
@@ -65,6 +66,8 @@ export default function App() {
   } = useAppSelector((state) => state.ui);
 
   const [aiSkillLevel, setAiSkillLevel] = useState(5);
+  const [showDeckLoadPrompt, setShowDeckLoadPrompt] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Ref to store trap activation callback - needs to be stable and have access to latest state
   const trapActivationCallbackRef =
@@ -210,13 +213,13 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectNotificationQueue, dispatch]);
 
-  useEffect(() => {
-    startNewGame();
-  }, []);
-
-  const startNewGame = () => {
-    const deck1 = allCards.map(cardFactory);
-    const deck2 = allCards.map(cardFactory);
+  const startNewGameWithCustomDeck = useCallback(() => {
+    const customDeck = loadDeckFromLocalStorage();
+    const deck1 =
+      customDeck && customDeck.length >= 20
+        ? [...customDeck].sort(() => 0.5 - Math.random())
+        : allCards.map(cardFactory).sort(() => 0.5 - Math.random());
+    const deck2 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
 
     // Wrap trap callback in a function that uses the ref
     const trapCallback = async (
@@ -237,7 +240,53 @@ export default function App() {
     initializeGame(deck1, deck2, aiSkillLevel, trapCallback);
     dispatch(setSelectedHandCard(null));
     dispatch(setSelectedAttacker(null));
-  };
+  }, [initializeGame, aiSkillLevel, dispatch]);
+
+  const startNewGame = useCallback(() => {
+    const deck1 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
+    const deck2 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
+
+    // Wrap trap callback in a function that uses the ref
+    const trapCallback = async (
+      defenderIndex: 0 | 1,
+      attackerLane: number,
+      targetLane: number
+    ): Promise<boolean> => {
+      if (trapActivationCallbackRef.current) {
+        return trapActivationCallbackRef.current(
+          defenderIndex,
+          attackerLane,
+          targetLane
+        );
+      }
+      return false;
+    };
+
+    initializeGame(deck1, deck2, aiSkillLevel, trapCallback);
+    dispatch(setSelectedHandCard(null));
+    dispatch(setSelectedAttacker(null));
+  }, [initializeGame, aiSkillLevel, dispatch]);
+
+  const handleNewGame = useCallback(() => {
+    if (hasSavedDeck()) {
+      setShowDeckLoadPrompt(true);
+    } else {
+      startNewGame();
+    }
+  }, [startNewGame]);
+
+  useEffect(() => {
+    // Check if user has a saved deck and offer to load it on initial mount
+    if (!isInitialized) {
+      if (hasSavedDeck()) {
+        setShowDeckLoadPrompt(true);
+      } else {
+        startNewGame();
+      }
+      setIsInitialized(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const checkNeedsToDraw = (): boolean => {
     if (!gameState) return false;
@@ -261,6 +310,82 @@ export default function App() {
       })
     );
   };
+
+  // Render deck load prompt if needed
+  if (showDeckLoadPrompt) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000,
+        }}
+      >
+        <div
+          style={{
+            background: "linear-gradient(145deg, #2d3748, #1a202c)",
+            border: "2px solid #4a5568",
+            borderRadius: "10px",
+            padding: "30px",
+            maxWidth: "400px",
+            textAlign: "center",
+          }}
+        >
+          <h2 style={{ color: "#fff", marginBottom: "20px" }}>
+            Load Saved Deck?
+          </h2>
+          <p style={{ color: "#cbd5e0", marginBottom: "30px" }}>
+            You have a saved deck. Would you like to use it for this battle?
+          </p>
+          <div
+            style={{ display: "flex", gap: "10px", justifyContent: "center" }}
+          >
+            <button
+              onClick={() => {
+                setShowDeckLoadPrompt(false);
+                startNewGameWithCustomDeck();
+              }}
+              style={{
+                padding: "10px 20px",
+                background: "linear-gradient(145deg, #48bb78, #38a169)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              Yes, Use My Deck
+            </button>
+            <button
+              onClick={() => {
+                setShowDeckLoadPrompt(false);
+                startNewGame();
+              }}
+              style={{
+                padding: "10px 20px",
+                background: "linear-gradient(145deg, #718096, #4a5568)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              No, Random Deck
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!engine || !gameState || !currentPlayer || !opponent) {
     return <div>Loading...</div>;
@@ -686,7 +811,7 @@ export default function App() {
           isGameOver={isGameOver}
           handleDraw={handleDraw}
           handleEndTurn={handleEndTurn}
-          startNewGame={startNewGame}
+          startNewGame={handleNewGame}
           deckSize={player1.deck.length}
           isPlayerTurn={gameState.activePlayer === 0}
           isShowingEffectNotification={isShowingEffectNotification}

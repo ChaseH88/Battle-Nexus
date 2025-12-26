@@ -317,6 +317,5 @@ export function useBattleEngine(): BattleEngineHookReturn {
 
     // Utility
     refresh,
-    ai,
   };
 }
