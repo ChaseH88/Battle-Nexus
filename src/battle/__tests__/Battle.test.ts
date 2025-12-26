@@ -95,22 +95,25 @@ describe("BattleEngine – KO and win logic", () => {
     // Ember Cub destroyed, lane cleared
     expect(p2.lanes[0]).toBeNull();
 
-    // KO count should be 1, no winner yet
-    expect(game.koCount[0]).toBe(1);
-    expect(game.koCount[1]).toBe(0);
+    // Both players should still have 2000 life points (no direct attacks)
+    expect(p1.lifePoints).toBe(2000);
+    expect(p2.lifePoints).toBe(2000);
     expect(game.winnerIndex).toBeNull();
 
-    // ---------- KO #2 ----------
-    // New defender: Aqua Sprite (P2, lane 0) - also needs DEFENSE mode
-    const aquaP2 = getFromHand(p2, "aqua_sprite");
-    const playedAqua = engine.playCreature(1, 0, aquaP2.id);
-    expect(playedAqua).toBe(true);
-    expect(p2.lanes[0]).toBeInstanceOf(CreatureCard);
+    // ---------- Direct Attack Test ----------
+    // No creatures on P2's field - direct attack should deal damage
+    engine.endTurn(); // P2's turn
+    engine.draw(1);
+    engine.endTurn(); // Back to P1's turn
+    engine.draw(0);
+    engine.attack(0, 0); // Direct attack with 400 ATK creature
 
-    const aqua = p2.lanes[0] as CreatureCard;
-    aqua.mode = "DEFENSE"; // 600 HP, 250 DEF - takes 150 damage per hit
+    // P2 should have lost 400 life points
+    expect(p2.lifePoints).toBe(1600);
+    expect(game.winnerIndex).toBeNull();
 
-    // Need 4 attacks to destroy (600 / 150 = 4)
+    // ---------- More Direct Attacks ----------
+    // Attack 4 more times to bring P2 to 0 life points (1600 / 400 = 4)
     for (let i = 0; i < 4; i++) {
       engine.endTurn(); // P2's turn
       engine.draw(1);
@@ -119,35 +122,11 @@ describe("BattleEngine – KO and win logic", () => {
       engine.attack(0, 0);
     }
 
-    expect(p2.lanes[0]).toBeNull();
-    expect(game.koCount[0]).toBe(2);
-    expect(game.winnerIndex).toBeNull();
-
-    // ---------- KO #3 (winning blow) ----------
-    // New defender: Ember Lion (P2, lane 0) - 800 HP, 250 DEF
-    const lionP2 = getFromHand(p2, "ember_lion");
-    const playedLion = engine.playCreature(1, 0, lionP2.id);
-    expect(playedLion).toBe(true);
-    expect(p2.lanes[0]).toBeInstanceOf(CreatureCard);
-
-    const lion = p2.lanes[0] as CreatureCard;
-    lion.mode = "DEFENSE"; // Takes 150 damage per hit
-
-    // Attack multiple times to get the 3rd KO (800 / 150 = ~6 attacks)
-    for (let i = 0; i < 6; i++) {
-      engine.endTurn(); // P2's turn
-      engine.draw(1);
-      engine.endTurn(); // Back to P1's turn
-      engine.draw(0);
-      engine.attack(0, 0);
-      if (p2.lanes[0] === null) break;
-    }
-
-    expect(p2.lanes[0]).toBeNull();
-    expect(game.koCount[0]).toBe(3);
-    expect(game.winnerIndex).toBe(0); // P1 wins by 3 KOs    // ---------- LOG CHECK ----------
+    // P2 should have 0 life points and P1 should win
+    expect(p2.lifePoints).toBe(0);
+    expect(game.winnerIndex).toBe(0); // P1 wins    // ---------- LOG CHECK ----------
     const logText = game.log.getMessages().join(" | ");
     expect(logText).toContain("destroyed");
-    expect(logText).toContain("wins by reaching 3 KOs");
+    expect(logText).toContain("Life Points reached 0");
   });
 });

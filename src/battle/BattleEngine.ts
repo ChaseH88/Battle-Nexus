@@ -23,21 +23,6 @@ export class BattleEngine {
     return this.state.log;
   }
 
-  private registerKO(attackerIndex: 0 | 1, defeated: CreatureCard) {
-    this.state.koCount[attackerIndex] += 1;
-    const ko = this.state.koCount[attackerIndex];
-    this.log(
-      `Creature KO: ${defeated.name} was destroyed. Player ${
-        attackerIndex + 1
-      } now has ${ko} KOs.`
-    );
-
-    if (ko >= 3 && this.state.winnerIndex === null) {
-      this.state.winnerIndex = attackerIndex;
-      this.log(`Player ${attackerIndex + 1} wins by reaching 3 KOs!`);
-    }
-  }
-
   draw(playerIndex: number) {
     // Do not draw if the game is already won
     if (this.state.winnerIndex !== null) return;
@@ -697,22 +682,24 @@ export class BattleEngine {
       );
 
       if (!hasAnyCreatures) {
-        // Opponent has no creatures - direct attack scores a KO point
+        // Opponent has no creatures - direct attack deals damage to life points
+        const damage = attacker.atk;
+        opponent.lifePoints -= damage;
+
         this.log(`${attacker.name} attacked ${opponent.id} directly!`);
         this.log(
-          `${opponent.id} has no creatures to defend! Direct attack scores a KO point!`
+          `${opponent.id} has no creatures to defend! Direct attack deals ${damage} damage!`
         );
+        this.log(`${opponent.id} Life Points: ${opponent.lifePoints}/2000`);
 
-        // Award KO point for undefended direct attack
-        this.state.koCount[playerIndex] += 1;
-        const ko = this.state.koCount[playerIndex];
-        this.log(
-          `Player ${playerIndex + 1} scores a KO point! Total: ${ko} KOs.`
-        );
-
-        if (ko >= 3 && this.state.winnerIndex === null) {
+        // Check for victory by reducing life points to 0
+        if (opponent.lifePoints <= 0 && this.state.winnerIndex === null) {
           this.state.winnerIndex = playerIndex;
-          this.log(`Player ${playerIndex + 1} wins by reaching 3 KOs!`);
+          this.log(
+            `Player ${playerIndex + 1} wins! ${
+              opponent.id
+            }'s Life Points reached 0!`
+          );
         }
       } else {
         // Opponent has creatures, but this lane is empty - no effect
@@ -766,7 +753,6 @@ export class BattleEngine {
         opponent.lanes[targetLane] = null;
         opponent.discardPile.push(defender);
         this.log(`💀 ${defender.name} was destroyed!`);
-        this.registerKO(playerIndex, defender);
         // Remove any support cards targeting this creature
         this.checkAndRemoveTargetedSupports(
           opponentIndex,
@@ -780,7 +766,6 @@ export class BattleEngine {
         this.state.players[playerIndex].lanes[attackerLane] = null;
         this.state.players[playerIndex].discardPile.push(attacker);
         this.log(`💀 ${attacker.name} was destroyed by the counter-attack!`);
-        this.registerKO(opponentIndex, attacker);
         // Remove any support cards targeting this creature
         this.checkAndRemoveTargetedSupports(
           playerIndex,
@@ -809,7 +794,6 @@ export class BattleEngine {
           opponent.lanes[targetLane] = null;
           opponent.discardPile.push(defender);
           this.log(`💀 ${defender.name} was destroyed!`);
-          this.registerKO(playerIndex, defender);
           // Remove any support cards targeting this creature
           this.checkAndRemoveTargetedSupports(
             opponentIndex,

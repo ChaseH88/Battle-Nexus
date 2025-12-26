@@ -767,7 +767,7 @@ export default function App() {
         <PlayerBoard
           player={player2}
           currentPlayerState={player1}
-          koCount={gameState.koCount[1]}
+          lifePoints={player2.lifePoints}
           isOpponent={true}
           isFirstTurn={gameState.turn === 1 && gameState.activePlayer === 0}
           selectedAttacker={selectedAttacker}
@@ -782,7 +782,7 @@ export default function App() {
         />
         <PlayerBoard
           player={player1}
-          koCount={gameState.koCount[0]}
+          lifePoints={player1.lifePoints}
           isOpponent={false}
           isFirstTurn={gameState.turn === 1 && gameState.activePlayer === 0}
           selectedHandCard={selectedHandCard}

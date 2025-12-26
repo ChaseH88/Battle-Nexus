@@ -157,7 +157,6 @@ export interface GameStateSnapshot {
   phase: Phase;
   currentPlayerIndex: 0 | 1;
   hasDrawnThisTurn: boolean;
-  koCount: [number, number];
   winnerIndex: number | null;
   players: {
     id: string;
@@ -287,7 +286,6 @@ export class GameLogger {
       phase: state.phase,
       currentPlayerIndex: state.currentPlayerIndex,
       hasDrawnThisTurn: state.hasDrawnThisTurn,
-      koCount: [...state.koCount] as [number, number],
       winnerIndex: state.winnerIndex,
       players: state.players.map((p: any) => ({
         id: p.id,

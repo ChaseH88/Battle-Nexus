@@ -5,6 +5,7 @@ import { ActionCard } from "../cards/ActionCard";
 
 export interface PlayerState {
   id: string;
+  lifePoints: number;
 
   deck: CardInterface[];
   hand: CardInterface[];
@@ -21,6 +22,7 @@ export function createPlayerState(
 ): PlayerState {
   return {
     id,
+    lifePoints: 2000,
     deck: [...deck],
     hand: [],
     lanes: [null, null, null],

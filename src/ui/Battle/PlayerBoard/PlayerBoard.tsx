@@ -23,7 +23,7 @@ interface PlayerBoardProps
     > {
   player: PlayerState;
   currentPlayerState?: PlayerState; // Pass to CreatureZone for checking attacker mode
-  koCount: number;
+  lifePoints: number;
   isOpponent?: boolean;
   isFirstTurn?: boolean;
   selectedHandCard?: string | null;
@@ -35,7 +35,7 @@ interface PlayerBoardProps
 export const PlayerBoard = ({
   player,
   currentPlayerState,
-  koCount,
+  lifePoints,
   isOpponent = false,
   isFirstTurn = false,
   selectedHandCard,
@@ -77,10 +77,21 @@ export const PlayerBoard = ({
       <PlayerInfo>
         <PlayerName variant="h3">{player.id}</PlayerName>
         <PlayerStat
-          className="kos"
-          data-testid={isOpponent ? "opponent-ko-count" : "player-ko-count"}
+          className="life-points"
+          data-testid={
+            isOpponent ? "opponent-life-points" : "player-life-points"
+          }
+          style={{
+            color:
+              lifePoints <= 500
+                ? "#fc8181"
+                : lifePoints <= 1000
+                ? "#f6ad55"
+                : "#68d391",
+            fontWeight: "bold",
+          }}
         >
-          KOs: {koCount}/3
+          LP: {lifePoints > 0 ? lifePoints : 0}
         </PlayerStat>
         <PlayerStat>Deck: {player.deck.length}</PlayerStat>
         {isOpponent && <PlayerStat>Hand: {player.hand.length}</PlayerStat>}

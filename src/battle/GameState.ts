@@ -25,7 +25,6 @@ export interface GameState {
   hasDrawnThisTurn: boolean;
   log: GameLogger; // Changed from string[] to GameLogger
   stack: CardInterface[];
-  koCount: [number, number];
   winnerIndex: 0 | 1 | null;
   activeEffects: ActiveEffect[];
 }
@@ -39,7 +38,6 @@ export function createGameState(p1: PlayerState, p2: PlayerState): GameState {
     hasDrawnThisTurn: false,
     log: new GameLogger(),
     stack: [],
-    koCount: [0, 0],
     winnerIndex: null,
     activeEffects: [],
   };

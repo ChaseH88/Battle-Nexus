@@ -373,9 +373,9 @@ export class AIPlayer {
       return null;
     }
 
-    // Check if we're at risk of losing (opponent needs 1 more KO to win)
-    const aiKOs = state.koCount[this.playerIndex];
-    const isAtRiskOfLosing = aiKOs >= 2; // If we have 2 KOs, one more means we lose
+    // Check if we're at risk of losing (low life points)
+    const aiPlayer = state.players[this.playerIndex];
+    const isAtRiskOfLosing = aiPlayer.lifePoints <= 500; // If we have 500 LP or less, we're at risk
 
     // Check if opponent has any creatures at all
     const opponentCreatures = opponent.lanes.filter((c) => c !== null);
@@ -426,13 +426,13 @@ export class AIPlayer {
           wouldBeDestroyed = counterDamage >= attacker.currentHp;
         }
 
-        // CRITICAL: If we're at risk of losing (2 KOs), NEVER make an attack where we would be destroyed
+        // CRITICAL: If we're at risk of losing (low LP), NEVER make an attack where we would be destroyed
         // unless we can guarantee destroying the target and it would give us a winning position
         if (isAtRiskOfLosing && wouldBeDestroyed) {
-          // Only acceptable if we destroy them AND they're also at 2 KOs (mutual destruction = draw/stalemate)
+          // Only acceptable if we destroy them AND they're also at low LP (mutual destruction could be beneficial)
           // OR if destroying this creature would give us a winning advantage
-          const opponentKOs = state.koCount[opponentIndex];
-          const isOpponentAlsoAtRisk = opponentKOs >= 2;
+          const opponentPlayer = state.players[opponentIndex];
+          const isOpponentAlsoAtRisk = opponentPlayer.lifePoints <= 500;
 
           if (!wouldDestroyTarget || !isOpponentAlsoAtRisk) {
             // This attack would lose us the game - absolutely avoid it

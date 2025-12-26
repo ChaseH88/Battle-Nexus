@@ -30,24 +30,21 @@ function drawMany(engine: BattleEngine, playerIndex: number, count: number) {
 }
 
 /**
- * KO & Win Condition Tests
- * Tests KO tracking and victory determination
+ * Life Points & Win Condition Tests
+ * Tests life point tracking and victory determination
  * Note: Most win condition logic is tested in Battle.test.ts
- * These tests verify edge cases and KO tracking
+ * These tests verify edge cases and life point tracking
  */
 describe("BattleEngine – Win Conditions", () => {
-  it("tracks KO counts independently for each player", () => {
+  it("tracks life points independently for each player", () => {
     const p1 = createPlayerState("P1", deck1);
     const p2 = createPlayerState("P2", deck2);
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
-    // Initial KO counts should be 0
-    expect(game.koCount[0]).toBe(0);
-    expect(game.koCount[1]).toBe(0);
-
-    // KO counts are tracked in game state
-    expect(game.koCount).toHaveLength(2);
+    // Initial life points should be 2000
+    expect(p1.lifePoints).toBe(2000);
+    expect(p2.lifePoints).toBe(2000);
   });
 
   it("initializes with no winner", () => {
@@ -77,15 +74,15 @@ describe("BattleEngine – Win Conditions", () => {
     expect(p1.deck.length).toBe(initialDeckSize);
   });
 
-  it("maintains KO count structure", () => {
+  it("maintains life points structure", () => {
     const p1 = createPlayerState("P1", deck1);
     const p2 = createPlayerState("P2", deck2);
     const game = createGameState(p1, p2);
 
-    // KO count is a tuple [p1KOs, p2KOs]
-    expect(Array.isArray(game.koCount)).toBe(true);
-    expect(game.koCount).toHaveLength(2);
-    expect(typeof game.koCount[0]).toBe("number");
-    expect(typeof game.koCount[1]).toBe("number");
+    // Each player has life points
+    expect(typeof p1.lifePoints).toBe("number");
+    expect(typeof p2.lifePoints).toBe("number");
+    expect(p1.lifePoints).toBeGreaterThan(0);
+    expect(p2.lifePoints).toBeGreaterThan(0);
   });
 });
