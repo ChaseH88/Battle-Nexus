@@ -102,8 +102,8 @@ export function useBattleEngine(): BattleEngineHookReturn {
         targetLane: number
       ) => Promise<boolean>
     ) => {
-      const _p1 = createPlayerState("Player 1", [...player1Deck]);
-      const _p2 = createPlayerState("AI Opponent", [...player2Deck]);
+      const p1 = createPlayerState("Player 1", [...player1Deck]);
+      const p2 = createPlayerState("AI Opponent", [...player2Deck]);
 
       // Draw initial hands
       for (let i = 0; i < 5; i++) {

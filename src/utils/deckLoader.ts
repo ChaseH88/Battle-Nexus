@@ -6,14 +6,14 @@ import { SupportCard } from "../cards/SupportCard";
 
 const DECK_STORAGE_KEY = "battle-nexus-deck";
 
-function cardFactory(raw: any): CardInterface {
+function cardFactory(raw: CardInterface): CardInterface {
   switch (raw.type) {
     case "CREATURE":
-      return new CreatureCard(raw);
+      return new CreatureCard(raw as any);
     case "ACTION":
-      return new ActionCard(raw);
+      return new ActionCard(raw as any);
     case "SUPPORT":
-      return new SupportCard(raw);
+      return new SupportCard(raw as any);
     default:
       throw new Error(`Unknown card type: ${raw.type}`);
   }

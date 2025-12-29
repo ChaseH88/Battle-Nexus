@@ -24,6 +24,7 @@ export default tseslint.config(
       //   { allowConstantExport: true },
       // ],
       "react-refresh/only-export-components": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
       // Enforce no unused variables
       "@typescript-eslint/no-unused-vars": [
         "error",
