@@ -104,7 +104,6 @@ describe("BattleEngine – Turn & Phase", () => {
     const engine = new BattleEngine(game);
 
     engine.draw(0);
-    const handSize = p1.hand.length;
 
     // Already in MAIN phase
     expect(game.phase).toBe("MAIN");

@@ -23,12 +23,6 @@ function cardFactory(raw: any): CardInterface {
 const deck1 = (cards as any[]).map(cardFactory);
 const deck2 = (cards as any[]).map(cardFactory);
 
-function drawMany(engine: BattleEngine, playerIndex: number, count: number) {
-  for (let i = 0; i < count; i++) {
-    engine.draw(playerIndex);
-  }
-}
-
 /**
  * Life Points & Win Condition Tests
  * Tests life point tracking and victory determination
@@ -39,8 +33,6 @@ describe("BattleEngine – Win Conditions", () => {
   it("tracks life points independently for each player", () => {
     const p1 = createPlayerState("P1", deck1);
     const p2 = createPlayerState("P2", deck2);
-    const game = createGameState(p1, p2);
-    const engine = new BattleEngine(game);
 
     // Initial life points should be 2000
     expect(p1.lifePoints).toBe(2000);
@@ -77,7 +69,6 @@ describe("BattleEngine – Win Conditions", () => {
   it("maintains life points structure", () => {
     const p1 = createPlayerState("P1", deck1);
     const p2 = createPlayerState("P2", deck2);
-    const game = createGameState(p1, p2);
 
     // Each player has life points
     expect(typeof p1.lifePoints).toBe("number");

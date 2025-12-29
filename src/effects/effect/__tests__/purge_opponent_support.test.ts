@@ -10,7 +10,7 @@ import { createTestGame, drawMany, testDeck1 } from "@/__tests__/testUtils";
  */
 describe("Effect: purge_opponent_support", () => {
   it("removes support card from opponent's support zone", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);
@@ -41,7 +41,7 @@ describe("Effect: purge_opponent_support", () => {
   });
 
   it("moves removed card to discard pile", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);
@@ -71,7 +71,7 @@ describe("Effect: purge_opponent_support", () => {
   });
 
   it("targets specific slot when provided in eventData", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 15);
@@ -104,7 +104,7 @@ describe("Effect: purge_opponent_support", () => {
   });
 
   it("auto-targets first occupied slot when no target specified", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 15);
@@ -135,7 +135,7 @@ describe("Effect: purge_opponent_support", () => {
   });
 
   it("does nothing when opponent has no support cards", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     const testCard = testDeck1[0];
 
@@ -156,7 +156,7 @@ describe("Effect: purge_opponent_support", () => {
   });
 
   it("logs removal message", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);

@@ -1,16 +1,9 @@
 import { ActionCard } from "@cards/ActionCard";
 
-interface ActionProps
-  extends Pick<
-    ActionCard,
-    | "name"
-    | "type"
-    | "description"
-    | "cost"
-    | "speed"
-    | "isActive"
-    | "isFaceDown"
-  > {}
+type ActionProps = Pick<
+  ActionCard,
+  "name" | "type" | "description" | "cost" | "speed" | "isActive" | "isFaceDown"
+>;
 
 export const Action = ({
   name,

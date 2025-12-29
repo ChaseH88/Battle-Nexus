@@ -11,7 +11,7 @@ import { createTestGame, testDeck1 } from "@/__tests__/testUtils";
  */
 describe("Effect: draw_on_play", () => {
   it("draws 1 card when triggered", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     const initialHandSize = p1.hand.length;
     const initialDeckSize = p1.deck.length;
@@ -82,7 +82,7 @@ describe("Effect: draw_on_play", () => {
   });
 
   it("can be triggered multiple times", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     const initialHandSize = p1.hand.length;
     const testCard = testDeck1[0];

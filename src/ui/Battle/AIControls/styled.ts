@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { Box, Slider, Typography } from "@mui/material";
 
-export const AIControlsContainer = styled(Box)(({ theme }) => ({
+export const AIControlsContainer = styled(Box)(() => ({
   background: "rgba(0, 0, 0, 0.3)",
   padding: "20px",
   borderRadius: "10px",
@@ -12,7 +12,7 @@ export const AIControlsContainer = styled(Box)(({ theme }) => ({
   flexWrap: "wrap",
 }));
 
-export const SkillSelector = styled(Box)(({ theme }) => ({
+export const SkillSelector = styled(Box)(() => ({
   display: "flex",
   flexDirection: "column",
   gap: "10px",
@@ -20,13 +20,13 @@ export const SkillSelector = styled(Box)(({ theme }) => ({
   minWidth: "300px",
 }));
 
-export const SkillLabel = styled(Typography)(({ theme }) => ({
+export const SkillLabel = styled(Typography)(() => ({
   fontWeight: "bold",
   fontSize: "1rem",
   color: "#fff",
 }));
 
-export const StyledSlider = styled(Slider)(({ theme }) => ({
+export const StyledSlider = styled(Slider)(() => ({
   color: "#4CAF50",
   height: 8,
   "& .MuiSlider-track": {
@@ -49,7 +49,7 @@ export const StyledSlider = styled(Slider)(({ theme }) => ({
   },
 }));
 
-export const SkillLabels = styled(Box)(({ theme }) => ({
+export const SkillLabels = styled(Box)(() => ({
   display: "flex",
   justifyContent: "space-between",
   fontSize: "0.85rem",

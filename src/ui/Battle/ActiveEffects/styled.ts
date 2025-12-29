@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { Box, Typography } from "@mui/material";
 
-export const ActiveEffectsPanel = styled(Box)(({ theme }) => ({
+export const ActiveEffectsPanel = styled(Box)(() => ({
   background:
     "linear-gradient(135deg, rgba(138, 43, 226, 0.3) 0%, rgba(75, 0, 130, 0.3) 100%)",
   border: "2px solid rgba(138, 43, 226, 0.6)",
@@ -11,7 +11,7 @@ export const ActiveEffectsPanel = styled(Box)(({ theme }) => ({
   boxShadow: "0 4px 15px rgba(138, 43, 226, 0.4)",
 }));
 
-export const EffectsTitle = styled(Typography)(({ theme }) => ({
+export const EffectsTitle = styled(Typography)(() => ({
   marginBottom: "12px",
   fontSize: "1.1rem",
   color: "#e0c3fc",
@@ -19,13 +19,13 @@ export const EffectsTitle = styled(Typography)(({ theme }) => ({
   fontWeight: "bold",
 }));
 
-export const EffectsList = styled(Box)(({ theme }) => ({
+export const EffectsList = styled(Box)(() => ({
   display: "flex",
   flexDirection: "column",
   gap: "8px",
 }));
 
-export const EffectItem = styled(Box)(({ theme }) => ({
+export const EffectItem = styled(Box)(() => ({
   display: "flex",
   alignItems: "center",
   gap: "10px",
@@ -48,19 +48,19 @@ export const EffectItem = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const EffectName = styled(Typography)(({ theme }) => ({
+export const EffectName = styled(Typography)(() => ({
   fontWeight: "bold",
   color: "#e0c3fc",
   fontSize: "0.85rem",
 }));
 
-export const EffectSource = styled(Typography)(({ theme }) => ({
+export const EffectSource = styled(Typography)(() => ({
   color: "#b19cd9",
   fontStyle: "italic",
   fontSize: "0.8rem",
 }));
 
-export const EffectDuration = styled(Typography)(({ theme }) => ({
+export const EffectDuration = styled(Typography)(() => ({
   color: "#ffd700",
   fontWeight: "bold",
   fontSize: "0.75rem",
@@ -71,7 +71,7 @@ export const EffectDuration = styled(Typography)(({ theme }) => ({
 }));
 
 export const EffectOwner = styled(Typography)<{ playerindex: number }>(
-  ({ theme, playerindex }) => ({
+  ({ playerindex }) => ({
     fontSize: "0.75rem",
     padding: "2px 8px",
     borderRadius: "4px",
@@ -87,14 +87,14 @@ export const EffectOwner = styled(Typography)<{ playerindex: number }>(
   })
 );
 
-export const EffectStats = styled(Box)(({ theme }) => ({
+export const EffectStats = styled(Box)(() => ({
   display: "flex",
   gap: "6px",
   alignItems: "center",
 }));
 
 export const StatMod = styled(Typography)<{ stattype: "atk" | "def" }>(
-  ({ theme, stattype }) => ({
+  ({ stattype }) => ({
     fontSize: "0.8rem",
     fontWeight: "bold",
     padding: "2px 6px",
@@ -110,7 +110,7 @@ export const StatMod = styled(Typography)<{ stattype: "atk" | "def" }>(
   })
 );
 
-export const AffectedCount = styled(Typography)(({ theme }) => ({
+export const AffectedCount = styled(Typography)(() => ({
   fontSize: "0.75rem",
   color: "#cbd5e0",
   fontStyle: "italic",

@@ -73,7 +73,6 @@ describe("BattleEngine – Card State", () => {
   it("maintains discard pile structure", () => {
     const p1 = createPlayerState("P1", deck1);
     const p2 = createPlayerState("P2", deck2);
-    const game = createGameState(p1, p2);
 
     // Discard pile exists
     expect(Array.isArray(p1.discardPile)).toBe(true);

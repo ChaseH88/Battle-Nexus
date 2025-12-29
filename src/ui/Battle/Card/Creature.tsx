@@ -14,25 +14,24 @@ import { Affinity } from "@cards";
 import { useCallback } from "react";
 import { Cost } from "./Common/Cost";
 
-interface CreatureProps
-  extends Pick<
-    CreatureCard,
-    | "mode"
-    | "isAtkModified"
-    | "isDefModified"
-    | "atk"
-    | "def"
-    | "baseAtk"
-    | "baseDef"
-    | "hp"
-    | "currentHp"
-    | "hasAttackedThisTurn"
-    | "description"
-    | "affinity"
-    | "name"
-    | "type"
-    | "cost"
-  > {}
+type CreatureProps = Pick<
+  CreatureCard,
+  | "mode"
+  | "isAtkModified"
+  | "isDefModified"
+  | "atk"
+  | "def"
+  | "baseAtk"
+  | "baseDef"
+  | "hp"
+  | "currentHp"
+  | "hasAttackedThisTurn"
+  | "description"
+  | "affinity"
+  | "name"
+  | "type"
+  | "cost"
+>;
 
 export const Creature = ({
   mode,
@@ -51,35 +50,32 @@ export const Creature = ({
   type,
   cost,
 }: CreatureProps) => {
-  const getAffinityIcon = useCallback(
-    (affinity: Affinity) => {
-      switch (affinity) {
-        case "FIRE":
-          return fireAffinity;
-        case "WATER":
-          return waterAffinity;
-        case "GRASS":
-          return grassAffinity;
-        case "LIGHTNING":
-          return lightningAffinity;
-        case "ICE":
-          return iceAffinity;
-        case "WIND":
-          return windAffinity;
-        case "METAL":
-          return metalAffinity;
-        case "LIGHT":
-          return lightAffinity;
-        case "SHADOW":
-          return shadowAffinity;
-        case "PSYCHIC":
-          return psychicAffinity;
-        default:
-          return "#";
-      }
-    },
-    [affinity]
-  );
+  const getAffinityIcon = useCallback((affinity: Affinity) => {
+    switch (affinity) {
+      case "FIRE":
+        return fireAffinity;
+      case "WATER":
+        return waterAffinity;
+      case "GRASS":
+        return grassAffinity;
+      case "LIGHTNING":
+        return lightningAffinity;
+      case "ICE":
+        return iceAffinity;
+      case "WIND":
+        return windAffinity;
+      case "METAL":
+        return metalAffinity;
+      case "LIGHT":
+        return lightAffinity;
+      case "SHADOW":
+        return shadowAffinity;
+      case "PSYCHIC":
+        return psychicAffinity;
+      default:
+        return "#";
+    }
+  }, []);
 
   return (
     <article

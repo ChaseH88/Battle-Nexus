@@ -10,7 +10,7 @@ import { createTestGame, drawMany } from "@/__tests__/testUtils";
  */
 describe("Effect: conditional_fire_bonus", () => {
   it("grants +200 ATK to Fire creatures", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -40,7 +40,7 @@ describe("Effect: conditional_fire_bonus", () => {
   });
 
   it("does not boost non-Fire creatures", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -70,7 +70,7 @@ describe("Effect: conditional_fire_bonus", () => {
   });
 
   it("only affects Creature card types", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -92,7 +92,7 @@ describe("Effect: conditional_fire_bonus", () => {
   });
 
   it("adds active effect tracking for Fire creatures", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -123,7 +123,7 @@ describe("Effect: conditional_fire_bonus", () => {
   });
 
   it("applies temporary boost (1 turn duration)", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 

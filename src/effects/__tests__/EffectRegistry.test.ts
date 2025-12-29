@@ -1,5 +1,4 @@
 import { effectsRegistry } from "@effects/registry";
-import { EffectDefinition } from "@effects/types";
 
 /**
  * Effect Registry Tests

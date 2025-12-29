@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { Box, Typography } from "@mui/material";
 
-export const GameLogContainer = styled(Box)(({ theme }) => ({
+export const GameLogContainer = styled(Box)(()  => ({
   position: "relative",
   background:
     "linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%)",
@@ -28,7 +28,7 @@ export const GameLogContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const GameLogTitle = styled(Typography)(({ theme }) => ({
+export const GameLogTitle = styled(Typography)(()  => ({
   marginBottom: "18px",
   fontSize: "1.4rem",
   fontWeight: 800,
@@ -40,13 +40,13 @@ export const GameLogTitle = styled(Typography)(({ theme }) => ({
   backgroundClip: "text",
 }));
 
-export const LogEntries = styled(Box)(({ theme }) => ({
+export const LogEntries = styled(Box)(()  => ({
   display: "flex",
   flexDirection: "column",
   gap: "10px",
 }));
 
-export const LogEntry = styled(Box)(({ theme }) => ({
+export const LogEntry = styled(Box)(()  => ({
   padding: "12px 16px",
   background: "rgba(0, 0, 0, 0.3)",
   borderLeft: "4px solid #6366f1",

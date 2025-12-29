@@ -2,7 +2,7 @@ import { styled } from "@mui/material/styles";
 import { Box, Typography } from "@mui/material";
 
 export const PlayerBoardContainer = styled(Box)<{ isopponent?: string }>(
-  ({ theme, isopponent }) => ({
+  ({ isopponent }) => ({
     background: "rgba(0, 0, 0, 0.2)",
     borderRadius: "15px",
     padding: "20px",
@@ -15,7 +15,7 @@ export const PlayerBoardContainer = styled(Box)<{ isopponent?: string }>(
   })
 );
 
-export const PlayerInfo = styled(Box)(({ theme }) => ({
+export const PlayerInfo = styled(Box)(() => ({
   display: "flex",
   justifyContent: "space-around",
   alignItems: "center",
@@ -27,13 +27,13 @@ export const PlayerInfo = styled(Box)(({ theme }) => ({
   gap: "10px",
 }));
 
-export const PlayerName = styled(Typography)(({ theme }) => ({
+export const PlayerName = styled(Typography)(() => ({
   fontSize: "1.5rem",
   color: "#fff",
   fontWeight: "bold",
 }));
 
-export const PlayerStat = styled(Box)(({ theme }) => ({
+export const PlayerStat = styled(Box)(() => ({
   fontSize: "1.1rem",
   padding: "5px 15px",
   background: "rgba(255, 255, 255, 0.1)",

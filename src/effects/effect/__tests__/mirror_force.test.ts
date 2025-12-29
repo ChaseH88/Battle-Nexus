@@ -11,7 +11,7 @@ import { createTestGame } from "@/__tests__/testUtils";
  */
 describe("Effect: mirror_force", () => {
   it("destroys all opponent's creatures in attack mode", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     // P2 (opponent) plays three creatures in attack mode
     const creature1 = p2.hand.find((c) => c.type === CardType.Creature);
@@ -53,7 +53,7 @@ describe("Effect: mirror_force", () => {
   });
 
   it("only destroys attack mode creatures, not defense mode", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     // P2 plays creatures: 2 in attack mode, 1 in defense mode
     const creatures = p2.hand.filter((c) => c.type === CardType.Creature);
@@ -87,7 +87,7 @@ describe("Effect: mirror_force", () => {
   });
 
   it("does nothing when opponent has no attack mode creatures", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     // P2 plays creatures only in defense mode
     const creatures = p2.hand.filter((c) => c.type === CardType.Creature);
@@ -122,7 +122,7 @@ describe("Effect: mirror_force", () => {
   });
 
   it("does nothing when opponent has no creatures at all", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     // P2 has no creatures on field
     expect(p2.lanes.every((c) => c === null)).toBe(true);
@@ -146,7 +146,7 @@ describe("Effect: mirror_force", () => {
   });
 
   it("destroys partial board (some lanes occupied)", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     // P2 plays creatures in only 2 lanes
     const creatures = p2.hand.filter((c) => c.type === CardType.Creature);
@@ -183,7 +183,7 @@ describe("Effect: mirror_force", () => {
   });
 
   it("logs destruction count correctly", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p2, game, engine } = createTestGame();
 
     // Play 2 attack mode creatures
     const creatures = p2.hand.filter((c) => c.type === CardType.Creature);

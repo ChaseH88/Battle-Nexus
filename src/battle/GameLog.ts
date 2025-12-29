@@ -464,8 +464,7 @@ export class GameLogger {
       slot?: number;
       faceDown?: boolean;
       mode?: "ATTACK" | "DEFENSE";
-    },
-    gameState?: any
+    }
   ): void {
     const { lane, slot, faceDown, mode } = options;
     let message = `${playerName} played ${card.name}`;

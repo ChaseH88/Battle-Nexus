@@ -8,7 +8,7 @@ import { createTestGame, testDeck1 } from "@/__tests__/testUtils";
  */
 describe("Effect: ignite_direct_damage", () => {
   it("executes without errors", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { game, engine } = createTestGame();
 
     const testCard = testDeck1[0];
 
@@ -26,7 +26,7 @@ describe("Effect: ignite_direct_damage", () => {
   });
 
   it("logs damage message", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { game, engine } = createTestGame();
 
     const testCard = testDeck1[0];
     const initialEventCount = game.log.getEvents().length;
@@ -46,7 +46,7 @@ describe("Effect: ignite_direct_damage", () => {
   });
 
   it("can be triggered multiple times", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { game, engine } = createTestGame();
 
     const testCard = testDeck1[0];
 
@@ -66,7 +66,7 @@ describe("Effect: ignite_direct_damage", () => {
   });
 
   it("logs with correct card name", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { game, engine } = createTestGame();
 
     const testCard = testDeck1[0];
 

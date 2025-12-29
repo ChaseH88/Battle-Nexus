@@ -115,8 +115,7 @@ export class BattleEngine {
       playerIndex as 0 | 1,
       player.id,
       { id: card.id, name: card.name, type: "Creature" },
-      { lane, faceDown, mode },
-      this.state // Pass state for snapshot
+      { lane, faceDown, mode }
     );
 
     // Apply any persistent active effects (supports/global buffs) to this creature
@@ -166,8 +165,7 @@ export class BattleEngine {
       playerIndex,
       player.id,
       { id: cardId, name: card.name },
-      { slot, faceDown: true },
-      this.state
+      { slot, faceDown: true }
     );
 
     this.log(

@@ -1,11 +1,11 @@
 import { styled } from "@mui/material/styles";
 import { Box, Button, Typography } from "@mui/material";
 
-export const SupportZoneContainer = styled(Box)(({ theme }) => ({
+export const SupportZoneContainer = styled(Box)(()  => ({
   marginBottom: "15px",
 }));
 
-export const SupportZoneTitle = styled(Typography)(({ theme }) => ({
+export const SupportZoneTitle = styled(Typography)(()  => ({
   marginBottom: "10px",
   fontSize: "1.2rem",
   textTransform: "uppercase",
@@ -14,26 +14,26 @@ export const SupportZoneTitle = styled(Typography)(({ theme }) => ({
   fontWeight: "bold",
 }));
 
-export const SupportSlots = styled(Box)(({ theme }) => ({
+export const SupportSlots = styled(Box)(()  => ({
   display: "flex",
   gap: "15px",
   justifyContent: "center",
   flexWrap: "wrap",
 }));
 
-export const SupportSlot = styled(Box)(({ theme }) => ({
+export const SupportSlot = styled(Box)(()  => ({
   display: "flex",
   flexDirection: "column",
   gap: "10px",
 }));
 
-export const SupportActions = styled(Box)(({ theme }) => ({
+export const SupportActions = styled(Box)(()  => ({
   display: "flex",
   flexDirection: "column",
   gap: "5px",
 }));
 
-export const FaceDownButton = styled(Button)(({ theme }) => ({
+export const FaceDownButton = styled(Button)(()  => ({
   background: "linear-gradient(145deg, #718096, #4a5568)",
   color: "white",
   padding: "8px 15px",
@@ -51,7 +51,7 @@ export const FaceDownButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-export const ActivateButton = styled(Button)(({ theme }) => ({
+export const ActivateButton = styled(Button)(()  => ({
   background: "linear-gradient(145deg, #48bb78, #38a169)",
   color: "white",
   padding: "8px 15px",

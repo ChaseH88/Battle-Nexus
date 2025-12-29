@@ -1,24 +1,17 @@
 import { AIPlayer } from "../AIPlayer";
-import { BattleEngine } from "../BattleEngine";
-import { CardType } from "@cards/types";
 import {
   createTestGameWithAI,
-  createTestCreature,
   createTestSupport,
   playCreatureInLane,
   playSupportInSlot,
   enterMainPhase,
-  addCardToHand,
 } from "../../__tests__/testUtils";
-import { getOpponentIndex } from "../GameState";
 
 describe("AIPlayer", () => {
   describe("Trap Card Activation Logic", () => {
     describe("shouldActivateTrap - Mirror Force", () => {
       it("skill 1-3: rarely activates (20% chance or less)", () => {
         const { game, engine, ai: ai1 } = createTestGameWithAI(1);
-        const { ai: ai2 } = createTestGameWithAI(2);
-        const { ai: ai3 } = createTestGameWithAI(3);
 
         // Set up scenario: 3 opponent creatures in attack mode
         playCreatureInLane(engine, 0, 0, undefined, false, "ATTACK");
@@ -162,7 +155,7 @@ describe("AIPlayer", () => {
     });
 
     it("returns false for unknown trap effects", () => {
-      const { game, engine, ai } = createTestGameWithAI(10);
+      const { game, ai } = createTestGameWithAI(10);
 
       const unknownTrap = createTestSupport({
         id: "unknown_trap",
@@ -174,7 +167,7 @@ describe("AIPlayer", () => {
     });
 
     it("returns false for traps without effectId", () => {
-      const { game, engine, ai } = createTestGameWithAI(10);
+      const { game, ai } = createTestGameWithAI(10);
 
       const noEffectTrap = createTestSupport({
         id: "no_effect_trap",
@@ -188,7 +181,7 @@ describe("AIPlayer", () => {
 
   describe("Support Card Activation", () => {
     it("skips trap cards (ON_DEFEND trigger) during manual activation", () => {
-      const { game, engine, ai } = createTestGameWithAI(10);
+      const { game, engine } = createTestGameWithAI(10);
 
       enterMainPhase(engine);
 
@@ -212,7 +205,7 @@ describe("AIPlayer", () => {
     });
 
     it("activates non-trap support cards normally", () => {
-      const { game, engine, ai } = createTestGameWithAI(10);
+      const { game, engine } = createTestGameWithAI(10);
 
       enterMainPhase(engine);
 
@@ -262,7 +255,7 @@ describe("AIPlayer", () => {
 
   describe("Edge Cases", () => {
     it("handles empty board scenarios", () => {
-      const { game, engine, ai } = createTestGameWithAI(10);
+      const { game, ai } = createTestGameWithAI(10);
 
       const mirrorForce = createTestSupport({
         id: "mirror_force_test",
@@ -316,7 +309,7 @@ describe("AIPlayer", () => {
     });
 
     it("handles trap callback being undefined", () => {
-      const { game, engine } = createTestGameWithAI(5);
+      const { engine } = createTestGameWithAI(5);
 
       // Create AI without trap callback
       const aiWithoutCallback = new AIPlayer(

@@ -1,6 +1,6 @@
 import { GameState, createGameState } from "./GameState";
 import { GameLogEvent, GameStateSnapshot } from "./GameLog";
-import { BattleEngine } from "./BattleEngine";
+import { BattleEngine as _BattleEngine } from "./BattleEngine";
 
 export type ReplaySpeed = 0.5 | 1 | 1.5 | 2 | 3;
 

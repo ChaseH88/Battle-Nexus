@@ -11,7 +11,7 @@ import { createTestGame, drawMany } from "@/__tests__/testUtils";
  */
 describe("Effect: boost_fire_atk", () => {
   it("boosts Fire creature ATK by +200", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -41,7 +41,7 @@ describe("Effect: boost_fire_atk", () => {
   });
 
   it("targets specific lane when provided in eventData", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 15);
 
@@ -81,7 +81,7 @@ describe("Effect: boost_fire_atk", () => {
   });
 
   it("fails gracefully when no Fire creatures exist", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -108,7 +108,7 @@ describe("Effect: boost_fire_atk", () => {
   });
 
   it("targets highest ATK Fire creature when auto-targeting", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 15);
 
@@ -148,7 +148,7 @@ describe("Effect: boost_fire_atk", () => {
   });
 
   it("adds active effect tracking", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -181,8 +181,6 @@ describe("Effect: boost_fire_atk", () => {
     expect(boost_fire_atk.metadata).toBeDefined();
     expect(boost_fire_atk.metadata?.canActivate).toBeDefined();
     expect(boost_fire_atk.metadata?.targeting).toBeDefined();
-    expect(
-      boost_fire_atk.metadata?.getValidTargets
-    ).toBeDefined();
+    expect(boost_fire_atk.metadata?.getValidTargets).toBeDefined();
   });
 });

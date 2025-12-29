@@ -1,6 +1,3 @@
-import { createGameState } from "../GameState";
-import { createPlayerState } from "../PlayerState";
-import { BattleEngine } from "../BattleEngine";
 import { CardType, CreatureCard } from "@cards/index";
 import { createTestGame, drawMany } from "@/__tests__/testUtils";
 
@@ -10,7 +7,7 @@ import { createTestGame, drawMany } from "@/__tests__/testUtils";
  */
 describe("BattleEngine – Creature Effects", () => {
   it("allows creatures with effects to activate from lanes", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -43,7 +40,7 @@ describe("BattleEngine – Creature Effects", () => {
   });
 
   it("prevents ONE_TIME effects from activating twice", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -75,7 +72,7 @@ describe("BattleEngine – Creature Effects", () => {
   });
 
   it("allows CONTINUOUS effects to activate multiple times", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -104,14 +101,14 @@ describe("BattleEngine – Creature Effects", () => {
   });
 
   it("fails gracefully when activating effect from empty lane", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { engine } = createTestGame();
 
     const result = engine.activateCreatureEffect(0, 0);
     expect(result).toBe(false);
   });
 
   it("fails when trying to activate effect from creature without effect", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -134,7 +131,7 @@ describe("BattleEngine – Creature Effects", () => {
   });
 
   it("requires main phase to activate creature effects", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -157,7 +154,7 @@ describe("BattleEngine – Creature Effects", () => {
   });
 
   it("checks activation requirements using metadata system", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -179,7 +176,7 @@ describe("BattleEngine – Creature Effects", () => {
   });
 
   it("does not auto-trigger creature effects when played", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 

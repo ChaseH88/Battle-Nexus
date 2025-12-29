@@ -1,9 +1,4 @@
-import {
-  ActionCard,
-  CardInterface,
-  CardType,
-  SupportCard,
-} from "../../../cards";
+import { ActionCard, CardType, SupportCard } from "../../../cards";
 import { PlayerState } from "../../../battle/PlayerState";
 import { Card } from "../Card";
 import {
@@ -13,7 +8,6 @@ import {
   SupportSlot,
   SupportActions,
   FaceDownButton,
-  ActivateButton,
 } from "./SupportZone.styled";
 
 export interface SupportZoneProps {

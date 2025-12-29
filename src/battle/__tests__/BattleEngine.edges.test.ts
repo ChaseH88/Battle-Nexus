@@ -165,7 +165,6 @@ describe("BattleEngine – Edge Cases", () => {
       card.hasChangedModeThisTurn = true;
 
       // Try to change mode again
-      const originalMode = card.mode;
       card.mode = "ATTACK";
 
       // Should not be able to attack after mode change

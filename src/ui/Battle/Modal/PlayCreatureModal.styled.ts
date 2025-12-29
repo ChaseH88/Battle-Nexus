@@ -8,18 +8,18 @@ import {
   ModalButton,
 } from "../Modal/styled";
 
-export const PlayCreatureModalContent = styled(ModalContent)(({ theme }) => ({
+export const PlayCreatureModalContent = styled(ModalContent)(() => ({
   maxWidth: "650px",
 }));
 
-export const PlayOptions = styled(Box)(({ theme }) => ({
+export const PlayOptions = styled(Box)(() => ({
   display: "flex",
   gap: "25px",
   marginBottom: "25px",
   flexWrap: "wrap",
 }));
 
-export const PlayOptionGroup = styled(Box)(({ theme }) => ({
+export const PlayOptionGroup = styled(Box)(() => ({
   flex: 1,
   minWidth: "250px",
   background: "rgba(0, 0, 0, 0.4)",
@@ -29,7 +29,7 @@ export const PlayOptionGroup = styled(Box)(({ theme }) => ({
   boxShadow: "inset 0 2px 8px rgba(0, 0, 0, 0.3)",
 }));
 
-export const PlayOptionTitle = styled(Typography)(({ theme }) => ({
+export const PlayOptionTitle = styled(Typography)(() => ({
   textAlign: "center",
   marginBottom: "18px",
   fontSize: "1.3rem",
@@ -44,7 +44,7 @@ export const PlayOptionTitle = styled(Typography)(({ theme }) => ({
 
 export const PlayOptionButton = styled(ModalButton)<{
   mode?: "attack" | "defense";
-}>(({ theme, mode }) => ({
+}>(({ mode }) => ({
   width: "100%",
   marginBottom: "12px",
   padding: "16px",
@@ -74,7 +74,7 @@ export const PlayOptionButton = styled(ModalButton)<{
 
 export { ModalOverlay, ModalTitle, ModalMessage };
 
-export const CancelButton = styled(ModalButton)(({ theme }) => ({
+export const CancelButton = styled(ModalButton)(() => ({
   background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
   color: "white",
   boxShadow: "0 4px 16px rgba(239, 68, 68, 0.4)",

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card";
-import { HandZone, HandTitle, HandCards } from "./styled";
+import { HandZone, HandCards } from "./styled";
 import { Box } from "@mui/material";
 
 interface HandProps {

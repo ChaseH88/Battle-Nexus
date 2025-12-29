@@ -11,7 +11,7 @@ import { createTestGame, testDeck1 } from "@/__tests__/testUtils";
  */
 describe("Effect: draw_two_on_combat_ko", () => {
   it("draws 1 card when triggered", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     const initialHandSize = p1.hand.length;
     const initialDeckSize = p1.deck.length;
@@ -34,7 +34,7 @@ describe("Effect: draw_two_on_combat_ko", () => {
   });
 
   it("logs the effect trigger", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { game, engine } = createTestGame();
 
     const testCard = testDeck1[0];
     const initialEventCount = game.log.getEvents().length;
@@ -98,7 +98,7 @@ describe("Effect: draw_two_on_combat_ko", () => {
   });
 
   it("logs with card name", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { game, engine } = createTestGame();
 
     const testCard = testDeck1[0];
 

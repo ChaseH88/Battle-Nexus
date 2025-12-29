@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -35,9 +35,26 @@ interface CardData {
 }
 
 const DeckBuilder: React.FC = () => {
+  // Load deck from localStorage on initialization using lazy initializer
   const [selectedCards, setSelectedCards] = useState<Map<string, number>>(
-    new Map()
+    () => {
+      const savedDeck = localStorage.getItem(DECK_STORAGE_KEY);
+      if (savedDeck) {
+        try {
+          const deckArray = JSON.parse(savedDeck) as Array<{
+            cardId: string;
+            count: number;
+          }>;
+          return new Map(deckArray.map((item) => [item.cardId, item.count]));
+        } catch (error) {
+          console.error("Failed to load deck from localStorage:", error);
+          return new Map();
+        }
+      }
+      return new Map();
+    }
   );
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<CardType | "ALL">("ALL");
   const [filterAffinity, setFilterAffinity] = useState<Affinity | "ALL">("ALL");
@@ -48,25 +65,6 @@ const DeckBuilder: React.FC = () => {
   );
 
   const availableCards = cardData as CardData[];
-
-  // Load deck from localStorage on mount
-  useEffect(() => {
-    const savedDeck = localStorage.getItem(DECK_STORAGE_KEY);
-    if (savedDeck) {
-      try {
-        const deckArray = JSON.parse(savedDeck) as Array<{
-          cardId: string;
-          count: number;
-        }>;
-        const deckMap = new Map(
-          deckArray.map((item) => [item.cardId, item.count])
-        );
-        setSelectedCards(deckMap);
-      } catch (error) {
-        console.error("Failed to load deck from localStorage:", error);
-      }
-    }
-  }, []);
 
   const saveDeckToLocalStorage = () => {
     const deckArray = Array.from(selectedCards.entries()).map(
@@ -99,7 +97,7 @@ const DeckBuilder: React.FC = () => {
         filterAffinity === "ALL" || card.affinity === filterAffinity;
       return matchesSearch && matchesType && matchesAffinity;
     });
-  }, [searchTerm, filterType, filterAffinity]);
+  }, [searchTerm, filterType, filterAffinity, availableCards]);
 
   const addCardToDeck = (cardId: string) => {
     const currentCount = selectedCards.get(cardId) || 0;

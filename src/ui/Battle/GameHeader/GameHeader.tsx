@@ -1,6 +1,5 @@
 import {
   GameHeaderContainer,
-  GameTitle,
   GameOverBox,
   GameOverTitle,
   NewGameButton,

@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { Box, Button, Typography } from "@mui/material";
 
-export const ModalOverlay = styled(Box)(({ theme }) => ({
+export const ModalOverlay = styled(Box)(() => ({
   position: "fixed",
   top: 0,
   left: 0,
@@ -20,7 +20,7 @@ export const ModalOverlay = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const ModalContent = styled(Box)(({ theme }) => ({
+export const ModalContent = styled(Box)(() => ({
   background: "transparent",
   boxShadow:
     "0 20px 60px rgba(0, 0, 0, 0.8), 0 0 60px rgba(251, 191, 36, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
@@ -37,7 +37,7 @@ export const ModalContent = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const ModalTitle = styled(Typography)(({ theme }) => ({
+export const ModalTitle = styled(Typography)(() => ({
   fontSize: "2rem",
   marginBottom: "20px",
   background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
@@ -51,7 +51,7 @@ export const ModalTitle = styled(Typography)(({ theme }) => ({
   textShadow: "0 4px 12px rgba(251, 191, 36, 0.5)",
 }));
 
-export const ModalMessage = styled(Typography)(({ theme }) => ({
+export const ModalMessage = styled(Typography)(() => ({
   fontSize: "1.25rem",
   marginBottom: "30px",
   textAlign: "center",
@@ -60,7 +60,7 @@ export const ModalMessage = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
 }));
 
-export const ModalActions = styled(Box)(({ theme }) => ({
+export const ModalActions = styled(Box)(() => ({
   display: "flex",
   gap: "18px",
   justifyContent: "center",
@@ -69,7 +69,7 @@ export const ModalActions = styled(Box)(({ theme }) => ({
 
 export const ModalButton = styled(Button)<{
   buttonType?: "confirm" | "cancel";
-}>(({ theme, buttonType = "confirm" }) => ({
+}>(({ buttonType = "confirm" }) => ({
   padding: "14px 36px",
   fontSize: "1.15rem",
   fontWeight: 800,

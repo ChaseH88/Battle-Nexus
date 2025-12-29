@@ -151,13 +151,20 @@ export const ReplayViewer: React.FC<ReplayViewerProps> = ({
       },
     });
 
-    setReplayEngine(engine);
-    setProgress({ currentEvent: 0, totalEvents: events.length, percentage: 0 });
+    // Defer state updates to avoid cascading renders
+    queueMicrotask(() => {
+      setReplayEngine(engine);
+      setProgress({
+        currentEvent: 0,
+        totalEvents: events.length,
+        percentage: 0,
+      });
+    });
 
     return () => {
       engine.stop();
     };
-  }, [events]);
+  }, [events, onStateUpdate, speed]);
 
   useEffect(() => {
     if (replayEngine) {
@@ -290,7 +297,7 @@ export const ReplayViewer: React.FC<ReplayViewerProps> = ({
             No events yet - press play to start
           </p>
         ) : (
-          recentEvents.map((event, idx) => (
+          recentEvents.map((event, _idx) => (
             <EventItem key={event.id} severity={event.severity}>
               <strong style={{ color: "#4a9eff" }}>{event.type}</strong> -{" "}
               {event.message}

@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { Box, Button } from "@mui/material";
 
-export const ControlsContainer = styled(Box)(({ theme }) => ({
+export const ControlsContainer = styled(Box)(() => ({
   position: "fixed",
   zIndex: 1000,
   bottom: "20px",
@@ -17,7 +17,7 @@ export const ControlsContainer = styled(Box)(({ theme }) => ({
 }));
 
 export const ControlButton = styled(Button)<{ highlight?: boolean }>(
-  ({ theme, highlight }) => ({
+  ({ highlight }) => ({
     background: highlight
       ? "linear-gradient(145deg, #ffc800, #ff9800)"
       : "linear-gradient(145deg, #4299e1, #3182ce)",

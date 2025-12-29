@@ -10,7 +10,7 @@ import { createTestGame, drawMany } from "@/__tests__/testUtils";
  */
 describe("Effect: fire_atk_boost_aura", () => {
   it("boosts ATK of all Fire creatures", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -43,7 +43,7 @@ describe("Effect: fire_atk_boost_aura", () => {
   });
 
   it("only boosts Fire creatures, not other affinities", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 15);
 
@@ -85,7 +85,7 @@ describe("Effect: fire_atk_boost_aura", () => {
   });
 
   it("does nothing when no Fire creatures are on the field", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 
@@ -116,7 +116,7 @@ describe("Effect: fire_atk_boost_aura", () => {
   });
 
   it("boosts multiple Fire creatures at once", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 15);
 
@@ -156,7 +156,7 @@ describe("Effect: fire_atk_boost_aura", () => {
   });
 
   it("adds active effect tracking", () => {
-    const { p1, p2, game, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
 
     drawMany(engine, 0, 10);
 

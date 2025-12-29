@@ -118,7 +118,7 @@ export function restoreStateFromSnapshot(
   // In a real implementation, you'd need to fully reconstruct the player state
   // from your card registry and apply the snapshot data
   snapshot.players.forEach((playerSnapshot, i) => {
-    const player = currentState.players[i] as any;
+    const _player = currentState.players[i] as any;
     // Restore what we can from snapshot
     // Full implementation would reconstruct from card registry
   });

@@ -1,19 +1,19 @@
 import { styled } from "@mui/material/styles";
 import { Box, Typography } from "@mui/material";
 
-export const DiscardPileDisplay = styled(Box)(({ theme }) => ({
+export const DiscardPileDisplay = styled(Box)(()  => ({
   display: "flex",
   flexDirection: "column",
   gap: "5px",
 }));
 
-export const DiscardPileTitle = styled(Typography)(({ theme }) => ({
+export const DiscardPileTitle = styled(Typography)(()  => ({
   fontSize: "0.9rem",
   margin: 0,
   color: "rgba(200, 200, 200, 0.9)",
 }));
 
-export const DiscardPileCards = styled(Box)(({ theme }) => ({
+export const DiscardPileCards = styled(Box)(()  => ({
   display: "flex",
   flexDirection: "column",
   gap: "3px",
@@ -24,7 +24,7 @@ export const DiscardPileCards = styled(Box)(({ theme }) => ({
   borderRadius: "5px",
 }));
 
-export const DiscardPileCardMini = styled(Box)(({ theme }) => ({
+export const DiscardPileCardMini = styled(Box)(()  => ({
   fontSize: "0.75rem",
   padding: "3px 8px",
   background: "rgba(100, 100, 100, 0.4)",

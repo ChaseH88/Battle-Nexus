@@ -1,6 +1,5 @@
 import { GameState, getOpponentIndex } from "./GameState";
 import { BattleEngine } from "./BattleEngine";
-import { Card } from "../cards/Card";
 import { CreatureCard } from "../cards/CreatureCard";
 import { SupportCard } from "../cards/SupportCard";
 import { ActionCard } from "../cards/ActionCard";
@@ -79,9 +78,6 @@ export class AIPlayer {
    * Execute main phase logic based on skill level
    */
   private async executeMainPhase(state: GameState): Promise<void> {
-    const player = state.players[this.playerIndex];
-    const opponent = state.players[getOpponentIndex(this.playerIndex)];
-
     // 1. Play creatures (priority increases with skill)
     if (this.shouldPlayCreatures()) {
       await this.playCreatures(state);
@@ -255,7 +251,7 @@ export class AIPlayer {
   /**
    * Decide whether to flip a face-down support
    */
-  private shouldFlipSupport(state: GameState, slot: number): boolean {
+  private shouldFlipSupport(_state: GameState, _slot: number): boolean {
     // Skill 1-3: Very rarely flip (don't understand the strategy)
     if (this.skillLevel <= 3) return Math.random() < 0.15;
 
@@ -276,8 +272,8 @@ export class AIPlayer {
   public shouldActivateTrap(
     state: GameState,
     trapCard: SupportCard | ActionCard,
-    attackerLane: number,
-    targetLane: number
+    _attackerLane: number,
+    _targetLane: number
   ): boolean {
     const player = state.players[this.playerIndex];
     const opponent = state.players[getOpponentIndex(this.playerIndex)];
@@ -325,7 +321,7 @@ export class AIPlayer {
    */
   private async performAttacks(state: GameState): Promise<void> {
     const player = state.players[this.playerIndex];
-    const opponent = state.players[getOpponentIndex(this.playerIndex)];
+    const _opponent = state.players[getOpponentIndex(this.playerIndex)];
 
     for (let laneIndex = 0; laneIndex < player.lanes.length; laneIndex++) {
       const attacker = player.lanes[laneIndex] as CreatureCard | null;
