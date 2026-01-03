@@ -71,6 +71,20 @@ export function moveCard(
       return card;
     }
 
+    if (from === Zone.MaxDeck) {
+      const idx = player.maxDeck.findIndex((c) => c.id === cardId);
+      if (idx === -1) return null;
+      const [card] = player.maxDeck.splice(idx, 1);
+      return card;
+    }
+
+    if (from === Zone.RemovedFromGame) {
+      const idx = player.removedFromGame.findIndex((c) => c.id === cardId);
+      if (idx === -1) return null;
+      const [card] = player.removedFromGame.splice(idx, 1);
+      return card;
+    }
+
     return null;
   };
 
@@ -107,6 +121,16 @@ export function moveCard(
 
     if (to === Zone.Stack) {
       state.stack.push(card);
+      return;
+    }
+
+    if (to === Zone.MaxDeck) {
+      player.maxDeck.push(card);
+      return;
+    }
+
+    if (to === Zone.RemovedFromGame) {
+      player.removedFromGame.push(card);
       return;
     }
   };

@@ -12,6 +12,9 @@ export enum Zone {
 
   DiscardPile = "DISCARD_PILE",
   Stack = "STACK",
+
+  MaxDeck = "MAX_DECK",
+  RemovedFromGame = "REMOVED_FROM_GAME",
 }
 
 export function isLane(zone: Zone): boolean {

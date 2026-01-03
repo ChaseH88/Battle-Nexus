@@ -23,6 +23,19 @@ export class BattleEngine {
     return this.state.log;
   }
 
+  // Momentum System: Gain momentum with 0-10 hard cap
+  gainMomentum(playerIndex: number, amount: number) {
+    const player = this.state.players[playerIndex];
+    const oldMomentum = player.momentum;
+    player.momentum = Math.min(10, player.momentum + amount);
+    const gained = player.momentum - oldMomentum;
+    if (gained > 0) {
+      this.log(
+        `${player.id} gained ${gained} Momentum! (${player.momentum}/10)`
+      );
+    }
+  }
+
   draw(playerIndex: number) {
     // Do not draw if the game is already won
     if (this.state.winnerIndex !== null) return;
@@ -96,11 +109,37 @@ export class BattleEngine {
     }
 
     const player = this.state.players[playerIndex];
-    const card = player.hand.find((c) => c.id === cardId);
+
+    // Check if card is in hand OR in maxDeck
+    let card = player.hand.find((c) => c.id === cardId);
+    let isFromMaxDeck = false;
+
+    if (!card) {
+      card = player.maxDeck.find((c) => c.id === cardId);
+      isFromMaxDeck = true;
+    }
+
     if (!card || card.type !== CardType.Creature) return false;
     if (player.lanes[lane] !== null) return false;
 
-    moveCard(this.state, playerIndex, Zone.Hand, Zone.Lane0, cardId, {
+    // MAX card validation
+    if (card.isMax && card.momentumCost !== undefined) {
+      if (player.momentum < card.momentumCost) {
+        this.log(
+          `Not enough Momentum to play ${card.name}! (${player.momentum}/${card.momentumCost})`
+        );
+        return false;
+      }
+      // Deduct Momentum cost
+      player.momentum -= card.momentumCost;
+      this.log(
+        `${player.id} spent ${card.momentumCost} Momentum to play ${card.name}! (${player.momentum}/10 remaining)`
+      );
+    }
+
+    // Move from appropriate zone
+    const fromZone = isFromMaxDeck ? Zone.MaxDeck : Zone.Hand;
+    moveCard(this.state, playerIndex, fromZone, Zone.Lane0, cardId, {
       toLane: lane,
     });
 
@@ -173,6 +212,67 @@ export class BattleEngine {
         player.id
       } set ${card.type.toLowerCase()} card face-down to support slot ${slot}`
     );
+
+    return true;
+  }
+
+  /**
+   * Sacrifice: Destroy your own creature to gain Momentum
+   * Cannot sacrifice if creature attacked this turn
+   * Cannot sacrifice MAX creatures
+   * Momentum gain: cost 1-2 → +1, cost 3-4 → +2, cost 5+ → +3
+   */
+  sacrifice(playerIndex: 0 | 1, lane: number): boolean {
+    if (this.state.winnerIndex !== null) return false;
+
+    // Must be in main phase
+    if (this.state.phase !== "MAIN") {
+      this.log("Cannot sacrifice during draw phase.");
+      return false;
+    }
+
+    const player = this.state.players[playerIndex];
+    const creature = player.lanes[lane];
+
+    if (!creature) {
+      this.log("No creature in that lane to sacrifice.");
+      return false;
+    }
+
+    // Cannot sacrifice if creature attacked this turn
+    if (creature.hasAttackedThisTurn) {
+      this.log(
+        `${creature.name} cannot be sacrificed after attacking this turn!`
+      );
+      return false;
+    }
+
+    // Cannot sacrifice MAX creatures
+    if (creature.isMax) {
+      this.log("MAX creatures cannot be sacrificed!");
+      return false;
+    }
+
+    // Calculate Momentum gain based on cost tier
+    const cost = creature.cost;
+    let momentumGain = 0;
+    if (cost >= 5) {
+      momentumGain = 3;
+    } else if (cost >= 3) {
+      momentumGain = 2;
+    } else {
+      momentumGain = 1;
+    }
+
+    // Remove creature from field
+    player.lanes[lane] = null;
+    player.discardPile.push(creature);
+
+    this.log(`${player.id} sacrificed ${creature.name}!`);
+    this.gainMomentum(playerIndex, momentumGain);
+
+    // Remove any support cards targeting this creature
+    this.checkAndRemoveTargetedSupports(playerIndex, lane, creature.id);
 
     return true;
   }
@@ -661,6 +761,9 @@ export class BattleEngine {
     // Mark creature as having attacked
     attacker.hasAttackedThisTurn = true;
 
+    // Momentum: Gain +1 for declaring attack (combat participation)
+    this.gainMomentum(playerIndex, 1);
+
     resolveEffectsForCard({
       state: this.state,
       ownerIndex: playerIndex,
@@ -749,27 +852,54 @@ export class BattleEngine {
       // Check if defender is defeated
       if (defender.currentHp <= 0) {
         opponent.lanes[targetLane] = null;
-        opponent.discardPile.push(defender);
-        this.log(`💀 ${defender.name} was destroyed!`);
+        // MAX cards are removed from game, not discarded
+        if (defender.isMax) {
+          opponent.removedFromGame.push(defender);
+          this.log(
+            `💀 ${defender.name} was destroyed and removed from the game! (MAX card)`
+          );
+        } else {
+          opponent.discardPile.push(defender);
+          this.log(`💀 ${defender.name} was destroyed!`);
+        }
         // Remove any support cards targeting this creature
         this.checkAndRemoveTargetedSupports(
           opponentIndex,
           targetLane,
           defender.id
         );
+        // Momentum: +2 for KO
+        this.gainMomentum(playerIndex, 2);
       }
 
       // Check if attacker is defeated (only if defender had higher ATK)
       if (attacker.currentHp <= 0) {
         this.state.players[playerIndex].lanes[attackerLane] = null;
-        this.state.players[playerIndex].discardPile.push(attacker);
-        this.log(`💀 ${attacker.name} was destroyed by the counter-attack!`);
+        // MAX cards are removed from game, not discarded
+        if (attacker.isMax) {
+          this.state.players[playerIndex].removedFromGame.push(attacker);
+          this.log(
+            `💀 ${attacker.name} was destroyed by the counter-attack and removed from the game! (MAX card)`
+          );
+        } else {
+          this.state.players[playerIndex].discardPile.push(attacker);
+          this.log(`💀 ${attacker.name} was destroyed by the counter-attack!`);
+        }
         // Remove any support cards targeting this creature
         this.checkAndRemoveTargetedSupports(
           playerIndex,
           attackerLane,
           attacker.id
         );
+        // Momentum: +2 for KO (defender's controller gets it)
+        this.gainMomentum(opponentIndex, 2);
+      } else if (attacker.currentHp > 0 && defender.currentHp > 0) {
+        // Both survived combat - each controller gains +1 Momentum for survival
+        this.gainMomentum(playerIndex, 1);
+        this.gainMomentum(opponentIndex, 1);
+      } else if (attacker.currentHp > 0) {
+        // Only attacker survived
+        this.gainMomentum(playerIndex, 1);
       }
     } else if (attacker.mode === "ATTACK" && defender.mode === "DEFENSE") {
       // Defender in defense mode - reduces damage and NO counter-attack
@@ -790,14 +920,27 @@ export class BattleEngine {
         // Check if defender is defeated
         if (defender.currentHp <= 0) {
           opponent.lanes[targetLane] = null;
-          opponent.discardPile.push(defender);
-          this.log(`💀 ${defender.name} was destroyed!`);
+          // MAX cards are removed from game, not discarded
+          if (defender.isMax) {
+            opponent.removedFromGame.push(defender);
+            this.log(
+              `💀 ${defender.name} was destroyed and removed from the game! (MAX card)`
+            );
+          } else {
+            opponent.discardPile.push(defender);
+            this.log(`💀 ${defender.name} was destroyed!`);
+          }
           // Remove any support cards targeting this creature
           this.checkAndRemoveTargetedSupports(
             opponentIndex,
             targetLane,
             defender.id
           );
+          // Momentum: +2 for KO
+          this.gainMomentum(playerIndex, 2);
+        } else {
+          // Defender survived
+          this.gainMomentum(opponentIndex, 1);
         }
       } else {
         // Attacker failed to penetrate defense - NO DAMAGE AT ALL
@@ -807,9 +950,13 @@ export class BattleEngine {
         this.log(
           `  → ${attacker.name} dealt no damage and took no counter-damage!`
         );
+        // Defender survived (blocked completely)
+        this.gainMomentum(opponentIndex, 1);
       }
 
       // Key advantage: Attacker takes NO damage when attacking defense mode
+      // Attacker always survives (no counter-attack damage)
+      this.gainMomentum(playerIndex, 1);
       this.log(
         `  → ${attacker.name} is safe from counter-attacks! HP: ${attacker.currentHp}/${attacker.hp}`
       );

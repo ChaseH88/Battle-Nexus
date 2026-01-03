@@ -12,6 +12,8 @@ export interface CardInterface {
   set: "Base";
   effectId?: string;
   effectType?: "ONE_TIME" | "CONTINUOUS";
+  isMax?: boolean; // MAX cards are stored in separate MAX deck
+  momentumCost?: number; // Momentum cost to play MAX cards
 }
 
 export interface EffectInterface {
