@@ -1,5 +1,6 @@
 import { PlayerState } from "../../../battle/PlayerState";
 import { DiscardPile } from "./DiscardPile";
+import { MaxDeck } from "./MaxDeck";
 import { SupportZone, SupportZoneProps } from "./SupportZone";
 import { CreatureZone, CreatureZoneProps } from "./CreatureZone";
 import { useMemo } from "react";
@@ -93,9 +94,21 @@ export const PlayerBoard = ({
         >
           LP: {lifePoints > 0 ? lifePoints : 0}
         </PlayerStat>
+        <PlayerStat
+          className="momentum"
+          data-testid={isOpponent ? "opponent-momentum" : "player-momentum"}
+          style={{
+            color: "#60a5fa",
+            fontWeight: "bold",
+            fontSize: "1.1rem",
+          }}
+        >
+          ⚡ {player.momentum}/10
+        </PlayerStat>
         <PlayerStat>Deck: {player.deck.length}</PlayerStat>
         {isOpponent && <PlayerStat>Hand: {player.hand.length}</PlayerStat>}
         <DiscardPile cards={player.discardPile} />
+        <MaxDeck cards={player.maxDeck} playerMomentum={player.momentum} />
       </PlayerInfo>
       {isOpponent && SupportZoneComponent}
       <CreatureZone
