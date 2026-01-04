@@ -3,7 +3,7 @@ import backImage from "@/assets/card-back.png";
 
 interface BackProps {
   onClick?: () => void;
-  type: "creature" | "support" | "action";
+  type: "creature" | "support" | "action" | "trap";
 }
 
 export const Back = ({ onClick, type }: BackProps) => {

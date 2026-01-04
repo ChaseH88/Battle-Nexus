@@ -78,7 +78,7 @@ describe("Deck Loader Utilities", () => {
       const savedDeck = [
         { cardId: "ember_cub", count: 1 }, // Creature
         { cardId: "ignite_burst", count: 1 }, // Support
-        { cardId: "aqua_shift", count: 1 }, // Action
+        { cardId: "card_draw_spell", count: 1 }, // Action
       ];
       localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
 
@@ -262,7 +262,7 @@ describe("Deck Loader Utilities", () => {
     });
 
     it("loads Action cards correctly", () => {
-      const savedDeck = [{ cardId: "aqua_shift", count: 1 }];
+      const savedDeck = [{ cardId: "card_draw_spell", count: 1 }];
       localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();

@@ -9,11 +9,24 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         // Ignore these action types
-        ignoredActions: ["ui/openModal"],
+        ignoredActions: [
+          "ui/openModal",
+          "ui/queueEffectNotification",
+          "ui/openCardDetailModal",
+        ],
         // Ignore these field paths in all actions
-        ignoredActionPaths: ["payload.onConfirm"],
+        ignoredActionPaths: [
+          "payload.onConfirm",
+          "payload.onCancel",
+          "payload.card",
+        ],
         // Ignore these paths in the state
-        ignoredPaths: ["ui.modal.onConfirm"],
+        ignoredPaths: [
+          "ui.modal.onConfirm",
+          "ui.modal.onCancel",
+          "ui.effectNotificationQueue",
+          "ui.cardDetailModal.card",
+        ],
       },
     }),
 });

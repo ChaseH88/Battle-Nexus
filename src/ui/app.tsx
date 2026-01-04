@@ -3,6 +3,7 @@ import { CardInterface, CardType } from "../cards/types";
 import { CreatureCard } from "../cards/CreatureCard";
 import { ActionCard } from "../cards/ActionCard";
 import { SupportCard } from "../cards/SupportCard";
+import { TrapCard } from "../cards/TrapCard";
 import cardsData from "../static/card-data/bn-core.json";
 import "./styles.css";
 import { GameLog } from "./Battle/GameLog";
@@ -24,7 +25,7 @@ import {
   setSelectedHandCard,
   setSelectedAttacker,
   openTargetSelectModal,
-    openCardDetailModal,
+  openCardDetailModal,
   closeCardDetailModal,
   queueEffectNotification,
   dequeueEffectNotification,
@@ -44,6 +45,8 @@ function cardFactory(raw: any): CardInterface {
       return new ActionCard(raw);
     case CardType.Support:
       return new SupportCard(raw);
+    case CardType.Trap:
+      return new TrapCard(raw);
     default:
       throw new Error(`Unknown card type: ${raw.type}`);
   }
@@ -100,7 +103,7 @@ export default function App() {
     ai,
   } = useBattleEngine();
 
-  // Create stable trap activation callback
+  // Create stable trap activation callback for ON_DEFEND triggers (combat)
   const trapActivationCallback = useCallback(
     async (
       defenderIndex: 0 | 1,
@@ -109,7 +112,8 @@ export default function App() {
     ): Promise<boolean> => {
       if (!engine || !gameState) return false;
 
-      const traps = engine.getActivatableTraps(defenderIndex);
+      // Get traps that activate on defend (combat)
+      const traps = engine.getActivatableTraps(defenderIndex, "ON_DEFEND");
       if (!traps || traps.length === 0) return false;
 
       const trap = traps[0];
@@ -459,7 +463,11 @@ export default function App() {
     }
     if (!selectedHandCard) return;
     const card = player1.hand.find((c) => c.id === selectedHandCard);
-    if (card?.type === CardType.Support || card?.type === CardType.Action) {
+    if (
+      card?.type === CardType.Support ||
+      card?.type === CardType.Action ||
+      card?.type === CardType.Trap
+    ) {
       const success = playSupport(
         0, // Player 1 only
         slot,
@@ -482,12 +490,45 @@ export default function App() {
 
     // Check if card is face down - must flip and activate
     if (card.isFaceDown) {
-      // Check if this is a trap card (ON_DEFEND trigger) - traps can't be manually activated
+      // Check if this is a TRAP card type - cannot be manually activated
+      if (card.type === CardType.Trap) {
+        dispatch(
+          openModal({
+            title: "Cannot Activate",
+            message: `${card.name} is a Trap card and can only be activated when its trigger condition is met.`,
+            onConfirm: () => {
+              dispatch(closeModal());
+            },
+          })
+        );
+        return;
+      }
+
+      // Check if this card has a reactive trigger - cannot be manually activated
+      // Allow: ON_PLAY, CONTINUOUS (manually activatable)
+      // Block: ON_DEFEND, ON_ATTACK, ON_DESTROY, ON_DRAW (reactive triggers)
       if (card.effectId) {
-        // Check the effect's trigger from the registry
         const effectDef = effectsRegistry[card.effectId];
-        if (effectDef && effectDef.trigger === "ON_DEFEND") {
-          // This is a trap - cannot be manually activated
+        const reactiveTriggers = [
+          "ON_DEFEND",
+          "ON_ATTACK",
+          "ON_DESTROY",
+          "ON_DRAW",
+        ];
+        if (
+          effectDef &&
+          effectDef.trigger &&
+          reactiveTriggers.includes(effectDef.trigger)
+        ) {
+          dispatch(
+            openModal({
+              title: "Cannot Activate",
+              message: `${card.name} can only be activated when its trigger condition is met (${effectDef.trigger}).`,
+              onConfirm: () => {
+                dispatch(closeModal());
+              },
+            })
+          );
           return;
         }
       }

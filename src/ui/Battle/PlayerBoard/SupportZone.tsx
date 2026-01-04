@@ -1,4 +1,4 @@
-import { ActionCard, CardType, SupportCard } from "../../../cards";
+import { ActionCard, CardType, SupportCard, TrapCard } from "../../../cards";
 import { PlayerState } from "../../../battle/PlayerState";
 import { Card } from "../Card";
 import {
@@ -41,9 +41,13 @@ export const SupportZone = ({
                 ? () => {
                     if (
                       card.type === CardType.Support ||
-                      card.type === CardType.Action
+                      card.type === CardType.Action ||
+                      card.type === CardType.Trap
                     ) {
-                      const spellCard = card as SupportCard | ActionCard;
+                      const spellCard = card as
+                        | SupportCard
+                        | ActionCard
+                        | TrapCard;
                       if (!spellCard.isActive && onActivateSupport) {
                         onActivateSupport(i);
                       }
@@ -59,8 +63,10 @@ export const SupportZone = ({
               !isOpponent &&
               card !== null &&
               (card.type === CardType.Support ||
-                card.type === CardType.Action) &&
-              (card.isFaceDown || !(card as SupportCard | ActionCard).isActive)
+                card.type === CardType.Action ||
+                card.type === CardType.Trap) &&
+              (card.isFaceDown ||
+                !(card as SupportCard | ActionCard | TrapCard).isActive)
             }
           />
           {!isOpponent &&
@@ -72,7 +78,8 @@ export const SupportZone = ({
                 (c) => c.id === selectedHandCard
               );
               return handCard?.type === CardType.Support ||
-                handCard?.type === CardType.Action ? (
+                handCard?.type === CardType.Action ||
+                handCard?.type === CardType.Trap ? (
                 <SupportActions>
                   <FaceDownButton onClick={() => onPlaySupport(i)}>
                     Set Face-Down

@@ -7,6 +7,7 @@ import { BattleEngine } from "@battle/BattleEngine";
 import { CreatureCard } from "@cards/CreatureCard";
 import { ActionCard } from "@cards/ActionCard";
 import { SupportCard } from "@cards/SupportCard";
+import { TrapCard } from "@cards/TrapCard";
 import { CardInterface, CardType } from "@cards/types";
 
 function cardFactory(raw: any) {
@@ -17,6 +18,8 @@ function cardFactory(raw: any) {
       return new ActionCard(raw);
     case CardType.Support:
       return new SupportCard(raw);
+    case CardType.Trap:
+      return new TrapCard(raw);
     default:
       throw new Error(`Unknown card type: ${raw.type}`);
   }

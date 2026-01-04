@@ -3,4 +3,5 @@ export * from "./Card";
 export * from "./CreatureCard";
 export * from "./ActionCard";
 export * from "./SupportCard";
+export * from "./TrapCard";
 export * from "./DeckValidator";

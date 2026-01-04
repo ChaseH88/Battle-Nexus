@@ -140,6 +140,7 @@ export interface EffectDefinition {
   timing: EffectTiming;
   trigger: EffectTrigger;
   actions: EffectAction[];
+  description?: string; // User-friendly description of the effect
 
   // Activation requirements (checked before allowing activation)
   activationRequirements?: ActivationRequirement[];
@@ -149,6 +150,9 @@ export interface EffectDefinition {
 
   stackable?: boolean; // multiple copies active
   chainable?: boolean; // can add to effect stack
+  requiresTarget?: boolean; // Legacy field - whether effect requires target selection
+  targetType?: string; // Legacy field - type of target required
+  persistent?: boolean; // Whether effect persists on the field
 }
 
 /* -------------------- RUNTIME STATE -------------------- */

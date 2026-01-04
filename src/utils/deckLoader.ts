@@ -3,6 +3,7 @@ import cardData from "../static/card-data/bn-core.json";
 import { CreatureCard } from "../cards/CreatureCard";
 import { ActionCard } from "../cards/ActionCard";
 import { SupportCard } from "../cards/SupportCard";
+import { TrapCard } from "../cards/TrapCard";
 
 const DECK_STORAGE_KEY = "battle-nexus-deck";
 
@@ -14,6 +15,8 @@ function cardFactory(raw: CardInterface): CardInterface {
       return new ActionCard(raw as any);
     case "SUPPORT":
       return new SupportCard(raw as any);
+    case "TRAP":
+      return new TrapCard(raw as any);
     default:
       throw new Error(`Unknown card type: ${raw.type}`);
   }

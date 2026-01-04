@@ -84,7 +84,6 @@
     "description": "Support: Choose an allied Fire creature. That creature gains +200 ATK while this support remains on the field.",
     "cost": 1,
     "effectId": "boost_fire_atk",
-    "effectType": "CONTINUOUS",
     "oncePerTurn": false,
     "rarity": "R",
     "set": "BN-CORE"
@@ -96,32 +95,7 @@
     "description": "Support: When activated, remove one card from an opponent's support slot. Can be played face-down but can only be activated if an opponent has at least one support.",
     "cost": 2,
     "effectId": "purge_opponent_support",
-    "effectType": "ONE_TIME",
     "oncePerTurn": false,
-    "rarity": "R",
-    "set": "BN-CORE"
-  },
-  {
-    "id": "aqua_shift",
-    "type": "ACTION",
-    "name": "Aqua Shift",
-    "description": "Redirect damage to your highest-defense Water creature.",
-    "cost": 1,
-    "speed": "NORMAL",
-    "effectId": "redirect_to_water_creature",
-    "effectType": "ONE_TIME",
-    "rarity": "C",
-    "set": "BN-CORE"
-  },
-  {
-    "id": "tide_barrier",
-    "type": "SUPPORT",
-    "name": "Tide Barrier",
-    "description": "Water creatures take 20% reduced damage.",
-    "cost": 2,
-    "effectId": "reduce_damage_to_water",
-    "effectType": "CONTINUOUS",
-    "oncePerTurn": true,
     "rarity": "R",
     "set": "BN-CORE"
   },
@@ -132,7 +106,6 @@
     "description": "All Fire creatures gain +100 ATK permanently.",
     "cost": 2,
     "effectId": "fire_atk_boost_aura",
-    "effectType": "CONTINUOUS",
     "oncePerTurn": false,
     "rarity": "R",
     "set": "BN-CORE"
@@ -145,7 +118,6 @@
     "cost": 1,
     "speed": "NORMAL",
     "effectId": "draw_on_play",
-    "effectType": "ONE_TIME",
     "rarity": "C",
     "set": "BN-CORE"
   },
@@ -160,7 +132,6 @@
     "hp": 700,
     "affinity": "FIRE",
     "effectId": "draw_on_play",
-    "effectType": "ONE_TIME",
     "rarity": "R",
     "set": "BN-CORE"
   },
@@ -175,7 +146,6 @@
     "hp": 800,
     "affinity": "WIND",
     "effectId": "fire_atk_boost_aura",
-    "effectType": "CONTINUOUS",
     "rarity": "SR",
     "set": "BN-CORE"
   },
@@ -190,7 +160,6 @@
     "hp": 900,
     "affinity": "WATER",
     "effectId": "purge_opponent_support",
-    "effectType": "ONE_TIME",
     "rarity": "SR",
     "set": "BN-CORE"
   },
@@ -218,18 +187,16 @@
     "hp": 600,
     "affinity": "SHADOW",
     "effectId": "boost_fire_atk",
-    "effectType": "CONTINUOUS",
     "rarity": "R",
     "set": "BN-CORE"
   },
   {
     "id": "mirror_force",
-    "type": "SUPPORT",
+    "type": "TRAP",
     "name": "Mirror Force",
     "description": "Trap: When an opponent's creature attacks, destroy all of their attack position creatures.",
     "cost": 3,
     "effectId": "mirror_force",
-    "effectType": "ONE_TIME",
     "oncePerTurn": false,
     "rarity": "SR",
     "set": "BN-CORE"

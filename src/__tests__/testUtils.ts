@@ -3,6 +3,7 @@ import { CardInterface, CardType } from "@cards/types";
 import { CreatureCard } from "@cards/CreatureCard";
 import { ActionCard } from "@cards/ActionCard";
 import { SupportCard } from "@cards/SupportCard";
+import { TrapCard } from "@cards/TrapCard";
 import { BattleEngine } from "@battle/BattleEngine";
 import { createPlayerState } from "@battle/PlayerState";
 import { createGameState } from "@battle/GameState";
@@ -19,6 +20,8 @@ export function cardFactory(raw: any): CardInterface {
       return new ActionCard(raw);
     case CardType.Support:
       return new SupportCard(raw);
+    case CardType.Trap:
+      return new TrapCard(raw);
     default:
       throw new Error(`Unknown card type: ${raw.type}`);
   }
@@ -76,7 +79,6 @@ export function createTestSupport(overrides: Partial<any> = {}): SupportCard {
     type: CardType.Support,
     name: "Test Support",
     effectId: "draw_on_play",
-    effectType: "ONE_TIME",
     cost: 1,
     rarity: "Common",
     ...overrides,

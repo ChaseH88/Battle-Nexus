@@ -3,6 +3,7 @@ import { BattleEngine } from "./BattleEngine";
 import { CreatureCard } from "../cards/CreatureCard";
 import { SupportCard } from "../cards/SupportCard";
 import { ActionCard } from "../cards/ActionCard";
+import { TrapCard } from "../cards/TrapCard";
 import { CardType } from "../cards/types";
 import { effectsRegistry } from "../effects/registry";
 
@@ -218,6 +219,7 @@ export class AIPlayer {
 
   /**
    * Activate face-down support cards
+   * Skips trap cards and cards with non-ON_PLAY triggers
    */
   private async activateSupports(state: GameState): Promise<void> {
     const player = state.players[this.playerIndex];
@@ -226,15 +228,31 @@ export class AIPlayer {
       const card = player.support[i];
       if (!card) continue;
 
-      const spellCard = card as SupportCard | ActionCard;
+      const spellCard = card as SupportCard | ActionCard | TrapCard;
       if (spellCard.isActive) continue;
       if (!spellCard.isFaceDown) continue; // Only activate face-down cards
 
-      // Check if this is a trap card (ON_DEFEND trigger) - skip it
+      // Skip TRAP card type - they can only be activated by triggers
+      if (spellCard.type === CardType.Trap) {
+        continue;
+      }
+
+      // Skip cards with reactive triggers - they must be triggered by game events
+      // Allow: ON_PLAY, CONTINUOUS (manually activatable)
+      // Block: ON_DEFEND, ON_ATTACK, ON_DESTROY, ON_DRAW (reactive triggers)
       if (spellCard.effectId) {
         const effectDef = effectsRegistry[spellCard.effectId];
-        if (effectDef && effectDef.trigger === "ON_DEFEND") {
-          // This is a trap - can only be activated when opponent attacks
+        const reactiveTriggers = [
+          "ON_DEFEND",
+          "ON_ATTACK",
+          "ON_DESTROY",
+          "ON_DRAW",
+        ];
+        if (
+          effectDef &&
+          effectDef.trigger &&
+          reactiveTriggers.includes(effectDef.trigger)
+        ) {
           continue;
         }
       }

@@ -1,5 +1,6 @@
 import { CardType, CreatureCard } from "@cards/index";
 import { createTestGame, drawMany } from "@/__tests__/testUtils";
+import { getEffectTiming } from "@effects/registry";
 
 /**
  * Tests for creature effect activation from lanes
@@ -49,7 +50,7 @@ describe("BattleEngine – Creature Effects", () => {
       (c) =>
         c.type === CardType.Creature &&
         (c as CreatureCard).effectId !== undefined &&
-        (c as CreatureCard).effectType === "ONE_TIME"
+        getEffectTiming(c) === "ONE_TIME"
     );
 
     if (creatureWithEffect) {
@@ -81,7 +82,7 @@ describe("BattleEngine – Creature Effects", () => {
       (c) =>
         c.type === CardType.Creature &&
         (c as CreatureCard).effectId !== undefined &&
-        (c as CreatureCard).effectType === "CONTINUOUS"
+        getEffectTiming(c) === "CONTINUOUS"
     );
 
     if (creatureWithEffect) {

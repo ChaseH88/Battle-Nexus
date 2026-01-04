@@ -25,6 +25,7 @@ export enum CardType {
   Creature = "CREATURE",
   Action = "ACTION",
   Support = "SUPPORT",
+  Trap = "TRAP",
 }
 
 export enum Affinity {

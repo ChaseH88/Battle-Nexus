@@ -2,10 +2,11 @@ import { GameState, getOpponentIndex, ActiveEffect } from "./GameState";
 import { CardInterface, CardType, CreatureCard } from "../cards";
 import { SupportCard } from "../cards/SupportCard";
 import { ActionCard } from "../cards/ActionCard";
+import { TrapCard } from "../cards/TrapCard";
 import { moveCard } from "./ZoneEngine";
 import { Zone } from "./zones";
 import { resolveEffectsForCard } from "../effects/resolve";
-import { effectsRegistry } from "../effects/registry";
+import { effectsRegistry, getEffectTiming } from "../effects/registry";
 import { canActivateEffect } from "../effects/metadata";
 
 export class BattleEngine {
@@ -184,7 +185,9 @@ export class BattleEngine {
     const card = player.hand.find((c) => c.id === cardId);
     if (
       !card ||
-      (card.type !== CardType.Support && card.type !== CardType.Action)
+      (card.type !== CardType.Support &&
+        card.type !== CardType.Action &&
+        card.type !== CardType.Trap)
     )
       return false;
 
@@ -192,7 +195,10 @@ export class BattleEngine {
       toLane: slot,
     });
 
-    const spellCard = player.support[slot]! as SupportCard | ActionCard;
+    const spellCard = player.support[slot]! as
+      | SupportCard
+      | ActionCard
+      | TrapCard;
 
     // Always play face down and inactive
     spellCard.isActive = false;
@@ -332,7 +338,8 @@ export class BattleEngine {
     }
 
     // Mark as activated for ONE_TIME effects
-    if (creature.effectType === "ONE_TIME") {
+    const effectTiming = getEffectTiming(creature);
+    if (effectTiming === "ONE_TIME") {
       creature.hasActivatedEffect = true;
     }
 
@@ -362,7 +369,7 @@ export class BattleEngine {
 
     this.log(
       `${player.id} activated ${creature.name}'s effect from lane ${lane}${
-        creature.effectType === "ONE_TIME" ? " (one-time effect)" : ""
+        effectTiming === "ONE_TIME" ? " (one-time effect)" : ""
       }`
     );
 
@@ -390,17 +397,52 @@ export class BattleEngine {
     }
 
     const player = this.state.players[playerIndex];
-    const card = player.support[slot] as SupportCard | ActionCard | null;
+    const card = player.support[slot] as
+      | SupportCard
+      | ActionCard
+      | TrapCard
+      | null;
 
     if (
       !card ||
-      (card.type !== CardType.Support && card.type !== CardType.Action)
+      (card.type !== CardType.Support &&
+        card.type !== CardType.Action &&
+        card.type !== CardType.Trap)
     )
       return false;
 
     if (card.isActive) {
       this.log(`${card.name} is already active!`);
       return false;
+    }
+
+    // Prevent manual activation of trap cards - they must be triggered by game events
+    if (card.type === CardType.Trap) {
+      this.log(`${card.name} is a trap card and cannot be manually activated!`);
+      return false;
+    }
+
+    // Also check if this is a reactive trigger (for Support/Action cards used as traps)
+    // Allow: ON_PLAY, CONTINUOUS (manually activatable)
+    // Block: ON_DEFEND, ON_ATTACK, ON_DESTROY, ON_DRAW (reactive triggers)
+    if (card.effectId) {
+      const effect = effectsRegistry[card.effectId];
+      const reactiveTriggers = [
+        "ON_DEFEND",
+        "ON_ATTACK",
+        "ON_DESTROY",
+        "ON_DRAW",
+      ];
+      if (
+        effect &&
+        effect.trigger &&
+        reactiveTriggers.includes(effect.trigger)
+      ) {
+        this.log(
+          `${card.name} can only be activated when its trigger condition is met (${effect.trigger})`
+        );
+        return false;
+      }
     }
 
     // Use metadata system to check activation requirements
@@ -488,7 +530,10 @@ export class BattleEngine {
     }
 
     // Support cards with ONE_TIME effects also get discarded
-    else if (card.type === CardType.Support && card.effectType === "ONE_TIME") {
+    else if (
+      card.type === CardType.Support &&
+      getEffectTiming(card) === "ONE_TIME"
+    ) {
       moveCard(
         this.state,
         playerIndex,
@@ -512,8 +557,10 @@ export class BattleEngine {
   }
 
   /**
-   * Activate a trap card (ON_DEFEND trigger) during combat
-   * This is separate from activateSupport because traps have special timing
+   * Activate a trap card during a specific trigger event (e.g., combat, card play, effect activation)
+   * This is separate from activateSupport because traps have special timing and trigger-based activation
+   *
+   * Traps are automatically validated against their trigger type and always discarded after activation.
    */
   activateTrap(
     playerIndex: 0 | 1,
@@ -521,11 +568,17 @@ export class BattleEngine {
     eventData?: { lane?: number; targetLane?: number }
   ): boolean {
     const player = this.state.players[playerIndex];
-    const card = player.support[slot] as SupportCard | ActionCard | null;
+    const card = player.support[slot] as
+      | SupportCard
+      | ActionCard
+      | TrapCard
+      | null;
 
     if (
       !card ||
-      (card.type !== CardType.Support && card.type !== CardType.Action)
+      (card.type !== CardType.Support &&
+        card.type !== CardType.Action &&
+        card.type !== CardType.Trap)
     ) {
       return false;
     }
@@ -534,27 +587,33 @@ export class BattleEngine {
       return false;
     }
 
-    // Verify this is a trap (ON_DEFEND trigger)
+    // Verify this card has a trigger-based effect
     if (card.effectId) {
       const effect = effectsRegistry[card.effectId];
-      if (!effect || effect.trigger !== "ON_DEFEND") {
-        this.log(`${card.name} is not a trap card!`);
+      if (!effect || !effect.trigger) {
+        this.log(`${card.name} has no trigger effect!`);
         return false;
       }
+
+      // Log the trigger type for clarity
+      this.log(
+        `⚠️ ${player.id} activates ${effect.trigger} trap: ${card.name}!`
+      );
     }
 
     // Flip face up and activate
     card.isFaceDown = false;
     card.isActive = true;
 
-    this.log(`⚠️ ${player.id} activates trap ${card.name}!`);
+    // Resolve the trap effect with the appropriate trigger
+    const effect = card.effectId ? effectsRegistry[card.effectId] : null;
+    const trigger = effect?.trigger || "ON_DEFEND";
 
-    // Resolve the trap effect
     resolveEffectsForCard({
       state: this.state,
       ownerIndex: playerIndex,
       cardEffectId: card.effectId,
-      trigger: "ON_DEFEND",
+      trigger: trigger as any,
       sourceCard: card,
       engine: this,
       eventData,
@@ -1123,21 +1182,32 @@ export class BattleEngine {
   }
 
   /**
-   * Get face-down support cards (traps) that can be activated on defend
+   * Get face-down trap/support cards that can be activated for a specific trigger
    * Returns an array of {card, slot} objects
+   *
+   * @param playerIndex - Player whose traps to check
+   * @param trigger - The trigger type to filter by (e.g., "ON_DEFEND", "ON_ATTACK", "ON_PLAY")
    */
   getActivatableTraps(
-    playerIndex: 0 | 1
-  ): Array<{ card: SupportCard | ActionCard; slot: number }> {
+    playerIndex: 0 | 1,
+    trigger?: string
+  ): Array<{ card: SupportCard | ActionCard | TrapCard; slot: number }> {
     const player = this.state.players[playerIndex];
-    const traps: Array<{ card: SupportCard | ActionCard; slot: number }> = [];
+    const traps: Array<{
+      card: SupportCard | ActionCard | TrapCard;
+      slot: number;
+    }> = [];
 
     player.support.forEach((card, slot) => {
       if (card && card.isFaceDown && !card.isActive && card.effectId) {
         const effect = effectsRegistry[card.effectId];
-        // Check if this is an ON_DEFEND trigger effect
-        if (effect && effect.trigger === "ON_DEFEND") {
-          traps.push({ card: card as SupportCard | ActionCard, slot });
+        // If no trigger specified, return all trap cards
+        // If trigger specified, only return cards matching that trigger
+        if (effect && (!trigger || effect.trigger === trigger)) {
+          traps.push({
+            card: card as SupportCard | ActionCard | TrapCard,
+            slot,
+          });
         }
       }
     });

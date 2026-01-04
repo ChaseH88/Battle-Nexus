@@ -3,9 +3,6 @@ import { CardInterface, CardType, CreatureCard } from "../cards";
 import { BattleEngine } from "../battle/BattleEngine";
 import { fire_atk_boost_aura } from "./effect/fire_atk_boost_aura";
 import { draw_on_play } from "./effect/draw_on_play";
-import { ignite_direct_damage } from "./effect/ignite_direct_damage";
-import { conditional_fire_bonus } from "./effect/conditional_fire_bonus";
-import { draw_two_on_combat_ko } from "./effect/draw_two_on_combat_ko";
 import { boost_fire_atk } from "./effect/boost_fire_atk";
 import { purge_opponent_support } from "./effect/purge_opponent_support";
 import { mirror_force } from "./effect/mirror_force";
@@ -275,9 +272,6 @@ export type EffectHandler = (context: EffectContext) => void;
 export const effectHandlers: Record<string, EffectHandler> = {
   fire_atk_boost_aura,
   draw_on_play,
-  ignite_direct_damage,
-  conditional_fire_bonus,
-  draw_two_on_combat_ko,
   boost_fire_atk,
   purge_opponent_support,
   mirror_force,

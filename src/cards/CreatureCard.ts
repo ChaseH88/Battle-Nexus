@@ -1,5 +1,6 @@
 import { Card } from "./Card";
 import { Affinity, CardInterface, CardType } from "./types";
+import { getEffectTiming } from "../effects/registry";
 
 export type EffectType = "ONE_TIME" | "CONTINUOUS";
 
@@ -84,7 +85,8 @@ export class CreatureCard extends Card {
     // Can't activate if already activated this turn
     if (this.hasActivatedEffectThisTurn) return false;
     // ONE_TIME effects can only be activated once per game
-    if (this.effectType === "ONE_TIME") {
+    const effectTiming = getEffectTiming(this);
+    if (effectTiming === "ONE_TIME") {
       return !this.hasActivatedEffect;
     }
     // CONTINUOUS effects can be activated once per turn

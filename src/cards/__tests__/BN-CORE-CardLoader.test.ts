@@ -3,6 +3,7 @@ import { CardType } from "../types";
 import { CreatureCard } from "../CreatureCard";
 import { ActionCard } from "../ActionCard";
 import { SupportCard } from "../SupportCard";
+import { TrapCard } from "../TrapCard";
 
 type RawCard = any; // you can tighten this later
 
@@ -14,6 +15,8 @@ function createCardFromJson(raw: RawCard) {
       return new ActionCard(raw);
     case CardType.Support:
       return new SupportCard(raw);
+    case CardType.Trap:
+      return new TrapCard(raw);
     default:
       throw new Error(`Unknown card type: ${raw.type}`);
   }
@@ -23,7 +26,7 @@ describe("cards.json loader", () => {
   const instances = (bnCoreCardData as RawCard[]).map(createCardFromJson);
 
   it("loads all cards without error", () => {
-    expect(instances).toHaveLength(19); // Updated: 6 creatures + 7 support/action cards (including Mirror Force trap)
+    expect(instances).toHaveLength(17); // 6 creatures + 5 support cards + 5 action cards + 1 trap card
   });
 
   it("creates correct class types", () => {

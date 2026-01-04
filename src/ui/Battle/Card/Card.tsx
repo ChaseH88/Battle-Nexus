@@ -4,6 +4,7 @@ import { Support } from "./Support";
 import { Action } from "./Action";
 import { SupportCard } from "../../../cards/SupportCard";
 import { ActionCard } from "../../../cards/ActionCard";
+import { TrapCard } from "../../../cards/TrapCard";
 import { Back } from "./Back";
 import { CreatureCard } from "../../../cards";
 
@@ -39,23 +40,35 @@ export const Card = ({
   const isCreature = card.type === CardType.Creature;
   const isSupport = card.type === CardType.Support;
   const isAction = card.type === CardType.Action;
+  const isTrap = card.type === CardType.Trap;
   const creature = isCreature ? (card as CreatureCard) : null;
   const support = isSupport ? (card as SupportCard) : null;
   const action = isAction ? (card as ActionCard) : null;
+  const trap = isTrap ? (card as TrapCard) : null;
 
   // Show creature face-down if it has isFaceDown property set
   if (creature && creature.isFaceDown) {
     return <Back onClick={onClick} type="creature" />;
   }
 
-  // Show support/action face-down if isFaceDown is true
-  if ((support && support.isFaceDown) || (action && action.isFaceDown)) {
-    return <Back onClick={onClick} type={support ? "support" : "action"} />;
+  // Show support/action/trap face-down if isFaceDown is true
+  if (
+    (support && support.isFaceDown) ||
+    (action && action.isFaceDown) ||
+    (trap && trap.isFaceDown)
+  ) {
+    const backType = support ? "support" : action ? "action" : "trap";
+    return <Back onClick={onClick} type={backType} />;
   }
 
   // Also show face-down for opponent's inactive cards if showFaceDown is true
-  if (showFaceDown && (support || action) && !(support || action)!.isActive) {
-    return <Back onClick={onClick} type={support ? "support" : "action"} />;
+  if (
+    showFaceDown &&
+    (support || action || trap) &&
+    !(support || action || trap)!.isActive
+  ) {
+    const backType = support ? "support" : action ? "action" : "trap";
+    return <Back onClick={onClick} type={backType} />;
   }
 
   return (
@@ -113,6 +126,16 @@ export const Card = ({
           speed={action.speed}
           isActive={action.isActive}
           isFaceDown={action.isFaceDown}
+        />
+      )}
+      {trap && (
+        <Support
+          name={trap.name}
+          type={trap.type}
+          description={trap.description}
+          cost={trap.cost}
+          isActive={trap.isActive}
+          isFaceDown={trap.isFaceDown}
         />
       )}
     </div>
