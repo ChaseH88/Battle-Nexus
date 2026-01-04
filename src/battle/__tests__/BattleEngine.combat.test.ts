@@ -23,8 +23,9 @@ function cardFactory(raw: any): CardInterface {
   }
 }
 
-const deck1 = (cards as any[]).map(cardFactory);
-const deck2 = (cards as any[]).map(cardFactory);
+function createDeck() {
+  return (cards as any[]).map(cardFactory);
+}
 
 function drawMany(engine: BattleEngine, playerIndex: number, count: number) {
   for (let i = 0; i < count; i++) {
@@ -40,8 +41,8 @@ function drawMany(engine: BattleEngine, playerIndex: number, count: number) {
  */
 describe("BattleEngine – Combat Damage", () => {
   it("allows creatures to be played in lanes", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createDeck());
+    const p2 = createPlayerState("P2", createDeck());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -57,8 +58,8 @@ describe("BattleEngine – Combat Damage", () => {
   });
 
   it("creatures have attack and defense modes", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createDeck());
+    const p2 = createPlayerState("P2", createDeck());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -77,8 +78,8 @@ describe("BattleEngine – Combat Damage", () => {
   });
 
   it("tracks mode change flags", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createDeck());
+    const p2 = createPlayerState("P2", createDeck());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -97,8 +98,8 @@ describe("BattleEngine – Combat Damage", () => {
   });
 
   it("tracks attack flags", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createDeck());
+    const p2 = createPlayerState("P2", createDeck());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -112,5 +113,196 @@ describe("BattleEngine – Combat Damage", () => {
 
       expect(card.hasAttackedThisTurn).toBe(false);
     }
+  });
+
+  describe("Piercing Damage", () => {
+    it("deals excess damage to opponent's life points when destroying creature in attack mode", () => {
+      const p1 = createPlayerState("P1", createDeck());
+      const p2 = createPlayerState("P2", createDeck());
+      const game = createGameState(p1, p2);
+      const engine = new BattleEngine(game);
+
+      // Set turn to 3 so P1 is active player and can attack
+      game.turn = 3;
+      game.activePlayer = 0;
+      game.phase = "MAIN";
+
+      drawMany(engine, 0, 6);
+      drawMany(engine, 1, 6);
+
+      // P1 plays strong attacker (Quake Stag - 400 ATK)
+      const attacker = p1.hand.find((c) => c.id === "quake_stag");
+      if (attacker) {
+        engine.playCreature(0, 0, attacker.id);
+      }
+
+      // P2 plays weak defender (Ember Cub - 200 ATK, 500 HP)
+      const defender = p2.hand.find((c) => c.id === "ember_cub");
+      if (defender) {
+        engine.playCreature(1, 0, defender.id);
+        const defenderCard = p2.lanes[0] as CreatureCard;
+        defenderCard.mode = "ATTACK"; // Must be in attack mode for piercing
+        defenderCard.currentHp = 300; // Weaken to ensure destruction
+      }
+
+      const initialLifePoints = p2.lifePoints;
+
+      // Attack: 400 ATK vs 200 ATK creature with 300 HP
+      // Defender takes 400 damage, dies with -100 HP
+      // 100 piercing damage should go to life points
+      engine.attack(0, 0, 0);
+
+      expect(p2.lanes[0]).toBeNull(); // Defender destroyed
+      expect(p2.lifePoints).toBe(initialLifePoints - 100); // Piercing damage applied
+    });
+
+    it("deals larger piercing damage with stronger attacker", () => {
+      const p1 = createPlayerState("P1", createDeck());
+      const p2 = createPlayerState("P2", createDeck());
+      const game = createGameState(p1, p2);
+      const engine = new BattleEngine(game);
+
+      game.turn = 3;
+      game.activePlayer = 0;
+      game.phase = "MAIN";
+
+      drawMany(engine, 0, 6);
+      drawMany(engine, 1, 6);
+
+      // P1 plays Quake Stag (400 ATK)
+      const attacker = p1.hand.find((c) => c.id === "quake_stag");
+      if (attacker) {
+        engine.playCreature(0, 0, attacker.id);
+      }
+
+      // P2 plays Ember Cub with only 100 HP remaining
+      const defender = p2.hand.find((c) => c.id === "ember_cub");
+      if (defender) {
+        engine.playCreature(1, 0, defender.id);
+        const defenderCard = p2.lanes[0] as CreatureCard;
+        defenderCard.mode = "ATTACK";
+        defenderCard.currentHp = 100; // Weakened creature
+      }
+
+      const initialLifePoints = p2.lifePoints;
+
+      // Attack: 400 damage to 100 HP creature
+      // Creature dies with -300 HP
+      // 300 piercing damage to life points
+      engine.attack(0, 0, 0);
+
+      expect(p2.lanes[0]).toBeNull();
+      expect(p2.lifePoints).toBe(initialLifePoints - 300);
+    });
+
+    it("does not deal piercing damage to creatures in defense mode", () => {
+      const p1 = createPlayerState("P1", createDeck());
+      const p2 = createPlayerState("P2", createDeck());
+      const game = createGameState(p1, p2);
+      const engine = new BattleEngine(game);
+
+      game.turn = 2;
+      game.phase = "MAIN";
+
+      drawMany(engine, 0, 6);
+      drawMany(engine, 1, 6);
+
+      // P1 plays Quake Stag (400 ATK)
+      const attacker = p1.hand.find((c) => c.id === "quake_stag");
+      if (attacker) {
+        engine.playCreature(0, 0, attacker.id);
+      }
+
+      // P2 plays Ember Cub in DEFENSE mode with low HP
+      const defender = p2.hand.find((c) => c.id === "ember_cub");
+      if (defender) {
+        engine.playCreature(1, 0, defender.id);
+        const defenderCard = p2.lanes[0] as CreatureCard;
+        defenderCard.mode = "DEFENSE"; // Defense mode - no piercing
+        defenderCard.currentHp = 100;
+      }
+
+      const initialLifePoints = p2.lifePoints;
+
+      // Attack defense mode creature
+      engine.attack(0, 0, 0);
+
+      // No piercing damage in defense mode
+      expect(p2.lifePoints).toBe(initialLifePoints);
+    });
+
+    it("can win the game with piercing damage", () => {
+      const p1 = createPlayerState("P1", createDeck());
+      const p2 = createPlayerState("P2", createDeck());
+      const game = createGameState(p1, p2);
+      const engine = new BattleEngine(game);
+
+      game.turn = 3;
+      game.activePlayer = 0;
+      game.phase = "MAIN";
+
+      drawMany(engine, 0, 6);
+      drawMany(engine, 1, 6);
+
+      // Set P2's life points low
+      p2.lifePoints = 50;
+
+      // P1 plays Quake Stag (400 ATK)
+      const attacker = p1.hand.find((c) => c.id === "quake_stag");
+      if (attacker) {
+        engine.playCreature(0, 0, attacker.id);
+      }
+
+      // P2 plays weak defender with low HP
+      const defender = p2.hand.find((c) => c.id === "ember_cub");
+      if (defender) {
+        engine.playCreature(1, 0, defender.id);
+        const defenderCard = p2.lanes[0] as CreatureCard;
+        defenderCard.mode = "ATTACK";
+        defenderCard.currentHp = 300; // Will result in 100 piercing damage
+      }
+
+      // Attack - should deal 100 piercing damage and win the game
+      engine.attack(0, 0, 0);
+
+      expect(p2.lanes[0]).toBeNull();
+      expect(p2.lifePoints).toBeLessThanOrEqual(0);
+      expect(game.winnerIndex).toBe(0); // P1 wins
+    });
+
+    it("does not deal piercing damage if creature survives", () => {
+      const p1 = createPlayerState("P1", createDeck());
+      const p2 = createPlayerState("P2", createDeck());
+      const game = createGameState(p1, p2);
+      const engine = new BattleEngine(game);
+
+      game.turn = 2;
+      game.phase = "MAIN";
+
+      drawMany(engine, 0, 6);
+      drawMany(engine, 1, 6);
+
+      // P1 plays Quake Stag (400 ATK)
+      const attacker = p1.hand.find((c) => c.id === "quake_stag");
+      if (attacker) {
+        engine.playCreature(0, 0, attacker.id);
+      }
+
+      // P2 plays Quake Stag (400 ATK, 800 HP)
+      const defender = p2.hand.find((c) => c.id === "quake_stag");
+      if (defender) {
+        engine.playCreature(1, 0, defender.id);
+        const defenderCard = p2.lanes[0] as CreatureCard;
+        defenderCard.mode = "ATTACK";
+      }
+
+      const initialLifePoints = p2.lifePoints;
+
+      // Attack - defender survives with 400 HP
+      engine.attack(0, 0, 0);
+
+      expect(p2.lanes[0]).not.toBeNull(); // Defender still alive
+      expect(p2.lifePoints).toBe(initialLifePoints); // No piercing damage
+    });
   });
 });

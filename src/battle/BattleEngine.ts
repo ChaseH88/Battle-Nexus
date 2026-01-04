@@ -910,6 +910,9 @@ export class BattleEngine {
 
       // Check if defender is defeated
       if (defender.currentHp <= 0) {
+        // Calculate piercing damage (excess damage to life points)
+        const piercingDamage = Math.abs(defender.currentHp);
+        
         opponent.lanes[targetLane] = null;
         // MAX cards are removed from game, not discarded
         if (defender.isMax) {
@@ -921,6 +924,26 @@ export class BattleEngine {
           opponent.discardPile.push(defender);
           this.log(`💀 ${defender.name} was destroyed!`);
         }
+        
+        // Apply piercing damage to opponent's life points
+        if (piercingDamage > 0) {
+          opponent.lifePoints -= piercingDamage;
+          this.log(
+            `⚡ PIERCING DAMAGE! ${piercingDamage} excess damage dealt to ${opponent.id}'s Life Points!`
+          );
+          this.log(`${opponent.id} Life Points: ${opponent.lifePoints}/2000`);
+          
+          // Check for victory by reducing life points to 0
+          if (opponent.lifePoints <= 0 && this.state.winnerIndex === null) {
+            this.state.winnerIndex = playerIndex;
+            this.log(
+              `🏆 VICTORY! ${this.state.players[playerIndex].id} wins! ${
+                opponent.id
+              }'s Life Points reached 0!`
+            );
+          }
+        }
+        
         // Remove any support cards targeting this creature
         this.checkAndRemoveTargetedSupports(
           opponentIndex,
