@@ -26,9 +26,9 @@ export const Hand = ({
     >
       <Box sx={{ opacity: isHovered ? 1 : 1, transition: "opacity 0.3s" }}>
         <HandCards height={305}>
-          {hand.map((card) => (
+          {hand.map((card, index) => (
             <div
-              key={card.id}
+              key={`${card.id}-${index}`}
               data-testid="hand-card"
               data-card-name={card.name}
               data-card-type={card.type}

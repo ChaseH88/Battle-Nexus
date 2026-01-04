@@ -91,9 +91,9 @@ describe("BattleEngine – Support Card Lifecycle", () => {
 
       // Create persistent support (affects all Fire creatures)
       const persistentSupport = cardFactory({
-        id: "flame_aura",
+        id: "persistent_test_support",
         type: CardType.Support,
-        name: "Flame Aura",
+        name: "Persistent Test Support",
         effectId: "fire_atk_boost_aura",
         effectType: "CONTINUOUS",
       }) as SupportCard;
@@ -389,9 +389,9 @@ describe("BattleEngine – Support Card Lifecycle", () => {
 
       // P1 plays a support card
       const support = cardFactory({
-        id: "flame_aura",
+        id: "persistent_test_support2",
         type: CardType.Support,
-        name: "Flame Aura",
+        name: "Persistent Test Support 2",
         effectId: "fire_atk_boost_aura",
         effectType: "CONTINUOUS",
       }) as SupportCard;

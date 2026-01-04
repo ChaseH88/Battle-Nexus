@@ -10,7 +10,8 @@ export type EffectTrigger =
   | "ON_DEFEND"
   | "ON_DESTROY"
   | "ON_DRAW"
-  | "CONTINUOUS";
+  | "CONTINUOUS"
+  | "MANUAL";
 
 /** Who/what the effect is allowed to target */
 export type EffectTarget =

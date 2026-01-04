@@ -42,7 +42,13 @@ export function resolveEffectsForCard(params: {
     return;
   }
 
-  if (effect.trigger !== trigger && effect.trigger !== "CONTINUOUS") return;
+  // Allow effects with matching trigger, or CONTINUOUS/MANUAL effects (always activatable)
+  if (
+    effect.trigger !== trigger &&
+    effect.trigger !== "CONTINUOUS" &&
+    effect.trigger !== "MANUAL"
+  )
+    return;
 
   state.log.effectApplied(
     state.turn,

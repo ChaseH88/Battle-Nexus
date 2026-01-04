@@ -32,6 +32,12 @@ export function loadDeckFromLocalStorage(): CardInterface[] | null {
       count: number;
     }>;
 
+    // Validate that deckArray is actually an array
+    if (!Array.isArray(deckArray)) {
+      console.error("Saved deck is not an array:", deckArray);
+      return null;
+    }
+
     const deck: CardInterface[] = [];
     const cardMap = new Map((cardData as any[]).map((card) => [card.id, card]));
 

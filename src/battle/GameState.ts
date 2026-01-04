@@ -15,6 +15,8 @@ export interface ActiveEffect {
     atk?: number;
     def?: number;
   };
+  isGlobal?: boolean; // Global effects persist even after source card is removed
+  effectDefinitionId?: string; // Store the effectId from the source card for global effects
 }
 
 export interface GameState {

@@ -4,13 +4,13 @@ import { EffectMetadata } from "@effects/metadata";
 import { Affinity } from "@cards";
 
 /**
- * Ignite Burst Effect
- * Boosts a Fire creature with +200 ATK
+ * Void Wisp Boost Effect
+ * Boosts a Fire creature with +200 ATK (one-time activation)
  *
  * Handler function with metadata as static properties
  */
-export const boost_fire_atk = (ctx: EffectContext) => {
-  // Prefer explicit player choice if provided via eventData.targetLane or eventData.lane
+export const void_wisp_boost = (ctx: EffectContext) => {
+  // Require explicit player choice via eventData.targetLane or eventData.lane
   let target: any | null = null;
 
   const chosenLane = ctx.eventData?.targetLane ?? ctx.eventData?.lane;
@@ -29,45 +29,36 @@ export const boost_fire_atk = (ctx: EffectContext) => {
       );
       return;
     }
-  }
-
-  // If no explicit choice, auto-target highest-ATK allied Fire creature
-  if (!target) {
-    const allies = ctx.utils.getAllyCreatures(ctx.ownerIndex);
-    const fireCreatures = ctx.utils.filterByAffinity(allies, "FIRE");
-
-    if (fireCreatures.length === 0) {
-      ctx.utils.log("  No Fire creatures to target - effect fails");
-      return;
-    }
-
-    target = fireCreatures.reduce((best, c) =>
-      (c as any).atk > (best as any).atk ? c : best
-    );
+  } else {
+    // No target selected - this shouldn't happen if UI properly requires targeting
+    ctx.utils.log("  No target selected - effect fails");
+    return;
   }
 
   // Apply persistent ATK boost
   ctx.utils.modifyCreatureStats(target, 200, undefined);
-  ctx.utils.log(`  ${(target as any).name} gained +200 ATK`);
+  ctx.utils.log(
+    `  ${(target as any).name} gained +200 ATK from ${ctx.sourceCard.name}`
+  );
 
-  // Track as an active persistent effect while the source card remains
+  // Track as an active persistent effect (permanent boost, not tied to source card staying on field)
   ctx.utils.addActiveEffect(
-    `boost_fire_atk_${ctx.sourceCard.id}`,
-    "Ignite Burst",
+    `void_wisp_boost_${ctx.sourceCard.id}`,
+    "Void Boost",
     ctx.sourceCard,
     ctx.ownerIndex,
-    undefined, // permanent while source is on field
-    "+200 ATK (while on field)",
+    undefined, // permanent
+    "+200 ATK",
     [(target as any).id],
     { atk: 200 }
   );
 };
 
 // Attach metadata as static properties on the function
-boost_fire_atk.metadata = {
-  id: "boost_fire_atk",
-  name: "Ignite Burst",
-  description: "+200 ATK and IGNITE to target Fire creature",
+void_wisp_boost.metadata = {
+  id: "void_wisp_boost",
+  name: "Void Boost",
+  description: "+200 ATK to target Fire creature (one-time activation)",
 
   canActivate: (state: GameState, ownerIndex: 0 | 1) => {
     const player = state.players[ownerIndex];

@@ -51,6 +51,7 @@ describe("Effects – Registry", () => {
       "ON_DESTROY",
       "ON_DRAW",
       "CONTINUOUS",
+      "MANUAL",
     ];
 
     const effects = Object.values(effectsRegistry);

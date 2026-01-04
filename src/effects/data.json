@@ -19,14 +19,54 @@
     ]
   },
   {
+    "id": "flame_aura_global",
+    "name": "Flame Aura",
+    "timing": "QUICK",
+    "trigger": "MANUAL",
+    "stackable": true,
+    "persistent": true,
+    "global": true,
+    "description": "All Fire creatures you control gain +100 ATK for the remainder of the duel",
+    "actions": [
+      {
+        "type": "STAT_MOD",
+        "mode": "BOOST",
+        "target": "ALLY_CREATURE",
+        "filter": { "affinity": "FIRE" },
+        "atk": 100,
+        "duration": { "kind": "PERMANENT" }
+      }
+    ]
+  },
+  {
     "id": "boost_fire_atk",
     "name": "Fire Boost",
     "timing": "PERSIST",
-    "trigger": "CONTINUOUS",
+    "trigger": "MANUAL",
     "stackable": false,
     "requiresTarget": true,
     "targetType": "ALLY_FIRE_CREATURE",
     "description": "Target Fire creature gains +200 ATK while this support remains active",
+    "actions": [
+      {
+        "type": "STAT_MOD",
+        "mode": "BOOST",
+        "target": "ALLY_CREATURE",
+        "filter": { "affinity": "FIRE" },
+        "atk": 200,
+        "duration": { "kind": "PERMANENT" }
+      }
+    ]
+  },
+  {
+    "id": "void_wisp_boost",
+    "name": "Void Boost",
+    "timing": "NORMAL",
+    "trigger": "MANUAL",
+    "stackable": false,
+    "requiresTarget": true,
+    "targetType": "ALLY_FIRE_CREATURE",
+    "description": "Target Fire creature gains +200 ATK (activate once)",
     "actions": [
       {
         "type": "STAT_MOD",
@@ -77,6 +117,20 @@
         "type": "DESTROY",
         "target": "OPPONENT_CREATURE",
         "filter": { "mode": "ATTACK" }
+      }
+    ]
+  },
+  {
+    "id": "direct_burn_damage",
+    "name": "Blazing Strike",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Deal 300 damage directly to your opponent. If you control a Fire creature, deal 500 damage instead.",
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "OPPONENT",
+        "amount": -300
       }
     ]
   }

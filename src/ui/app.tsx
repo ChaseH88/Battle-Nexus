@@ -216,8 +216,42 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectNotificationQueue, dispatch]);
 
+  const startNewGame = useCallback(() => {
+    const deck1 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
+    const deck2 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
+
+    // Wrap trap callback in a function that uses the ref
+    const trapCallback = async (
+      defenderIndex: 0 | 1,
+      attackerLane: number,
+      targetLane: number
+    ): Promise<boolean> => {
+      if (trapActivationCallbackRef.current) {
+        return trapActivationCallbackRef.current(
+          defenderIndex,
+          attackerLane,
+          targetLane
+        );
+      }
+      return false;
+    };
+
+    initializeGame(deck1, deck2, aiSkillLevel, trapCallback);
+    dispatch(setSelectedHandCard(null));
+    dispatch(setSelectedAttacker(null));
+  }, [initializeGame, aiSkillLevel, dispatch]);
+
   const startNewGameWithCustomDeck = useCallback(() => {
     const customDeck = loadDeckFromLocalStorage();
+
+    if (customDeck && customDeck.length < 20) {
+      alert(
+        `Your saved deck has ${customDeck.length} cards. You need exactly 20 cards to use it. Please update your deck in the Deck Builder.`
+      );
+      startNewGame();
+      return;
+    }
+
     const deck1 =
       customDeck && customDeck.length >= 20
         ? [...customDeck].sort(() => 0.5 - Math.random())
@@ -243,32 +277,7 @@ export default function App() {
     initializeGame(deck1, deck2, aiSkillLevel, trapCallback);
     dispatch(setSelectedHandCard(null));
     dispatch(setSelectedAttacker(null));
-  }, [initializeGame, aiSkillLevel, dispatch]);
-
-  const startNewGame = useCallback(() => {
-    const deck1 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
-    const deck2 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
-
-    // Wrap trap callback in a function that uses the ref
-    const trapCallback = async (
-      defenderIndex: 0 | 1,
-      attackerLane: number,
-      targetLane: number
-    ): Promise<boolean> => {
-      if (trapActivationCallbackRef.current) {
-        return trapActivationCallbackRef.current(
-          defenderIndex,
-          attackerLane,
-          targetLane
-        );
-      }
-      return false;
-    };
-
-    initializeGame(deck1, deck2, aiSkillLevel, trapCallback);
-    dispatch(setSelectedHandCard(null));
-    dispatch(setSelectedAttacker(null));
-  }, [initializeGame, aiSkillLevel, dispatch]);
+  }, [initializeGame, aiSkillLevel, dispatch, startNewGame]);
 
   const handleNewGame = useCallback(() => {
     if (hasSavedDeck()) {

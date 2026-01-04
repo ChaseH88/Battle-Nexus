@@ -67,6 +67,20 @@ const DeckBuilder: React.FC = () => {
   const availableCards = cardData as CardData[];
 
   const saveDeckToLocalStorage = () => {
+    const totalCards = Array.from(selectedCards.values()).reduce(
+      (sum, count) => sum + count,
+      0
+    );
+
+    if (totalCards !== 20) {
+      setSnackbarMessage(
+        `Cannot save deck! You have ${totalCards} cards. You need exactly 20 cards to save.`
+      );
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
     const deckArray = Array.from(selectedCards.entries()).map(
       ([cardId, count]) => ({
         cardId,

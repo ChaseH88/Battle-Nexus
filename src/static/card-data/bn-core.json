@@ -101,12 +101,11 @@
   },
   {
     "id": "flame_aura",
-    "type": "SUPPORT",
+    "type": "ACTION",
     "name": "Flame Aura",
-    "description": "All Fire creatures gain +100 ATK permanently.",
+    "description": "All Fire creatures you control gain +100 ATK for the remainder of the duel.",
     "cost": 2,
-    "effectId": "fire_atk_boost_aura",
-    "oncePerTurn": false,
+    "effectId": "flame_aura_global",
     "rarity": "R",
     "set": "BN-CORE"
   },
@@ -186,7 +185,7 @@
     "def": 150,
     "hp": 600,
     "affinity": "SHADOW",
-    "effectId": "boost_fire_atk",
+    "effectId": "void_wisp_boost",
     "rarity": "R",
     "set": "BN-CORE"
   },
@@ -199,6 +198,17 @@
     "effectId": "mirror_force",
     "oncePerTurn": false,
     "rarity": "SR",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "blazing_strike",
+    "type": "ACTION",
+    "name": "Blazing Strike",
+    "description": "Deal 300 damage directly to your opponent. If you control a Fire creature, deal 500 damage instead.",
+    "cost": 2,
+    "speed": "NORMAL",
+    "effectId": "direct_burn_damage",
+    "rarity": "R",
     "set": "BN-CORE"
   },
   {

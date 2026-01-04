@@ -48,6 +48,14 @@ export const purge_opponent_support = (ctx: EffectContext) => {
   const card = opponent.support[slotToRemove];
   if (!card) return;
 
+  // Remove any active effects from this support card before discarding
+  const effectsToRemove = ctx.state.activeEffects.filter(
+    (e) => e.sourceCardId === card.id
+  );
+  effectsToRemove.forEach((e) => {
+    ctx.engine.removeActiveEffect(e.id);
+  });
+
   // Move to discard pile
   opponent.support[slotToRemove] = null;
   opponent.discardPile.push(card);

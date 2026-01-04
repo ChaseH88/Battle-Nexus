@@ -2,10 +2,13 @@ import { GameState, getOpponentIndex } from "../battle/GameState";
 import { CardInterface, CardType, CreatureCard } from "../cards";
 import { BattleEngine } from "../battle/BattleEngine";
 import { fire_atk_boost_aura } from "./effect/fire_atk_boost_aura";
+import { flame_aura_global } from "./effect/flame_aura_global";
 import { draw_on_play } from "./effect/draw_on_play";
 import { boost_fire_atk } from "./effect/boost_fire_atk";
+import { void_wisp_boost } from "./effect/void_wisp_boost";
 import { purge_opponent_support } from "./effect/purge_opponent_support";
 import { mirror_force } from "./effect/mirror_force";
+import { direct_burn_damage } from "./effect/direct_burn_damage";
 
 /**
  * Effect Context - provides access to all game state and utility functions
@@ -26,7 +29,8 @@ export interface EffectContext {
     | "ON_DEFEND"
     | "ON_DESTROY"
     | "ON_DRAW"
-    | "CONTINUOUS";
+    | "CONTINUOUS"
+    | "MANUAL";
   eventData?: {
     lane?: number;
     targetLane?: number;
@@ -74,7 +78,8 @@ export interface EffectUtils {
     turns?: number,
     description?: string,
     affectedCardIds?: string[],
-    statModifiers?: { atk?: number; def?: number }
+    statModifiers?: { atk?: number; def?: number },
+    isGlobal?: boolean
   ) => void;
 
   // Support card cleanup
@@ -232,7 +237,8 @@ export function createEffectUtils(
       turns?: number,
       description?: string,
       affectedCardIds?: string[],
-      statModifiers?: { atk?: number; def?: number }
+      statModifiers?: { atk?: number; def?: number },
+      isGlobal?: boolean
     ) => {
       engine.addActiveEffect(
         effectId,
@@ -242,7 +248,8 @@ export function createEffectUtils(
         turns,
         description,
         affectedCardIds,
-        statModifiers
+        statModifiers,
+        isGlobal
       );
     },
 
@@ -271,10 +278,13 @@ export type EffectHandler = (context: EffectContext) => void;
  */
 export const effectHandlers: Record<string, EffectHandler> = {
   fire_atk_boost_aura,
+  flame_aura_global,
   draw_on_play,
   boost_fire_atk,
+  void_wisp_boost,
   purge_opponent_support,
   mirror_force,
+  direct_burn_damage,
 };
 
 /**

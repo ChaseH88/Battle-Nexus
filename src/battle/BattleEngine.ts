@@ -1071,7 +1071,8 @@ export class BattleEngine {
     turns?: number,
     description?: string,
     affectedCardIds?: string[],
-    statModifiers?: { atk?: number; def?: number }
+    statModifiers?: { atk?: number; def?: number },
+    isGlobal?: boolean
   ) {
     const effect: ActiveEffect = {
       id: effectId,
@@ -1081,8 +1082,10 @@ export class BattleEngine {
       playerIndex,
       turnsRemaining: turns,
       description: description || name,
-      affectedCardIds,
+      affectedCardIds: affectedCardIds ? [...affectedCardIds] : [], // Create mutable copy
       statModifiers,
+      isGlobal,
+      effectDefinitionId: sourceCard.effectId, // Store for global effects
     };
 
     this.state.activeEffects.push(effect);
@@ -1161,8 +1164,11 @@ export class BattleEngine {
           // Apply stat modifier
           if (action.type === "STAT_MOD" && action.atk) {
             (creature as any).atk += action.atk;
-            effect.affectedCardIds = effect.affectedCardIds || [];
-            effect.affectedCardIds.push(creature.id);
+            if (!effect.affectedCardIds) {
+              effect.affectedCardIds = [creature.id];
+            } else if (!effect.affectedCardIds.includes(creature.id)) {
+              effect.affectedCardIds = [...effect.affectedCardIds, creature.id];
+            }
           }
 
           // Apply keyword add
@@ -1172,9 +1178,11 @@ export class BattleEngine {
                 (creature as any).keywords.push(kw);
               }
             });
-            effect.affectedCardIds = effect.affectedCardIds || [];
-            if (!effect.affectedCardIds.includes(creature.id))
-              effect.affectedCardIds.push(creature.id);
+            if (!effect.affectedCardIds) {
+              effect.affectedCardIds = [creature.id];
+            } else if (!effect.affectedCardIds.includes(creature.id)) {
+              effect.affectedCardIds = [...effect.affectedCardIds, creature.id];
+            }
           }
         });
       }
@@ -1221,7 +1229,57 @@ export class BattleEngine {
   ) {
     // Iterate all active effects and apply ones that match this creature
     this.state.activeEffects.forEach((effect) => {
-      // Find the source card to get its effectId
+      // For global effects, use the stored effectDefinitionId
+      if (effect.isGlobal && effect.effectDefinitionId) {
+        const def = effectsRegistry[effect.effectDefinitionId];
+        if (!def || !def.actions) return;
+
+        def.actions.forEach((action: any) => {
+          if (action.target !== "ALLY_CREATURE") return;
+          // effect must belong to the same player to be an ally buff
+          if (effect.playerIndex !== playerIndex) return;
+
+          // affinity filter
+          if (action.filter && action.filter.affinity) {
+            if ((creature as any).affinity !== action.filter.affinity) return;
+          }
+
+          // Skip if already affected
+          if (
+            effect.affectedCardIds &&
+            effect.affectedCardIds.includes(creature.id)
+          )
+            return;
+
+          // Apply stat mod
+          if (action.type === "STAT_MOD" && action.atk) {
+            (creature as any).atk += action.atk;
+          }
+          if (action.type === "STAT_MOD" && action.def) {
+            (creature as any).def += action.def;
+          }
+
+          // Apply keywords
+          if (action.type === "KEYWORD" && action.mode === "ADD") {
+            (action.keywords || []).forEach((kw: string) => {
+              if (!(creature as any).keywords) (creature as any).keywords = [];
+              if (!(creature as any).keywords.includes(kw)) {
+                (creature as any).keywords.push(kw);
+              }
+            });
+          }
+
+          // Track that this creature is now affected
+          if (!effect.affectedCardIds) {
+            effect.affectedCardIds = [creature.id];
+          } else if (!effect.affectedCardIds.includes(creature.id)) {
+            effect.affectedCardIds = [...effect.affectedCardIds, creature.id];
+          }
+        });
+        return; // Skip the source card lookup for global effects
+      }
+
+      // For non-global effects, find the source card to get its effectId
       let sourceCard: CardInterface | null = null;
       const player = this.state.players[effect.playerIndex];
 

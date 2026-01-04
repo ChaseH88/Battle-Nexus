@@ -2,7 +2,7 @@ import { EffectContext } from "@effects/handler";
 
 /**
  * Effect Handler for Fire ATK Boost Aura
- * Gives +100 ATK to all Fire creatures
+ * Gives +100 ATK to all Fire creatures while support remains active
  */
 export const fire_atk_boost_aura = (ctx: EffectContext) => {
   const allies = ctx.utils.getAllyCreatures(ctx.ownerIndex);
@@ -18,7 +18,7 @@ export const fire_atk_boost_aura = (ctx: EffectContext) => {
     "Flame Surge",
     ctx.sourceCard,
     ctx.ownerIndex,
-    undefined, // permanent
+    undefined, // permanent while support is active
     "+100 ATK to Fire creatures",
     fireCreatures.map((c) => c.id),
     { atk: 100 }
