@@ -21,6 +21,7 @@ interface PlayerBoardProps
       | "onToggleMode"
       | "onFlipFaceUp"
       | "onActivateCreatureEffect"
+      | "draggedCardId"
     > {
   player: PlayerState;
   currentPlayerState?: PlayerState; // Pass to CreatureZone for checking attacker mode
@@ -31,6 +32,7 @@ interface PlayerBoardProps
   selectedAttacker?: number | null;
   onCreatureDoubleClick?: (lane: number) => void;
   onSupportDoubleClick?: (slot: number) => void;
+  showPlayButtons?: boolean; // Show "Play Here" buttons for accessibility
 }
 
 export const PlayerBoard = ({
@@ -51,6 +53,8 @@ export const PlayerBoard = ({
   onFlipFaceUp,
   onCreatureDoubleClick,
   onSupportDoubleClick,
+  draggedCardId,
+  showPlayButtons = false,
 }: PlayerBoardProps) => {
   const SupportZoneComponent = useMemo(
     () => (
@@ -61,6 +65,8 @@ export const PlayerBoard = ({
         onPlaySupport={onPlaySupport}
         isOpponent={isOpponent}
         onCardDoubleClick={onSupportDoubleClick}
+        draggedCardId={draggedCardId}
+        showPlayButtons={showPlayButtons}
       />
     ),
     [
@@ -70,6 +76,8 @@ export const PlayerBoard = ({
       onPlaySupport,
       isOpponent,
       onSupportDoubleClick,
+      draggedCardId,
+      showPlayButtons,
     ]
   );
 
@@ -125,6 +133,8 @@ export const PlayerBoard = ({
         onFlipFaceUp={onFlipFaceUp}
         onCardDoubleClick={onCreatureDoubleClick}
         onActivateCreatureEffect={onActivateCreatureEffect}
+        draggedCardId={draggedCardId}
+        showPlayButtons={showPlayButtons}
       />
       {!isOpponent && SupportZoneComponent}
     </PlayerBoardContainer>

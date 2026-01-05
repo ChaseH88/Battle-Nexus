@@ -17,6 +17,7 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
+  isolation: isolate;
 }
 
 /* CreatureZone - Not yet refactored */
@@ -462,3 +463,26 @@ body {
     flex-direction: column;
   }
 }
+
+/* Framer Motion drag and drop styles */
+.draggable-card {
+  will-change: transform;
+}
+
+.draggable-card[data-framer-dragging="true"] {
+  z-index: 99999 !important;
+  position: fixed !important;
+  transform: translateZ(0);
+}
+
+/* Disable pointer events on children of dragged card so drop zones can be detected */
+.draggable-card[data-framer-dragging="true"] * {
+  pointer-events: none !important;
+}
+
+/* Ensure hand zone has proper stacking context */
+.hand-zone-container {
+  position: relative;
+  z-index: 200;
+}
+

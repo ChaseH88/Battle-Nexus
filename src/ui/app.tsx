@@ -70,6 +70,7 @@ export default function App() {
   const [aiSkillLevel, setAiSkillLevel] = useState(5);
   const [showDeckLoadPrompt, setShowDeckLoadPrompt] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [draggedCardId, setDraggedCardId] = useState<string | null>(null);
 
   // Ref to store trap activation callback - needs to be stable and have access to latest state
   const trapActivationCallbackRef =
@@ -828,6 +829,7 @@ export default function App() {
             if (activateCreatureEffect && engine)
               activateCreatureEffect(1, lane);
           }}
+          draggedCardId={null}
         />
         <PlayerBoard
           player={player1}
@@ -848,12 +850,63 @@ export default function App() {
           onFlipFaceUp={handleFlipFaceUp}
           onCreatureDoubleClick={(lane) => handleCreatureDoubleClick(lane, 0)}
           onSupportDoubleClick={(slot) => handleSupportDoubleClick(slot, 0)}
+          draggedCardId={draggedCardId}
         />
         <Hand
           hand={player1.hand}
           selectedHandCard={selectedHandCard}
           onSelectCard={(id) => dispatch(setSelectedHandCard(id))}
           onCardDoubleClick={handleHandCardDoubleClick}
+          onDragStart={(cardId) => {
+            setDraggedCardId(cardId);
+            dispatch(setSelectedHandCard(cardId));
+          }}
+          onDragEnd={() => {
+            // Don't clear draggedCardId here - wait for onCardDropped
+          }}
+          onCardDropped={(cardId, x, y) => {
+            // Find what element is at the drop position
+            const elements = document.elementsFromPoint(x, y);
+
+            // Look for a drop zone element
+            const dropZone = elements.find(
+              (el) =>
+                el.hasAttribute("data-drop-lane") ||
+                el.hasAttribute("data-drop-support")
+            );
+
+            if (dropZone) {
+              const card = player1.hand.find((c) => c.id === cardId);
+              if (!card) {
+                setDraggedCardId(null);
+                return;
+              }
+
+              // Ensure card is selected before playing
+              dispatch(setSelectedHandCard(cardId));
+
+              if (dropZone.hasAttribute("data-drop-lane")) {
+                const lane = parseInt(dropZone.getAttribute("data-drop-lane")!);
+                if (card.type === CardType.Creature) {
+                  handlePlayCreatureClick(lane);
+                }
+              } else if (dropZone.hasAttribute("data-drop-support")) {
+                const slot = parseInt(
+                  dropZone.getAttribute("data-drop-support")!
+                );
+                if (
+                  card.type === CardType.Support ||
+                  card.type === CardType.Action ||
+                  card.type === CardType.Trap
+                ) {
+                  handlePlaySupport(slot);
+                }
+              }
+            }
+
+            // Clear draggedCardId after processing drop
+            setDraggedCardId(null);
+          }}
         />
         <Controls
           phase={gameState.phase}

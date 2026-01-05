@@ -1,25 +1,27 @@
 import { styled } from "@mui/material/styles";
 import { Box, Typography } from "@mui/material";
 
-export const HandZone = styled(Box)(()  => ({
+export const HandZone = styled(Box)(() => ({
   background: "rgba(0, 0, 0, 0.3)",
   borderRadius: "15px",
   padding: "20px",
   marginBottom: "20px",
+  position: "relative",
+  zIndex: 200,
+  overflow: "visible",
 }));
 
-export const HandTitle = styled(Typography)(()  => ({
+export const HandTitle = styled(Typography)(() => ({
   marginBottom: "15px",
   fontSize: "1.2rem",
   color: "#fff",
   fontWeight: "bold",
 }));
 
-export const HandCards = styled(Box)(()  => ({
+export const HandCards = styled(Box)(() => ({
   display: "flex",
   justifyContent: "center",
   gap: "15px",
-  overflowX: "auto",
   padding: "10px",
   "&::-webkit-scrollbar": {
     height: "8px",

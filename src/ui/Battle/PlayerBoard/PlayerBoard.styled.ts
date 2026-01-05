@@ -12,6 +12,7 @@ export const PlayerBoardContainer = styled(Box)<{ isopponent?: string }>(
         ? "rgba(255, 100, 100, 0.5)"
         : "rgba(100, 255, 100, 0.5)"
     }`,
+    position: "relative",
   })
 );
 
