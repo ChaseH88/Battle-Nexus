@@ -1,15 +1,9 @@
 import { PlayerState } from "../../../battle/PlayerState";
-import { DiscardPile } from "./DiscardPile";
-import { MaxDeck } from "./MaxDeck";
 import { SupportZone, SupportZoneProps } from "./SupportZone";
 import { CreatureZone, CreatureZoneProps } from "./CreatureZone";
 import { useMemo } from "react";
-import {
-  PlayerBoardContainer,
-  PlayerInfo,
-  PlayerName,
-  PlayerStat,
-} from "./PlayerBoard.styled";
+import { PlayerBoardContainer } from "./PlayerBoard.styled";
+import { Player } from "./Player";
 
 interface PlayerBoardProps
   extends Pick<SupportZoneProps, "onActivateSupport" | "onPlaySupport">,
@@ -83,41 +77,7 @@ export const PlayerBoard = ({
 
   return (
     <PlayerBoardContainer isopponent={isOpponent ? "true" : "false"}>
-      <PlayerInfo>
-        <PlayerName variant="h3">{player.id}</PlayerName>
-        <PlayerStat
-          className="life-points"
-          data-testid={
-            isOpponent ? "opponent-life-points" : "player-life-points"
-          }
-          style={{
-            color:
-              lifePoints <= 500
-                ? "#fc8181"
-                : lifePoints <= 1000
-                ? "#f6ad55"
-                : "#68d391",
-            fontWeight: "bold",
-          }}
-        >
-          LP: {lifePoints > 0 ? lifePoints : 0}
-        </PlayerStat>
-        <PlayerStat
-          className="momentum"
-          data-testid={isOpponent ? "opponent-momentum" : "player-momentum"}
-          style={{
-            color: "#60a5fa",
-            fontWeight: "bold",
-            fontSize: "1.1rem",
-          }}
-        >
-          ⚡ {player.momentum}/10
-        </PlayerStat>
-        <PlayerStat>Deck: {player.deck.length}</PlayerStat>
-        {isOpponent && <PlayerStat>Hand: {player.hand.length}</PlayerStat>}
-        <DiscardPile cards={player.discardPile} />
-        <MaxDeck cards={player.maxDeck} playerMomentum={player.momentum} />
-      </PlayerInfo>
+      <Player player={player} lifePoints={lifePoints} isOpponent={isOpponent} />
       {isOpponent && SupportZoneComponent}
       <CreatureZone
         player={player}
