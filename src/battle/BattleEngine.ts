@@ -820,8 +820,8 @@ export class BattleEngine {
     // Mark creature as having attacked
     attacker.hasAttackedThisTurn = true;
 
-    // Momentum: Gain +1 for declaring attack (combat participation)
-    this.gainMomentum(playerIndex, 1);
+    // Momentum: Gain +2 for declaring attack (initiative bonus)
+    this.gainMomentum(playerIndex, 2);
 
     resolveEffectsForCard({
       state: this.state,
@@ -974,12 +974,8 @@ export class BattleEngine {
         // Momentum: +2 for KO (defender's controller gets it)
         this.gainMomentum(opponentIndex, 2);
       } else if (attacker.currentHp > 0 && defender.currentHp > 0) {
-        // Both survived combat - each controller gains +1 Momentum for survival
-        this.gainMomentum(playerIndex, 1);
+        // Both survived combat - defender gets +1 Momentum for surviving attack
         this.gainMomentum(opponentIndex, 1);
-      } else if (attacker.currentHp > 0) {
-        // Only attacker survived
-        this.gainMomentum(playerIndex, 1);
       }
     } else if (attacker.mode === "ATTACK" && defender.mode === "DEFENSE") {
       // Defender in defense mode - reduces damage and NO counter-attack
@@ -1018,10 +1014,8 @@ export class BattleEngine {
           );
           // Momentum: +2 for KO
           this.gainMomentum(playerIndex, 2);
-        } else {
-          // Defender survived
-          this.gainMomentum(opponentIndex, 1);
         }
+        // No momentum awarded to defender in defense mode - trade-off for safety
       } else {
         // Attacker failed to penetrate defense - NO DAMAGE AT ALL
         this.log(
@@ -1030,13 +1024,11 @@ export class BattleEngine {
         this.log(
           `  → ${attacker.name} dealt no damage and took no counter-damage!`
         );
-        // Defender survived (blocked completely)
-        this.gainMomentum(opponentIndex, 1);
+        // No momentum awarded to defender in defense mode - trade-off for safety
       }
 
       // Key advantage: Attacker takes NO damage when attacking defense mode
       // Attacker always survives (no counter-attack damage)
-      this.gainMomentum(playerIndex, 1);
       this.log(
         `  → ${attacker.name} is safe from counter-attacks! HP: ${attacker.currentHp}/${attacker.hp}`
       );
