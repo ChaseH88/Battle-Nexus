@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { PlayerState } from "../../../battle/PlayerState";
 import { CardType } from "../../../cards/types";
 import { CreatureCard } from "../../../cards/CreatureCard";
@@ -40,8 +39,6 @@ export const CreatureZone = ({
   onActivateCreatureEffect,
   draggedCardId,
 }: CreatureZoneProps) => {
-  const [hoveredLane, setHoveredLane] = useState<number | null>(null);
-
   return (
     <div className="creature-zone">
       <h4>{isOpponent ? "Creatures" : "Your Creatures"}</h4>
@@ -56,7 +53,6 @@ export const CreatureZone = ({
             !card &&
             draggedCard &&
             draggedCard.type === CardType.Creature;
-          const isHovered = hoveredLane === i;
 
           return (
             <motion.div
@@ -86,7 +82,7 @@ export const CreatureZone = ({
               >
                 Lane {i}
               </div>
-              <div 
+              <div
                 data-drop-lane={isDropTarget ? i : undefined}
                 onDragStart={(e) => e.preventDefault()}
                 draggable={false}

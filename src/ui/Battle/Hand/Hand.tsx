@@ -56,7 +56,7 @@ export const Hand = ({
                     onDragStart(card.id);
                   }
                 }}
-                onDragEnd={(event, info) => {
+                onDragEnd={(event) => {
                   // Use the pointer position from the event, not the card position
                   // The card might be animating back while we check
                   const pointerEvent = event as PointerEvent;

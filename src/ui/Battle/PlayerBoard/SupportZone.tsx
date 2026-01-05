@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ActionCard, CardType, SupportCard, TrapCard } from "../../../cards";
 import { PlayerState } from "../../../battle/PlayerState";
 import { Card } from "../Card";
@@ -33,8 +32,6 @@ export const SupportZone = ({
   draggedCardId,
   showPlayButtons = false,
 }: SupportZoneProps) => {
-  const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
-
   return (
     <SupportZoneContainer>
       <SupportZoneTitle>
@@ -53,7 +50,6 @@ export const SupportZone = ({
             (draggedCard.type === CardType.Support ||
               draggedCard.type === CardType.Action ||
               draggedCard.type === CardType.Trap);
-          const isHovered = hoveredSlot === i;
 
           return (
             <motion.div
@@ -75,7 +71,7 @@ export const SupportZone = ({
                 data-testid={`support-slot-${i}`}
                 data-drop-support={isDropTarget ? i : undefined}
               >
-                <div 
+                <div
                   data-drop-support={isDropTarget ? i : undefined}
                   onDragStart={(e) => e.preventDefault()}
                   draggable={false}
