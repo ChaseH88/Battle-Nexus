@@ -30,11 +30,7 @@ export const Card = ({
   disableHover = false,
 }: CardProps) => {
   if (!card) {
-    return (
-      <div className="card-slot empty" onClick={onClick}>
-        Empty
-      </div>
-    );
+    return <div className="card-slot empty" onClick={onClick} />;
   }
 
   const isCreature = card.type === CardType.Creature;
@@ -114,7 +110,6 @@ export const Card = ({
           isActive={support.isActive}
           isFaceDown={support.isFaceDown}
           targetPlayerIndex={support.targetPlayerIndex}
-          targetLane={support.targetLane}
         />
       )}
       {action && (

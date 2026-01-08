@@ -1095,7 +1095,7 @@ export class BattleEngine {
       playerIndex,
       turnsRemaining: turns,
       description: description || name,
-      affectedCardIds: affectedCardIds ? [...affectedCardIds] : [], // Create mutable copy
+      affectedCardIds: affectedCardIds ? Array.from(affectedCardIds) : [], // Ensure truly mutable array
       statModifiers,
       isGlobal,
       effectDefinitionId: sourceCard.effectId, // Store for global effects
@@ -1159,7 +1159,7 @@ export class BattleEngine {
         const pIdx = effect.playerIndex;
         const player = this.state.players[pIdx];
 
-        player.lanes.forEach((creature) => {
+        player.lanes.forEach((creature, laneIndex) => {
           if (!creature) return;
 
           // Apply filter if present
@@ -1174,28 +1174,36 @@ export class BattleEngine {
           )
             return;
 
-          // Apply stat modifier
-          if (action.type === "STAT_MOD" && action.atk) {
-            (creature as any).atk += action.atk;
-            if (!effect.affectedCardIds) {
-              effect.affectedCardIds = [creature.id];
-            } else if (!effect.affectedCardIds.includes(creature.id)) {
-              effect.affectedCardIds = [...effect.affectedCardIds, creature.id];
-            }
-          }
-
-          // Apply keyword add
-          if (action.type === "KEYWORD" && action.keywords) {
-            action.keywords.forEach((kw: string) => {
-              if (!(creature as any).keywords.includes(kw)) {
-                (creature as any).keywords.push(kw);
+          try {
+            // Apply stat modifier
+            if (action.type === "STAT_MOD" && action.atk) {
+              (creature as any).atk += action.atk;
+              if (!effect.affectedCardIds) {
+                effect.affectedCardIds = [];
               }
-            });
-            if (!effect.affectedCardIds) {
-              effect.affectedCardIds = [creature.id];
-            } else if (!effect.affectedCardIds.includes(creature.id)) {
-              effect.affectedCardIds = [...effect.affectedCardIds, creature.id];
+              if (!effect.affectedCardIds.includes(creature.id)) {
+                effect.affectedCardIds.push(creature.id);
+              }
             }
+
+            // Apply keyword add
+            if (action.type === "KEYWORD" && action.keywords) {
+              action.keywords.forEach((kw: string) => {
+                if (!(creature as any).keywords.includes(kw)) {
+                  (creature as any).keywords.push(kw);
+                }
+              });
+              if (!effect.affectedCardIds) {
+                effect.affectedCardIds = [];
+              }
+              if (!effect.affectedCardIds.includes(creature.id)) {
+                effect.affectedCardIds.push(creature.id);
+              }
+            }
+          } catch (err) {
+            this.log(
+              `Error applying effect to ${creature.name} in lane ${laneIndex}: ${err}`
+            );
           }
         });
       }

@@ -34,9 +34,7 @@ export const SupportZone = ({
 }: SupportZoneProps) => {
   return (
     <SupportZoneContainer>
-      <SupportZoneTitle>
-        {isOpponent ? "Support" : "Your Support"}
-      </SupportZoneTitle>
+      <SupportZoneTitle />
       <SupportSlots>
         {player.support.map((card, i) => {
           const draggedCard = draggedCardId

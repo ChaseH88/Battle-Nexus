@@ -41,7 +41,6 @@ export const CreatureZone = ({
 }: CreatureZoneProps) => {
   return (
     <div className="creature-zone">
-      <h4>{isOpponent ? "Creatures" : "Your Creatures"}</h4>
       <div className="lanes">
         {player.lanes.map((card, i) => {
           const draggedCard = draggedCardId
@@ -76,12 +75,6 @@ export const CreatureZone = ({
                 borderRadius: "8px",
               }}
             >
-              <div
-                className="lane-label"
-                data-drop-lane={isDropTarget ? i : undefined}
-              >
-                Lane {i}
-              </div>
               <div
                 data-drop-lane={isDropTarget ? i : undefined}
                 onDragStart={(e) => e.preventDefault()}

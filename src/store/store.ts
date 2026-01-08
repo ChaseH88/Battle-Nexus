@@ -13,12 +13,14 @@ export const store = configureStore({
           "ui/openModal",
           "ui/queueEffectNotification",
           "ui/openCardDetailModal",
+          "ui/openTargetSelectModal",
         ],
         // Ignore these field paths in all actions
         ignoredActionPaths: [
           "payload.onConfirm",
           "payload.onCancel",
           "payload.card",
+          "payload.options",
         ],
         // Ignore these paths in the state
         ignoredPaths: [
@@ -26,6 +28,8 @@ export const store = configureStore({
           "ui.modal.onCancel",
           "ui.effectNotificationQueue",
           "ui.cardDetailModal.card",
+          "ui.targetSelectModal.options",
+          "ui.targetSelectModal.onConfirm",
         ],
       },
     }),

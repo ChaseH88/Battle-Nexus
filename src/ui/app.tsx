@@ -8,9 +8,7 @@ import cardsData from "../static/card-data/bn-core.json";
 import "./styles.css";
 import { GameLog } from "./Battle/GameLog";
 import { Controls } from "./Battle/Controls";
-import { GameHeader } from "./Battle/GameHeader";
 import { ActiveEffects } from "./Battle/ActiveEffects";
-import { AIControls } from "./Battle/AIControls";
 import { PlayerBoard } from "./Battle/PlayerBoard";
 import { Hand } from "./Battle/Hand";
 import { Modal, PlayCreatureModal } from "./Battle/Modal";
@@ -67,7 +65,7 @@ export default function App() {
     isShowingEffectNotification,
   } = useAppSelector((state) => state.ui);
 
-  const [aiSkillLevel, setAiSkillLevel] = useState(5);
+  const [aiSkillLevel] = useState(5);
   const [showDeckLoadPrompt, setShowDeckLoadPrompt] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [draggedCardId, setDraggedCardId] = useState<string | null>(null);
@@ -89,7 +87,7 @@ export default function App() {
     currentPlayer,
     opponent,
     isGameOver,
-    winner,
+    // winner,
     initializeGame,
     draw,
     playCreature,
@@ -407,7 +405,6 @@ export default function App() {
   // Always use player indices for consistent board positions
   const player1 = gameState.players[0]; // User (always bottom)
   const player2 = gameState.players[1]; // AI (always top)
-  const isPlayer1Turn = gameState.activePlayer === 0;
 
   const handleDraw = () => {
     if (isShowingEffectNotification) return;
@@ -720,11 +717,6 @@ export default function App() {
     );
   };
 
-  const handleSkillChange = (level: number) => {
-    setAiSkillLevel(level);
-    // Note: AI skill change will take effect on next game
-  };
-
   const handleCreatureDoubleClick = (lane: number, playerIndex: 0 | 1) => {
     const player = gameState.players[playerIndex];
     const card = player.lanes[lane];
@@ -798,21 +790,9 @@ export default function App() {
         />
       </div>
       <div className="game-container">
-        <GameHeader
-          isGameOver={isGameOver}
-          winnerName={isGameOver && winner ? winner : ""}
-          turn={gameState.turn}
-          currentPlayerName={isPlayer1Turn ? player1.id : player2.id}
-          phase={gameState.phase}
-          onNewGame={startNewGame}
-        />
         <ActiveEffects
           activeEffects={gameState.activeEffects}
           players={gameState.players}
-        />
-        <AIControls
-          aiSkillLevel={aiSkillLevel}
-          onSkillChange={handleSkillChange}
         />
         <PlayerBoard
           player={player2}

@@ -16,6 +16,8 @@ export const flame_aura_global = (ctx: EffectContext) => {
   // Add as permanent global effect with tracking
   // Use a unique ID based on player and timestamp to allow stacking
   const effectId = `flame_aura_global_p${ctx.ownerIndex}_${Date.now()}`;
+  const affectedCardIds = Array.from(fireCreatures.map((c) => c.id));
+
   ctx.utils.addActiveEffect(
     effectId,
     "Flame Aura",
@@ -23,7 +25,7 @@ export const flame_aura_global = (ctx: EffectContext) => {
     ctx.ownerIndex,
     undefined, // permanent
     "+100 ATK to all Fire creatures",
-    fireCreatures.map((c) => c.id),
+    affectedCardIds,
     { atk: 100 },
     true // mark as global effect
   );
