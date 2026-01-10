@@ -57,11 +57,6 @@ export function resolveEffectsForCard(params: {
     `Effect fired: ${effect.name} (${effect.id})`
   );
 
-  // Notify that effect is activating
-  if (onEffectActivated) {
-    onEffectActivated(sourceCard, effect.name);
-  }
-
   // Create effect context
   const context: EffectContext = {
     state,
@@ -74,5 +69,10 @@ export function resolveEffectsForCard(params: {
   };
 
   // Execute the effect using the custom handler
-  executeEffect(cardEffectId, context);
+  const success = executeEffect(cardEffectId, context);
+
+  // Only notify UI if effect actually executed successfully
+  if (success && onEffectActivated) {
+    onEffectActivated(sourceCard, effect.name);
+  }
 }

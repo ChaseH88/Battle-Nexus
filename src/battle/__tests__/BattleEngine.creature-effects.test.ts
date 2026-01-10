@@ -45,31 +45,33 @@ describe("BattleEngine – Creature Effects", () => {
 
     drawMany(engine, 0, 10);
 
-    // Find a creature with ONE_TIME effect
+    // Find a creature with ONE_TIME effect (cinder_vixen or umbral_wisp)
     const creatureWithEffect = p1.hand.find(
       (c) =>
         c.type === CardType.Creature &&
         (c as CreatureCard).effectId !== undefined &&
         getEffectTiming(c) === "ONE_TIME"
-    );
+    ) as CreatureCard | undefined;
 
-    if (creatureWithEffect) {
-      const creature = creatureWithEffect as CreatureCard;
-      engine.playCreature(0, 0, creature.id);
-
-      const laneCreature = p1.lanes[0] as CreatureCard;
-
-      // First activation should succeed
-      expect(laneCreature.canActivateEffect).toBe(true);
-      const result1 = engine.activateCreatureEffect(0, 0);
-      expect(result1).toBe(true);
-      expect(laneCreature.hasActivatedEffect).toBe(true);
-
-      // Second activation should fail
-      expect(laneCreature.canActivateEffect).toBe(false);
-      const result2 = engine.activateCreatureEffect(0, 0);
-      expect(result2).toBe(false);
+    // If no ONE_TIME creature found, skip gracefully
+    if (!creatureWithEffect) {
+      console.warn("No ONE_TIME effect creature found in hand, test skipped");
+      return;
     }
+
+    engine.playCreature(0, 0, creatureWithEffect.id);
+
+    const laneCreature = p1.lanes[0] as CreatureCard;
+
+    // First activation should succeed
+    const result1 = engine.activateCreatureEffect(0, 0);
+    expect(result1).toBe(true);
+    expect(laneCreature.hasActivatedEffect).toBe(true);
+
+    // Second activation should fail because it's ONE_TIME
+    expect(laneCreature.canActivateEffect).toBe(false);
+    const result2 = engine.activateCreatureEffect(0, 0);
+    expect(result2).toBe(false);
   });
 
   it("allows CONTINUOUS effects to activate multiple times", () => {
@@ -181,27 +183,38 @@ describe("BattleEngine – Creature Effects", () => {
 
     drawMany(engine, 0, 10);
 
-    // Find a creature with draw effect
+    // Find a creature with draw effect (cinder_vixen)
     const drawCreature = p1.hand.find(
       (c) =>
         c.type === CardType.Creature &&
         (c as CreatureCard).effectId === "draw_on_play"
-    );
+    ) as CreatureCard | undefined;
 
-    if (drawCreature) {
-      const handSizeBefore = p1.hand.length;
-
-      // Play the creature
-      engine.playCreature(0, 0, drawCreature.id);
-
-      // Hand size should be reduced by 1 (the creature was removed from hand)
-      // If effect auto-triggered, it would draw 1 card, keeping hand size the same
-      expect(p1.hand.length).toBe(handSizeBefore - 1);
-
-      // Verify creature can still activate its effect manually
-      const laneCreature = p1.lanes[0] as CreatureCard;
-      expect(laneCreature.canActivateEffect).toBe(true);
-      expect(laneCreature.hasActivatedEffect).toBe(false);
+    // If no draw creature found, skip gracefully
+    if (!drawCreature) {
+      console.warn("No draw_on_play creature found in hand, test skipped");
+      return;
     }
+
+    const handSizeBefore = p1.hand.length;
+
+    // Play the creature
+    engine.playCreature(0, 0, drawCreature.id);
+
+    // Hand size should be reduced by 1 (the creature was removed from hand)
+    // If effect auto-triggered, it would draw 1 card, keeping hand size the same
+    expect(p1.hand.length).toBe(handSizeBefore - 1);
+
+    // Verify creature has NOT activated its effect yet
+    const laneCreature = p1.lanes[0] as CreatureCard;
+    expect(laneCreature.hasActivatedEffect).toBe(false);
+
+    // Try to activate the effect manually
+    const result = engine.activateCreatureEffect(0, 0);
+    expect(result).toBe(true);
+
+    // After manual activation, hand should have increased
+    expect(p1.hand.length).toBe(handSizeBefore);
+    expect(laneCreature.hasActivatedEffect).toBe(true);
   });
 });

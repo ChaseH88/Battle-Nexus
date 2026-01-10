@@ -64,7 +64,7 @@ describe("Deck Loader Utilities", () => {
     it("loads a valid deck from localStorage", () => {
       const savedDeck = [
         { cardId: "ember_cub", count: 2 },
-        { cardId: "aqua_sprite", count: 1 },
+        { cardId: "riptide_pixie", count: 1 },
       ];
       localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
 
@@ -111,8 +111,8 @@ describe("Deck Loader Utilities", () => {
     it("handles multiple cards with different counts", () => {
       const savedDeck = [
         { cardId: "ember_cub", count: 3 },
-        { cardId: "aqua_sprite", count: 2 },
-        { cardId: "terra_beetle", count: 1 },
+        { cardId: "riptide_pixie", count: 2 },
+        { cardId: "mossback_scarab", count: 1 },
       ];
       localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
 
@@ -215,7 +215,7 @@ describe("Deck Loader Utilities", () => {
     it("handles cards with zero count", () => {
       const savedDeck = [
         { cardId: "ember_cub", count: 0 },
-        { cardId: "aqua_sprite", count: 1 },
+        { cardId: "riptide_pixie", count: 1 },
       ];
       localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
 

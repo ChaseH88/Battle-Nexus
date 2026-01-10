@@ -133,5 +133,361 @@
         "amount": -300
       }
     ]
+  },
+  {
+    "id": "quick_assessment",
+    "name": "Quick Assessment",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Draw 1 card. If you control no creatures, draw 2 instead.",
+    "actions": [
+      {
+        "type": "HAND_SIZE_CHANGE",
+        "mode": "DRAW",
+        "target": "PLAYER",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "id": "minor_reinforcement",
+    "name": "Minor Reinforcement",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "requiresTarget": true,
+    "targetType": "ALLY_CREATURE",
+    "description": "Target creature gains +200 HP.",
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "ALLY_CREATURE",
+        "amount": 200
+      }
+    ]
+  },
+  {
+    "id": "call_home",
+    "name": "Call Home",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "requiresTarget": true,
+    "targetType": "ALLY_CREATURE",
+    "description": "Return one of your creatures to your hand.",
+    "actions": [
+      {
+        "type": "MOVE",
+        "target": "ALLY_CREATURE",
+        "destination": "HAND"
+      }
+    ]
+  },
+  {
+    "id": "flame_spark",
+    "name": "Flame Spark",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "requiresTarget": true,
+    "targetType": "ANY_CREATURE",
+    "description": "Deal 200 damage to a creature. If you control a Fire creature, deal 300 instead.",
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "ANY_CREATURE",
+        "amount": -200
+      }
+    ]
+  },
+  {
+    "id": "combat_readiness",
+    "name": "Combat Readiness",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "requiresTarget": true,
+    "targetType": "ALLY_CREATURE",
+    "description": "Target creature gains +300 ATK.",
+    "actions": [
+      {
+        "type": "STAT_MOD",
+        "mode": "BOOST",
+        "target": "ALLY_CREATURE",
+        "atk": 300,
+        "duration": { "kind": "PERMANENT" }
+      }
+    ]
+  },
+  {
+    "id": "guard_protocol",
+    "name": "Guard Protocol",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "requiresTarget": true,
+    "targetType": "ALLY_CREATURE",
+    "description": "Target creature gains +300 DEF.",
+    "actions": [
+      {
+        "type": "STAT_MOD",
+        "mode": "BOOST",
+        "target": "ALLY_CREATURE",
+        "def": 300,
+        "duration": { "kind": "PERMANENT" }
+      }
+    ]
+  },
+  {
+    "id": "power_surge",
+    "name": "Power Surge",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Gain 3 momentum.",
+    "actions": [
+      {
+        "type": "MOMENTUM_CHANGE",
+        "target": "PLAYER",
+        "amount": 3
+      }
+    ]
+  },
+  {
+    "id": "blazing_path",
+    "name": "Blazing Path",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "requiresTarget": true,
+    "targetType": "ENEMY_CREATURE",
+    "description": "Destroy an enemy creature with 500 HP or less.",
+    "actions": [
+      {
+        "type": "DESTROY",
+        "target": "ENEMY_CREATURE",
+        "filter": { "maxHp": 500 }
+      }
+    ]
+  },
+  {
+    "id": "tidal_collapse",
+    "name": "Tidal Collapse",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Deal 400 damage to all enemy creatures.",
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "ENEMY_CREATURE",
+        "amount": -400
+      }
+    ]
+  },
+  {
+    "id": "heal_pulse",
+    "name": "Heal Pulse",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Heal all your creatures for 300 HP.",
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "ALLY_CREATURE",
+        "amount": 300
+      }
+    ]
+  },
+  {
+    "id": "radiant_break",
+    "name": "Radiant Break",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Remove all ATK and DEF bonuses from enemy creatures.",
+    "actions": [
+      {
+        "type": "STAT_RESET",
+        "target": "ENEMY_CREATURE"
+      }
+    ]
+  },
+  {
+    "id": "shadow_bargain",
+    "name": "Shadow Bargain",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "requiresTarget": true,
+    "targetType": "ALLY_CREATURE",
+    "description": "Lose 300 HP from one of your creatures. Draw 2 cards.",
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "ALLY_CREATURE",
+        "amount": -300
+      },
+      {
+        "type": "HAND_SIZE_CHANGE",
+        "mode": "DRAW",
+        "target": "PLAYER",
+        "amount": 2
+      }
+    ]
+  },
+  {
+    "id": "fusion_drive",
+    "name": "Fusion Drive",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Gain 5 momentum. Your opponent gains 2 momentum.",
+    "actions": [
+      {
+        "type": "MOMENTUM_CHANGE",
+        "target": "PLAYER",
+        "amount": 5
+      },
+      {
+        "type": "MOMENTUM_CHANGE",
+        "target": "OPPONENT",
+        "amount": 2
+      }
+    ]
+  },
+  {
+    "id": "inferno_detonation",
+    "name": "Inferno Detonation",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Deal 750 damage to all creatures.",
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "ALL_CREATURE",
+        "amount": -750
+      }
+    ]
+  },
+  {
+    "id": "absolute_severance",
+    "name": "Absolute Severance",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "requiresTarget": true,
+    "targetType": "ANY_CREATURE",
+    "description": "Destroy target creature. Your opponent loses 3 momentum.",
+    "actions": [
+      {
+        "type": "DESTROY",
+        "target": "ANY_CREATURE"
+      },
+      {
+        "type": "MOMENTUM_CHANGE",
+        "target": "OPPONENT",
+        "amount": -3
+      }
+    ]
+  },
+  {
+    "id": "momentum_overload",
+    "name": "Momentum Overload",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Gain 3 momentum. End your turn.",
+    "actions": [
+      {
+        "type": "MOMENTUM_CHANGE",
+        "target": "PLAYER",
+        "amount": 3
+      },
+      {
+        "type": "END_TURN"
+      }
+    ]
+  },
+  {
+    "id": "cull_the_weak",
+    "name": "Cull the Weak",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Destroy all enemy creatures with 500 HP or less.",
+    "actions": [
+      {
+        "type": "DESTROY",
+        "target": "ENEMY_CREATURE",
+        "filter": { "maxHp": 500 }
+      }
+    ]
+  },
+  {
+    "id": "final_accord",
+    "name": "Final Accord",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "End all ongoing effects currently in play.",
+    "actions": [
+      {
+        "type": "CLEAR_EFFECTS",
+        "target": "ALL"
+      }
+    ]
+  },
+  {
+    "id": "cataclysmic_wave",
+    "name": "Cataclysmic Wave",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Deal 1000 damage to enemy creatures.",
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "ENEMY_CREATURE",
+        "amount": -1000
+      }
+    ]
+  },
+  {
+    "id": "ethereal_rebirth",
+    "name": "Ethereal Rebirth",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Return all your creatures from the discard pile to your hand.",
+    "actions": [
+      {
+        "type": "MOVE_ZONE",
+        "from": "DISCARD_PILE",
+        "to": "HAND",
+        "target": "ALLY_CREATURE",
+        "all": true
+      }
+    ]
+  },
+  {
+    "id": "temporal_stasis",
+    "name": "Temporal Stasis",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Skip your opponent's next turn. You lose all momentum.",
+    "actions": [
+      {
+        "type": "SKIP_TURN",
+        "target": "OPPONENT"
+      },
+      {
+        "type": "MOMENTUM_SET",
+        "target": "PLAYER",
+        "amount": 0
+      }
+    ]
+  },
+  {
+    "id": "ultimate_sacrifice",
+    "name": "Ultimate Sacrifice",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "description": "Destroy all of your creatures. Gain 10 momentum.",
+    "actions": [
+      {
+        "type": "DESTROY",
+        "target": "ALLY_CREATURE",
+        "all": true
+      },
+      {
+        "type": "MOMENTUM_CHANGE",
+        "target": "PLAYER",
+        "amount": 10
+      }
+    ]
   }
 ]

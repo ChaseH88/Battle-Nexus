@@ -29,9 +29,19 @@ export function cardFactory(raw: any): CardInterface {
 
 /**
  * Pre-built decks from card data for testing
+ * NOTE: These create FRESH instances to avoid test pollution
  */
-export const testDeck1 = (cards as any[]).map(cardFactory);
-export const testDeck2 = (cards as any[]).map(cardFactory);
+export function createTestDeck1(): CardInterface[] {
+  return (cards as any[]).map(cardFactory);
+}
+
+export function createTestDeck2(): CardInterface[] {
+  return (cards as any[]).map(cardFactory);
+}
+
+// Deprecated: Use createTestDeck1() instead to avoid shared state
+export const testDeck1 = createTestDeck1();
+export const testDeck2 = createTestDeck2();
 
 /**
  * Helper to draw multiple cards at once
@@ -146,10 +156,11 @@ export function playSupportInSlot(
 
 /**
  * Creates a basic game setup with two players and a battle engine
+ * Creates fresh decks by default to avoid test pollution
  */
 export function createTestGame(
-  deck1 = testDeck1,
-  deck2 = testDeck2
+  deck1 = createTestDeck1(),
+  deck2 = createTestDeck2()
 ): {
   p1: ReturnType<typeof createPlayerState>;
   p2: ReturnType<typeof createPlayerState>;
@@ -166,11 +177,12 @@ export function createTestGame(
 
 /**
  * Creates a test game with AI player
+ * Creates fresh decks by default to avoid test pollution
  */
 export function createTestGameWithAI(
   skillLevel: number = 5,
-  deck1 = testDeck1,
-  deck2 = testDeck2
+  deck1 = createTestDeck1(),
+  deck2 = createTestDeck2()
 ): {
   p1: ReturnType<typeof createPlayerState>;
   p2: ReturnType<typeof createPlayerState>;

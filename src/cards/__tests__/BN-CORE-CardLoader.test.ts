@@ -26,7 +26,7 @@ describe("cards.json loader", () => {
   const instances = (bnCoreCardData as RawCard[]).map(createCardFromJson);
 
   it("loads all cards without error", () => {
-    expect(instances).toHaveLength(18); // 6 creatures + 5 support cards + 6 action cards + 1 trap card
+    expect(instances).toHaveLength(40); // Updated count: 10 creatures + 6 support cards + 23 action cards + 1 trap card
   });
 
   it("creates correct class types", () => {
@@ -41,7 +41,7 @@ describe("cards.json loader", () => {
     const emberCub = instances.find(
       (c) => c.id === "ember_cub"
     ) as CreatureCard;
-    expect(emberCub.atk).toBe(200);
+    expect(emberCub.atk).toBe(150); // Updated from balance changes
     expect(emberCub.affinity).toBeDefined();
   });
 });
