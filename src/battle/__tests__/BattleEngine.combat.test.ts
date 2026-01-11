@@ -116,7 +116,7 @@ describe("BattleEngine – Combat Damage", () => {
   });
 
   describe("Piercing Damage", () => {
-    it.skip("deals excess damage to opponent's life points when destroying creature in attack mode", () => {
+    it("deals excess damage to opponent's life points when destroying creature in attack mode", () => {
       const p1 = createPlayerState("P1", createDeck());
       const p2 = createPlayerState("P2", createDeck());
       const game = createGameState(p1, p2);
@@ -130,33 +130,33 @@ describe("BattleEngine – Combat Damage", () => {
       drawMany(engine, 0, 6);
       drawMany(engine, 1, 6);
 
-      // P1 plays strong attacker (Quake Stag - 400 ATK)
-      const attacker = p1.hand.find((c) => c.id === "quake_stag");
+      // P1 plays strong attacker (Inferno Lion - 280 ATK)
+      const attacker = p1.hand.find((c) => c.id === "inferno_lion");
       if (attacker) {
         engine.playCreature(0, 0, attacker.id);
       }
 
-      // P2 plays weak defender (Ember Cub - 200 ATK, 500 HP)
+      // P2 plays weak defender (Ember Cub - 150 ATK, 450 HP)
       const defender = p2.hand.find((c) => c.id === "ember_cub");
       if (defender) {
         engine.playCreature(1, 0, defender.id);
         const defenderCard = p2.lanes[0] as CreatureCard;
         defenderCard.mode = "ATTACK"; // Must be in attack mode for piercing
-        defenderCard.currentHp = 300; // Weaken to ensure destruction
+        defenderCard.currentHp = 200; // Weaken to ensure destruction
       }
 
       const initialLifePoints = p2.lifePoints;
 
-      // Attack: 400 ATK vs 200 ATK creature with 300 HP
-      // Defender takes 400 damage, dies with -100 HP
-      // 100 piercing damage should go to life points
+      // Attack: 280 ATK vs 150 ATK creature with 200 HP
+      // Defender takes 280 damage, dies with -80 HP
+      // 80 piercing damage should go to life points
       engine.attack(0, 0, 0);
 
       expect(p2.lanes[0]).toBeNull(); // Defender destroyed
-      expect(p2.lifePoints).toBe(initialLifePoints - 100); // Piercing damage applied
+      expect(p2.lifePoints).toBe(initialLifePoints - 80); // Piercing damage applied
     });
 
-    it.skip("deals larger piercing damage with stronger attacker", () => {
+    it("deals larger piercing damage with stronger attacker", () => {
       const p1 = createPlayerState("P1", createDeck());
       const p2 = createPlayerState("P2", createDeck());
       const game = createGameState(p1, p2);
@@ -166,17 +166,27 @@ describe("BattleEngine – Combat Damage", () => {
       game.activePlayer = 0;
       game.phase = "MAIN";
 
-      drawMany(engine, 0, 6);
-      drawMany(engine, 1, 6);
+      drawMany(engine, 0, 15);
+      drawMany(engine, 1, 15);
 
       // P1 plays Seismic Hart (420 ATK)
-      const attacker = p1.hand.find((c) => c.id === "seismic_hart");
+      let attacker = p1.hand.find((c) => c.id === "seismic_hart");
+      if (!attacker) {
+        // Fallback: use any creature with high ATK
+        attacker = p1.hand.find(
+          (c) => c.type === CardType.Creature && (c as CreatureCard).atk >= 300
+        );
+      }
       if (attacker) {
         engine.playCreature(0, 0, attacker.id);
       }
 
       // P2 plays Ember Cub with only 100 HP remaining
-      const defender = p2.hand.find((c) => c.id === "ember_cub");
+      let defender = p2.hand.find((c) => c.id === "ember_cub");
+      if (!defender) {
+        // Fallback: use any creature
+        defender = p2.hand.find((c) => c.type === CardType.Creature);
+      }
       if (defender) {
         engine.playCreature(1, 0, defender.id);
         const defenderCard = p2.lanes[0] as CreatureCard;
@@ -184,15 +194,17 @@ describe("BattleEngine – Combat Damage", () => {
         defenderCard.currentHp = 100; // Weakened creature
       }
 
+      const attackerCard = p1.lanes[0] as CreatureCard;
       const initialLifePoints = p2.lifePoints;
 
-      // Attack: 420 damage to 100 HP creature
-      // Creature dies with -320 HP
-      // 320 piercing damage to life points
+      // Attack: attacker damage to 100 HP creature
+      // Creature dies with negative HP
+      // Excess damage goes to life points
       engine.attack(0, 0, 0);
 
       expect(p2.lanes[0]).toBeNull();
-      expect(p2.lifePoints).toBe(initialLifePoints - 320);
+      const expectedPiercing = attackerCard.atk - 100;
+      expect(p2.lifePoints).toBe(initialLifePoints - expectedPiercing);
     });
 
     it("does not deal piercing damage to creatures in defense mode", () => {
@@ -207,8 +219,8 @@ describe("BattleEngine – Combat Damage", () => {
       drawMany(engine, 0, 6);
       drawMany(engine, 1, 6);
 
-      // P1 plays Quake Stag (400 ATK)
-      const attacker = p1.hand.find((c) => c.id === "quake_stag");
+      // P1 plays Inferno Lion (280 ATK)
+      const attacker = p1.hand.find((c) => c.id === "inferno_lion");
       if (attacker) {
         engine.playCreature(0, 0, attacker.id);
       }
@@ -231,7 +243,7 @@ describe("BattleEngine – Combat Damage", () => {
       expect(p2.lifePoints).toBe(initialLifePoints);
     });
 
-    it.skip("can win the game with piercing damage", () => {
+    it("can win the game with piercing damage", () => {
       const p1 = createPlayerState("P1", createDeck());
       const p2 = createPlayerState("P2", createDeck());
       const game = createGameState(p1, p2);
@@ -241,28 +253,36 @@ describe("BattleEngine – Combat Damage", () => {
       game.activePlayer = 0;
       game.phase = "MAIN";
 
-      drawMany(engine, 0, 6);
-      drawMany(engine, 1, 6);
+      drawMany(engine, 0, 15);
+      drawMany(engine, 1, 15);
 
       // Set P2's life points low
       p2.lifePoints = 50;
 
-      // P1 plays Seismic Hart (420 ATK)
-      const attacker = p1.hand.find((c) => c.id === "seismic_hart");
+      // P1 plays Seismic Hart (420 ATK) or any high ATK creature
+      let attacker = p1.hand.find((c) => c.id === "seismic_hart");
+      if (!attacker) {
+        attacker = p1.hand.find(
+          (c) => c.type === CardType.Creature && (c as CreatureCard).atk >= 200
+        );
+      }
       if (attacker) {
         engine.playCreature(0, 0, attacker.id);
       }
 
       // P2 plays weak defender with low HP
-      const defender = p2.hand.find((c) => c.id === "ember_cub");
+      let defender = p2.hand.find((c) => c.id === "ember_cub");
+      if (!defender) {
+        defender = p2.hand.find((c) => c.type === CardType.Creature);
+      }
       if (defender) {
         engine.playCreature(1, 0, defender.id);
         const defenderCard = p2.lanes[0] as CreatureCard;
         defenderCard.mode = "ATTACK";
-        defenderCard.currentHp = 300; // Will result in 120 piercing damage
+        defenderCard.currentHp = 40; // Low enough HP to guarantee piercing damage > 50
       }
 
-      // Attack - should deal 120 piercing damage and win the game
+      // Attack - should deal enough piercing damage to win the game
       engine.attack(0, 0, 0);
 
       expect(p2.lanes[0]).toBeNull();
@@ -270,7 +290,7 @@ describe("BattleEngine – Combat Damage", () => {
       expect(game.winnerIndex).toBe(0); // P1 wins
     });
 
-    it.skip("does not deal piercing damage if creature survives", () => {
+    it("does not deal piercing damage if creature survives", () => {
       const p1 = createPlayerState("P1", createDeck());
       const p2 = createPlayerState("P2", createDeck());
       const game = createGameState(p1, p2);
@@ -279,29 +299,33 @@ describe("BattleEngine – Combat Damage", () => {
       game.turn = 2;
       game.phase = "MAIN";
 
-      drawMany(engine, 0, 6);
-      drawMany(engine, 1, 6);
+      drawMany(engine, 0, 15);
+      drawMany(engine, 1, 15);
 
-      // P1 plays Seismic Hart (420 ATK)
-      const attacker = p1.hand.find((c) => c.id === "seismic_hart");
+      // P1 plays any creature
+      const attacker = p1.hand.find((c) => c.type === CardType.Creature);
       if (attacker) {
         engine.playCreature(0, 0, attacker.id);
       }
 
-      // P2 plays Seismic Hart (420 ATK, 1150 HP)
-      const defender = p2.hand.find((c) => c.id === "seismic_hart");
+      // P2 plays a creature with enough HP to survive
+      const defender = p2.hand.find((c) => c.type === CardType.Creature);
       if (defender) {
         engine.playCreature(1, 0, defender.id);
         const defenderCard = p2.lanes[0] as CreatureCard;
+        const attackerCard = p1.lanes[0] as CreatureCard;
         defenderCard.mode = "ATTACK";
+        // Set HP high enough to survive the attack
+        defenderCard.currentHp = attackerCard.atk + 200;
       }
 
       const initialLifePoints = p2.lifePoints;
 
-      // Attack - defender survives with 730 HP
+      // Attack - defender survives
       engine.attack(0, 0, 0);
 
       expect(p2.lanes[0]).not.toBeNull(); // Defender still alive
+      expect((p2.lanes[0] as CreatureCard).currentHp).toBeGreaterThan(0);
       expect(p2.lifePoints).toBe(initialLifePoints); // No piercing damage
     });
   });

@@ -93,6 +93,22 @@
     ]
   },
   {
+    "id": "battle_rage",
+    "name": "Battle Rage",
+    "timing": "NORMAL",
+    "trigger": "ON_ATTACK",
+    "stackable": false,
+    "description": "When this creature attacks, draw 1 card",
+    "actions": [
+      {
+        "type": "HAND_SIZE_CHANGE",
+        "mode": "DRAW",
+        "target": "PLAYER",
+        "amount": 1
+      }
+    ]
+  },
+  {
     "id": "purge_opponent_support",
     "name": "Purge Beacon",
     "timing": "NORMAL",

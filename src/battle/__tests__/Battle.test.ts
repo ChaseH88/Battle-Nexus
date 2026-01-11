@@ -92,12 +92,9 @@ describe("BattleEngine – KO and win logic", () => {
     const playedDefender = engine.playCreature(1, 0, defenderCard.id);
     expect(playedDefender).toBe(true);
     expect(p2.lanes[0]).toBeInstanceOf(CreatureCard);
-
-    const defender = p2.lanes[0] as CreatureCard;
     const attackerAtk = attacker.atk;
 
     // Attack - may take multiple attacks to destroy depending on HP
-    const initialDefenderHp = defender.currentHp;
     engine.attack(0, 0);
 
     // Check if defender was destroyed or damaged

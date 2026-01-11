@@ -8,7 +8,7 @@ import { CreatureCard } from "../../cards/CreatureCard";
 import { ActionCard } from "../../cards/ActionCard";
 import { SupportCard } from "../../cards/SupportCard";
 import { TrapCard } from "../../cards/TrapCard";
-import { CardInterface, CardType } from "../../cards/types";
+import { CardInterface, CardType, Affinity } from "../../cards/types";
 
 function cardFactory(raw: any) {
   switch (raw.type) {
@@ -65,42 +65,80 @@ describe("BattleEngine – Effect System", () => {
     }
   });
 
-  it.skip("triggers ON_ATTACK effect when creature attacks", () => {
+  it("triggers ON_ATTACK effect when creature attacks", () => {
     const p1 = createPlayerState("P1", deck1);
     const p2 = createPlayerState("P2", deck2);
 
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
-    // Draw cards
-    drawMany(engine, 0, 3);
-    drawMany(engine, 1, 3);
+    // Set up game state for player 1 to attack
+    game.turn = 2;
+    game.activePlayer = 0;
+    game.phase = "MAIN";
 
-    // Place attacker with ON_ATTACK effect
-    const infernoLion = p1.hand.find((c) => c.id === "inferno_lion");
-    expect(infernoLion).toBeDefined();
+    // Don't draw any cards initially - keep full deck
+    drawMany(engine, 0, 1); // Just 1 to have some cards
+    drawMany(engine, 1, 1);
 
-    if (infernoLion) {
-      engine.playCreature(0, 0, infernoLion.id);
+    // Create a custom creature with ON_ATTACK effect
+    const attackerWithEffect = new CreatureCard({
+      id: "test_attacker_with_on_attack",
+      type: CardType.Creature,
+      name: "Test Attacker",
+      description: "Test creature with ON_ATTACK effect",
+      cost: 1,
+      atk: 300,
+      def: 200,
+      hp: 800,
+      affinity: Affinity.Fire,
+      onAttackEffectId: "battle_rage", // ON_ATTACK effect that draws a card
+      rarity: "C",
+      set: "Base",
+    });
 
-      // Place defender in same lane
-      const riptidePixie = p2.hand.find((c) => c.id === "riptide_pixie");
-      if (riptidePixie) {
-        engine.playCreature(1, 0, riptidePixie.id);
-      }
+    // Add to hand and play
+    p1.hand.push(attackerWithEffect);
+    engine.playCreature(0, 0, attackerWithEffect.id);
 
-      const initialLogLength = game.log.getEvents().length;
-
-      // Execute attack
-      engine.attack(0, 0, 0);
-
-      // Check logs for effect trigger
-      const newEvents = game.log.getEvents().slice(initialLogLength);
-      const attackRelatedLogs = newEvents.map((e) => e.message).join(" ");
-
-      // Should contain attack-related logging
-      expect(attackRelatedLogs.length).toBeGreaterThan(0);
+    // Place defender in same lane
+    const defender = p2.hand.find((c) => c.type === CardType.Creature);
+    if (defender) {
+      engine.playCreature(1, 0, defender.id);
     }
+
+    const initialHandSize = p1.hand.length;
+    const initialDeckSize = p1.deck.length;
+    const initialLogLength = game.log.getEvents().length;
+
+    // Execute attack - this should trigger the ON_ATTACK effect
+    engine.attack(0, 0, 0);
+
+    // Check logs for effect activation
+    const newEvents = game.log.getEvents().slice(initialLogLength);
+    const logMessages = newEvents.map((e) => e.message);
+
+    // Verify attack happened
+    const hasAttackLog = logMessages.some(
+      (log: string) =>
+        log.includes("CLASH") ||
+        log.includes("attack") ||
+        log.includes("strikes")
+    );
+    expect(hasAttackLog).toBe(true);
+
+    // Verify the ON_ATTACK effect was processed (check for effect log)
+    const hasEffectLog = logMessages.some(
+      (log: string) =>
+        log.includes("Battle Rage") ||
+        log.includes("Effect fired") ||
+        log.includes("Effect activated")
+    );
+    expect(hasEffectLog).toBe(true);
+
+    // Verify a card was drawn (deck decreased, hand increased)
+    expect(p1.deck.length).toBe(initialDeckSize - 1);
+    expect(p1.hand.length).toBe(initialHandSize + 1);
   });
 
   it("triggers ON_DRAW effect when card is drawn", () => {

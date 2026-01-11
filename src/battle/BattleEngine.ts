@@ -828,6 +828,8 @@ export class BattleEngine {
       ownerIndex: playerIndex,
       cardEffectId: attacker.onAttackEffectId,
       trigger: "ON_ATTACK",
+      sourceCard: attacker,
+      engine: this,
       onEffectActivated: this.onEffectActivated,
     });
 
