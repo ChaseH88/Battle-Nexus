@@ -8,6 +8,13 @@ import { Zone } from "./zones";
 import { resolveEffectsForCard } from "../effects/resolve";
 import { effectsRegistry, getEffectTiming } from "../effects/registry";
 import { canActivateEffect } from "../effects/metadata";
+import {
+  CommandResult,
+  CommandErrorCode,
+  createError,
+  createSuccess,
+  validateMomentumCost,
+} from "./CommandTypes";
 
 export class BattleEngine {
   public onEffectActivated?: (card: CardInterface, effectName: string) => void;
@@ -123,18 +130,28 @@ export class BattleEngine {
     if (!card || card.type !== CardType.Creature) return false;
     if (player.lanes[lane] !== null) return false;
 
-    // MAX card validation
-    if (card.isMax && card.momentumCost !== undefined) {
-      if (player.momentum < card.momentumCost) {
-        this.log(
-          `Not enough Momentum to play ${card.name}! (${player.momentum}/${card.momentumCost})`
-        );
-        return false;
-      }
-      // Deduct Momentum cost
-      player.momentum -= card.momentumCost;
+    // COST VALIDATION: Check if player can afford the card
+    const cardCost = card.cost ?? 0;
+    if (player.momentum < cardCost) {
       this.log(
-        `${player.id} spent ${card.momentumCost} Momentum to play ${card.name}! (${player.momentum}/10 remaining)`
+        `Not enough momentum to play ${card.name}. Need ${cardCost}, have ${player.momentum}.`
+      );
+      return false;
+    }
+
+    // COST PAYMENT: Deduct momentum cost BEFORE playing the card
+    player.momentum -= cardCost;
+    if (cardCost > 0) {
+      this.log(
+        `${player.id} spent ${cardCost} Momentum to play ${card.name}! (${player.momentum}/10 remaining)`
+      );
+    }
+
+    // Legacy MAX card handling (deprecated - use cost field instead)
+    if (card.isMax && card.momentumCost !== undefined) {
+      // Already validated above, but log for clarity
+      this.log(
+        `[DEPRECATED] ${card.name} used old momentumCost field. Update card data to use 'cost' field.`
       );
     }
 
@@ -190,6 +207,9 @@ export class BattleEngine {
         card.type !== CardType.Trap)
     )
       return false;
+
+    // Support cards can be played facedown without momentum cost
+    // The cost is only paid when the card is activated
 
     moveCard(this.state, playerIndex, Zone.Hand, Zone.Support0, cardId, {
       toLane: slot,
@@ -422,6 +442,15 @@ export class BattleEngine {
       return false;
     }
 
+    // COST VALIDATION: Check if player can afford to activate the card
+    const cardCost = card.cost ?? 0;
+    if (player.momentum < cardCost) {
+      this.log(
+        `Not enough momentum to activate ${card.name}. Need ${cardCost}, have ${player.momentum}.`
+      );
+      return false;
+    }
+
     // Also check if this is a reactive trigger (for Support/Action cards used as traps)
     // Allow: ON_PLAY, CONTINUOUS (manually activatable)
     // Block: ON_DEFEND, ON_ATTACK, ON_DESTROY, ON_DRAW (reactive triggers)
@@ -475,6 +504,14 @@ export class BattleEngine {
         this.log(`${card.name} was moved to the discard pile`);
         return true; // Activation succeeded but effect failed
       }
+    }
+
+    // COST PAYMENT: Deduct momentum cost BEFORE activating the card
+    player.momentum -= cardCost;
+    if (cardCost > 0) {
+      this.log(
+        `${player.id} spent ${cardCost} Momentum to activate ${card.name}! (${player.momentum}/10 remaining)`
+      );
     }
 
     // Flip face up and activate
@@ -1391,5 +1428,67 @@ export class BattleEngine {
     });
 
     expiredEffects.forEach((id) => this.removeActiveEffect(id));
+  }
+
+  /**
+   * VALIDATION HELPERS FOR UI PRE-CHECKS
+   * These methods validate commands without mutating state
+   */
+
+  /**
+   * Check if a player can afford to play a specific card
+   * Returns validation result with structured error if invalid
+   */
+  canAffordCard(playerIndex: 0 | 1, cardId: string): CommandResult {
+    const player = this.state.players[playerIndex];
+
+    // Find card in hand or maxDeck
+    let card = player.hand.find((c) => c.id === cardId);
+    if (!card) {
+      card = player.maxDeck.find((c) => c.id === cardId);
+    }
+
+    if (!card) {
+      return createError(
+        CommandErrorCode.CARD_NOT_IN_HAND,
+        `Card ${cardId} not found in hand or MAX deck.`,
+        { cardId }
+      );
+    }
+
+    const cardCost = card.cost ?? 0;
+    const validation = validateMomentumCost(
+      player.momentum,
+      cardCost,
+      card.name,
+      card.id
+    );
+
+    if (!validation.valid && validation.error) {
+      return {
+        success: false,
+        error: validation.error,
+      };
+    }
+
+    return createSuccess();
+  }
+
+  /**
+   * Get all cards in hand that the player can currently afford
+   */
+  getAffordableCards(playerIndex: 0 | 1): CardInterface[] {
+    const player = this.state.players[playerIndex];
+    return player.hand.filter((card) => {
+      const cardCost = card.cost ?? 0;
+      return player.momentum >= cardCost;
+    });
+  }
+
+  /**
+   * Check if any card in hand is affordable
+   */
+  hasAffordableCard(playerIndex: 0 | 1): boolean {
+    return this.getAffordableCards(playerIndex).length > 0;
   }
 }

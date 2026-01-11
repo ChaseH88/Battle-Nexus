@@ -4,7 +4,7 @@ export interface CardInterface {
   name: string;
   type: CardType;
   description: string;
-  cost?: number;
+  cost: number; // Momentum cost (0, 1, 3, 4, 5) - REQUIRED for all cards
   atk?: number;
   def?: number;
   affinity?: Affinity;
@@ -13,7 +13,7 @@ export interface CardInterface {
   effectId?: string;
   effectType?: "ONE_TIME" | "CONTINUOUS";
   isMax?: boolean; // MAX cards are stored in separate MAX deck
-  momentumCost?: number; // Momentum cost to play MAX cards
+  momentumCost?: number; // DEPRECATED: Use `cost` field instead
 }
 
 export interface EffectInterface {

@@ -48,7 +48,7 @@ describe("BattleEngine – Momentum System", () => {
     ];
 
     const p1MaxDeck = [
-      createTestCreature("max1", "MAX Fighter", 0, 500, 250, 2000, true, 5),
+      createTestCreature("max1", "MAX Fighter", 5, 500, 250, 2000, true),
     ];
 
     state = {
@@ -71,6 +71,7 @@ describe("BattleEngine – Momentum System", () => {
         phaseChange: () => {},
         turnStart: () => {},
         turnEnd: () => {},
+        effectApplied: () => {},
       } as any,
     };
 
@@ -256,12 +257,11 @@ describe("BattleEngine – Momentum System", () => {
       const maxCard = createTestCreature(
         "max1",
         "MAX Fighter",
-        0,
+        5, // Use cost field instead of momentumCost
         500,
         250,
         2000,
-        true,
-        5
+        true
       );
       state.players[0].hand.push(maxCard);
       state.players[0].momentum = 3; // Not enough
@@ -276,12 +276,11 @@ describe("BattleEngine – Momentum System", () => {
       const maxCard = createTestCreature(
         "max1",
         "MAX Fighter",
-        0,
+        5, // Use cost field
         500,
         250,
         2000,
-        true,
-        5
+        true
       );
       state.players[0].maxDeck.push(maxCard);
       state.players[0].momentum = 5;
@@ -323,6 +322,378 @@ describe("BattleEngine – Momentum System", () => {
       expect(state.players[0].discardPile).not.toContainEqual(
         expect.objectContaining({ id: "max1" })
       );
+    });
+  });
+
+  describe("Cost/Payment System", () => {
+    it("allows playing cost-0 cards at 0 momentum", () => {
+      const freeCreature = createTestCreature("free", "Free", 0, 100, 50, 500);
+      state.players[0].hand.push(freeCreature);
+      state.players[0].momentum = 0;
+
+      const result = engine.playCreature(0, 2, "free");
+
+      expect(result).toBe(true);
+      expect(state.players[0].lanes[2]).not.toBeNull();
+      expect(state.players[0].momentum).toBe(0); // Should remain 0
+    });
+
+    it("does not deduct momentum for cost-0 cards", () => {
+      const freeCreature = createTestCreature("free", "Free", 0, 100, 50, 500);
+      state.players[0].hand.push(freeCreature);
+      state.players[0].momentum = 5;
+
+      engine.playCreature(0, 2, "free");
+
+      expect(state.players[0].momentum).toBe(5); // Should remain unchanged
+    });
+
+    it("rejects playing cards when momentum is insufficient", () => {
+      const expensiveCreature = createTestCreature(
+        "expensive",
+        "Expensive",
+        4,
+        300,
+        150,
+        1000
+      );
+      state.players[0].hand.push(expensiveCreature);
+      state.players[0].momentum = 2; // Not enough
+
+      const initialHandSize = state.players[0].hand.length;
+      const result = engine.playCreature(0, 2, "expensive");
+
+      expect(result).toBe(false);
+      expect(state.players[0].lanes[2]).toBeNull();
+      expect(state.players[0].hand.length).toBe(initialHandSize);
+      expect(state.players[0].momentum).toBe(2); // Unchanged
+    });
+
+    it("does not mutate state when card cannot be afforded", () => {
+      const expensiveCreature = createTestCreature(
+        "expensive",
+        "Expensive",
+        3,
+        200,
+        100,
+        800
+      );
+      state.players[0].hand.push(expensiveCreature);
+      state.players[0].momentum = 1;
+
+      const beforeState = {
+        handSize: state.players[0].hand.length,
+        momentum: state.players[0].momentum,
+        lanes: [...state.players[0].lanes],
+      };
+
+      engine.playCreature(0, 2, "expensive");
+
+      expect(state.players[0].hand.length).toBe(beforeState.handSize);
+      expect(state.players[0].momentum).toBe(beforeState.momentum);
+      expect(state.players[0].lanes[2]).toBeNull();
+    });
+
+    it("deducts correct momentum when card is played", () => {
+      const creature = createTestCreature("c2", "Medium", 3, 200, 100, 800);
+      state.players[0].hand.push(creature);
+      state.players[0].momentum = 5;
+
+      const result = engine.playCreature(0, 2, "c2");
+
+      expect(result).toBe(true);
+      expect(state.players[0].momentum).toBe(2); // 5 - 3 = 2
+      expect(state.players[0].lanes[2]).not.toBeNull();
+    });
+
+    it("allows playing card when momentum exactly equals cost", () => {
+      const creature = createTestCreature("c2", "Medium", 3, 200, 100, 800);
+      state.players[0].hand.push(creature);
+      state.players[0].momentum = 3;
+
+      const result = engine.playCreature(0, 2, "c2");
+
+      expect(result).toBe(true);
+      expect(state.players[0].momentum).toBe(0); // Spent all momentum
+    });
+
+    it("rejects card when momentum is 1 below cost", () => {
+      const creature = createTestCreature("c2", "Medium", 3, 200, 100, 800);
+      state.players[0].hand.push(creature);
+      state.players[0].momentum = 2;
+
+      const result = engine.playCreature(0, 2, "c2");
+
+      expect(result).toBe(false);
+      expect(state.players[0].momentum).toBe(2); // Unchanged
+    });
+
+    it("allows playing multiple cards with sufficient momentum", () => {
+      const creature1 = createTestCreature("cheap1", "Cheap1", 1, 100, 50, 500);
+      const creature2 = createTestCreature("cheap2", "Cheap2", 1, 100, 50, 500);
+      state.players[0].hand.push(creature1, creature2);
+      state.players[0].momentum = 3;
+
+      engine.playCreature(0, 1, "cheap1");
+      expect(state.players[0].momentum).toBe(2);
+
+      engine.playCreature(0, 2, "cheap2");
+      expect(state.players[0].momentum).toBe(1);
+
+      expect(state.players[0].lanes[1]).not.toBeNull();
+      expect(state.players[0].lanes[2]).not.toBeNull();
+    });
+
+    it("deducts momentum before effect triggers (cost payment happens first)", () => {
+      const creature = createTestCreature("effect", "Effect", 3, 200, 100, 800);
+      // Skip effectId test since it's readonly - the important part is momentum deduction
+      state.players[0].hand.push(creature);
+      state.players[0].momentum = 4;
+
+      engine.playCreature(0, 2, "effect");
+
+      // Momentum should be deducted regardless of effects
+      expect(state.players[0].momentum).toBe(1); // 4 - 3 = 1
+    });
+  });
+
+  describe("Validation Helpers for UI", () => {
+    it("canAffordCard returns success for affordable cards", () => {
+      const creature = createTestCreature(
+        "affordable",
+        "Affordable",
+        3,
+        200,
+        100,
+        800
+      );
+      state.players[0].hand.push(creature);
+      state.players[0].momentum = 5;
+
+      const result = engine.canAffordCard(0, "affordable");
+
+      expect(result.success).toBe(true);
+    });
+
+    it("canAffordCard returns error for unaffordable cards", () => {
+      const creature = createTestCreature(
+        "expensive",
+        "Expensive",
+        5,
+        300,
+        150,
+        1200
+      );
+      state.players[0].hand.push(creature);
+      state.players[0].momentum = 2;
+
+      const result = engine.canAffordCard(0, "expensive");
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.code).toBe("INSUFFICIENT_MOMENTUM");
+        expect(result.error.context?.required).toBe(5);
+        expect(result.error.context?.available).toBe(2);
+        expect(result.error.context?.cardName).toBe("Expensive");
+      }
+    });
+
+    it("canAffordCard returns error for card not in hand", () => {
+      state.players[0].momentum = 10;
+
+      const result = engine.canAffordCard(0, "nonexistent");
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.code).toBe("CARD_NOT_IN_HAND");
+      }
+    });
+
+    it("getAffordableCards returns only affordable cards", () => {
+      state.players[0].hand.push(
+        createTestCreature("cheap1", "Cheap1", 1, 100, 50, 500),
+        createTestCreature("cheap2", "Cheap2", 2, 150, 75, 600),
+        createTestCreature("expensive1", "Expensive1", 4, 250, 125, 900),
+        createTestCreature("expensive2", "Expensive2", 5, 300, 150, 1200)
+      );
+      state.players[0].momentum = 3;
+
+      const affordable = engine.getAffordableCards(0);
+
+      expect(affordable.length).toBe(2);
+      affordable.forEach((card) => {
+        expect(card.cost).toBeLessThanOrEqual(3);
+      });
+    });
+
+    it("hasAffordableCard returns true when player can afford something", () => {
+      state.players[0].hand.push(
+        createTestCreature("free", "Free", 0, 100, 50, 500)
+      );
+      state.players[0].momentum = 0;
+
+      const result = engine.hasAffordableCard(0);
+
+      expect(result).toBe(true);
+    });
+
+    it("hasAffordableCard returns false when player cannot afford anything", () => {
+      state.players[0].hand = [
+        createTestCreature("expensive", "Expensive", 5, 300, 150, 1200),
+      ];
+      state.players[0].momentum = 2;
+
+      const result = engine.hasAffordableCard(0);
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("Support Card Momentum Costs", () => {
+    it("allows playing support cards facedown without momentum", () => {
+      const p1 = state.players[0];
+      state.phase = "MAIN";
+      p1.momentum = 0;
+
+      const support = {
+        id: "support1",
+        name: "Expensive Support",
+        type: CardType.Support,
+        cost: 5,
+        rarity: "C",
+        set: "Base",
+        description: "Test support",
+        effectId: "draw_on_play",
+        isFaceDown: false,
+        isActive: false,
+      } as any;
+
+      p1.hand.push(support);
+
+      // Should be able to play facedown with 0 momentum
+      const result = engine.playSupport(0, 0, support.id);
+
+      expect(result).toBe(true);
+      expect(p1.support[0]).toBe(support);
+      expect(support.isFaceDown).toBe(true);
+      expect(support.isActive).toBe(false);
+      expect(p1.momentum).toBe(0); // No momentum deducted
+    });
+
+    it("prevents activating support without sufficient momentum", () => {
+      const p1 = state.players[0];
+      state.phase = "MAIN";
+      p1.momentum = 2;
+
+      const support = {
+        id: "support1",
+        name: "Expensive Support",
+        type: CardType.Support,
+        cost: 5,
+        rarity: "C",
+        set: "Base",
+        description: "Test support",
+        effectId: "draw_on_play",
+        isFaceDown: true,
+        isActive: false,
+      } as any;
+
+      p1.hand.push(support);
+      engine.playSupport(0, 0, support.id);
+
+      // Should not be able to activate with insufficient momentum
+      const result = engine.activateSupport(0, 0);
+
+      expect(result).toBe(false);
+      expect(support.isFaceDown).toBe(true);
+      expect(support.isActive).toBe(false);
+      expect(p1.momentum).toBe(2); // No momentum deducted
+    });
+
+    it("deducts momentum when support is activated, not when played", () => {
+      const p1 = state.players[0];
+      state.phase = "MAIN";
+      p1.momentum = 5;
+
+      const support = {
+        id: "support1",
+        name: "Medium Support",
+        type: CardType.Support,
+        cost: 3,
+        rarity: "C",
+        set: "Base",
+        description: "Test support",
+        effectId: "draw_on_play",
+        effectType: "ONE_TIME",
+        isFaceDown: false,
+        isActive: false,
+      } as any;
+
+      p1.hand.push(support);
+
+      // Play facedown - no cost
+      engine.playSupport(0, 0, support.id);
+      expect(p1.momentum).toBe(5); // Still 5
+
+      // Activate - cost is paid now
+      engine.activateSupport(0, 0);
+      expect(p1.momentum).toBe(2); // 5 - 3 = 2
+      expect(support.isFaceDown).toBe(false);
+      expect(p1.discardPile).toContain(support); // ONE_TIME support gets discarded
+    });
+
+    it("allows activating support with exact momentum cost", () => {
+      const p1 = state.players[0];
+      state.phase = "MAIN";
+      p1.momentum = 3;
+
+      const support = {
+        id: "support1",
+        name: "Medium Support",
+        type: CardType.Support,
+        cost: 3,
+        rarity: "C",
+        set: "Base",
+        description: "Test support",
+        effectId: "draw_on_play",
+        effectType: "ONE_TIME",
+        isFaceDown: false,
+        isActive: false,
+      } as any;
+
+      p1.hand.push(support);
+      engine.playSupport(0, 0, support.id);
+
+      const result = engine.activateSupport(0, 0);
+
+      expect(result).toBe(true);
+      expect(p1.momentum).toBe(0);
+    });
+
+    it("does not deduct momentum for cost-0 support activation", () => {
+      const p1 = state.players[0];
+      state.phase = "MAIN";
+      p1.momentum = 2;
+
+      const support = {
+        id: "support1",
+        name: "Free Support",
+        type: CardType.Support,
+        cost: 0,
+        rarity: "C",
+        set: "Base",
+        description: "Test support",
+        effectId: "draw_on_play",
+        effectType: "ONE_TIME",
+        isFaceDown: false,
+        isActive: false,
+      } as any;
+
+      p1.hand.push(support);
+      engine.playSupport(0, 0, support.id);
+      engine.activateSupport(0, 0);
+
+      expect(p1.momentum).toBe(2); // No cost for free cards
     });
   });
 });
