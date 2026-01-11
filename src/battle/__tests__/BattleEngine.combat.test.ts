@@ -1,37 +1,13 @@
-import cards from "@static/card-data/bn-core.json";
 import { createPlayerState } from "@battle/PlayerState";
 import { createGameState } from "@battle/GameState";
 import { BattleEngine } from "@battle/BattleEngine";
-import { CardInterface, CardType } from "@cards/types";
+import { CardType } from "@cards/types";
 import { CreatureCard } from "@cards/CreatureCard";
-import { ActionCard } from "@cards/ActionCard";
-import { SupportCard } from "@cards/SupportCard";
-import { TrapCard } from "@cards/TrapCard";
-
-function cardFactory(raw: any): CardInterface {
-  switch (raw.type) {
-    case CardType.Creature:
-      return new CreatureCard(raw);
-    case CardType.Action:
-      return new ActionCard(raw);
-    case CardType.Support:
-      return new SupportCard(raw);
-    case CardType.Trap:
-      return new TrapCard(raw);
-    default:
-      throw new Error(`Unknown card type: ${raw.type}`);
-  }
-}
-
-function createDeck() {
-  return (cards as any[]).map(cardFactory);
-}
-
-function drawMany(engine: BattleEngine, playerIndex: number, count: number) {
-  for (let i = 0; i < count; i++) {
-    engine.draw(playerIndex);
-  }
-}
+import {
+  drawMany,
+  createTestDeck1,
+  createTestDeck2,
+} from "@/__tests__/testUtils";
 
 /**
  * Combat Damage Calculation Tests
@@ -41,8 +17,8 @@ function drawMany(engine: BattleEngine, playerIndex: number, count: number) {
  */
 describe("BattleEngine – Combat Damage", () => {
   it("allows creatures to be played in lanes", () => {
-    const p1 = createPlayerState("P1", createDeck());
-    const p2 = createPlayerState("P2", createDeck());
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -58,8 +34,8 @@ describe("BattleEngine – Combat Damage", () => {
   });
 
   it("creatures have attack and defense modes", () => {
-    const p1 = createPlayerState("P1", createDeck());
-    const p2 = createPlayerState("P2", createDeck());
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -78,8 +54,8 @@ describe("BattleEngine – Combat Damage", () => {
   });
 
   it("tracks mode change flags", () => {
-    const p1 = createPlayerState("P1", createDeck());
-    const p2 = createPlayerState("P2", createDeck());
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -98,8 +74,8 @@ describe("BattleEngine – Combat Damage", () => {
   });
 
   it("tracks attack flags", () => {
-    const p1 = createPlayerState("P1", createDeck());
-    const p2 = createPlayerState("P2", createDeck());
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -117,8 +93,8 @@ describe("BattleEngine – Combat Damage", () => {
 
   describe("Piercing Damage", () => {
     it("deals excess damage to opponent's life points when destroying creature in attack mode", () => {
-      const p1 = createPlayerState("P1", createDeck());
-      const p2 = createPlayerState("P2", createDeck());
+      const p1 = createPlayerState("P1", createTestDeck1());
+      const p2 = createPlayerState("P2", createTestDeck2());
       const game = createGameState(p1, p2);
       const engine = new BattleEngine(game);
 
@@ -157,8 +133,8 @@ describe("BattleEngine – Combat Damage", () => {
     });
 
     it("deals larger piercing damage with stronger attacker", () => {
-      const p1 = createPlayerState("P1", createDeck());
-      const p2 = createPlayerState("P2", createDeck());
+      const p1 = createPlayerState("P1", createTestDeck1());
+      const p2 = createPlayerState("P2", createTestDeck2());
       const game = createGameState(p1, p2);
       const engine = new BattleEngine(game);
 
@@ -208,8 +184,8 @@ describe("BattleEngine – Combat Damage", () => {
     });
 
     it("does not deal piercing damage to creatures in defense mode", () => {
-      const p1 = createPlayerState("P1", createDeck());
-      const p2 = createPlayerState("P2", createDeck());
+      const p1 = createPlayerState("P1", createTestDeck1());
+      const p2 = createPlayerState("P2", createTestDeck2());
       const game = createGameState(p1, p2);
       const engine = new BattleEngine(game);
 
@@ -244,8 +220,8 @@ describe("BattleEngine – Combat Damage", () => {
     });
 
     it("can win the game with piercing damage", () => {
-      const p1 = createPlayerState("P1", createDeck());
-      const p2 = createPlayerState("P2", createDeck());
+      const p1 = createPlayerState("P1", createTestDeck1());
+      const p2 = createPlayerState("P2", createTestDeck2());
       const game = createGameState(p1, p2);
       const engine = new BattleEngine(game);
 
@@ -266,8 +242,11 @@ describe("BattleEngine – Combat Damage", () => {
           (c) => c.type === CardType.Creature && (c as CreatureCard).atk >= 200
         );
       }
+      expect(attacker).toBeDefined();
       if (attacker) {
         engine.playCreature(0, 0, attacker.id);
+        const attackerCard = p1.lanes[0] as CreatureCard;
+        attackerCard.mode = "ATTACK"; // Ensure it's in attack mode
       }
 
       // P2 plays weak defender with low HP
@@ -275,12 +254,20 @@ describe("BattleEngine – Combat Damage", () => {
       if (!defender) {
         defender = p2.hand.find((c) => c.type === CardType.Creature);
       }
+      expect(defender).toBeDefined();
       if (defender) {
         engine.playCreature(1, 0, defender.id);
         const defenderCard = p2.lanes[0] as CreatureCard;
         defenderCard.mode = "ATTACK";
         defenderCard.currentHp = 40; // Low enough HP to guarantee piercing damage > 50
       }
+
+      const attackerCard = p1.lanes[0] as CreatureCard;
+      const defenderCard = p2.lanes[0] as CreatureCard;
+
+      // Verify setup
+      expect(attackerCard.atk).toBeGreaterThanOrEqual(200);
+      expect(defenderCard.currentHp).toBe(40);
 
       // Attack - should deal enough piercing damage to win the game
       engine.attack(0, 0, 0);
@@ -291,8 +278,8 @@ describe("BattleEngine – Combat Damage", () => {
     });
 
     it("does not deal piercing damage if creature survives", () => {
-      const p1 = createPlayerState("P1", createDeck());
-      const p2 = createPlayerState("P2", createDeck());
+      const p1 = createPlayerState("P1", createTestDeck1());
+      const p2 = createPlayerState("P2", createTestDeck2());
       const game = createGameState(p1, p2);
       const engine = new BattleEngine(game);
 

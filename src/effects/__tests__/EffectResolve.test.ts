@@ -1,37 +1,14 @@
-import cards from "@static/card-data/bn-core.json";
 import { createPlayerState } from "@battle/PlayerState";
 import { createGameState } from "@battle/GameState";
 import { BattleEngine } from "@battle/BattleEngine";
-import { CardInterface, CardType } from "@cards/types";
+import { CardType } from "@cards/types";
 import { CreatureCard } from "@cards/CreatureCard";
-import { ActionCard } from "@cards/ActionCard";
-import { SupportCard } from "@cards/SupportCard";
-import { TrapCard } from "@cards/TrapCard";
 import { resolveEffectsForCard } from "@effects/resolve";
-
-function cardFactory(raw: any): CardInterface {
-  switch (raw.type) {
-    case CardType.Creature:
-      return new CreatureCard(raw);
-    case CardType.Action:
-      return new ActionCard(raw);
-    case CardType.Support:
-      return new SupportCard(raw);
-    case CardType.Trap:
-      return new TrapCard(raw);
-    default:
-      throw new Error(`Unknown card type: ${raw.type}`);
-  }
-}
-
-const deck1 = (cards as any[]).map(cardFactory);
-const deck2 = (cards as any[]).map(cardFactory);
-
-function drawMany(engine: BattleEngine, playerIndex: number, count: number) {
-  for (let i = 0; i < count; i++) {
-    engine.draw(playerIndex);
-  }
-}
+import {
+  drawMany,
+  createTestDeck1,
+  createTestDeck2,
+} from "@/__tests__/testUtils";
 
 /**
  * Effect Resolution Tests
@@ -39,8 +16,8 @@ function drawMany(engine: BattleEngine, playerIndex: number, count: number) {
  */
 describe("Effects – Resolution", () => {
   it("handles missing effect ID gracefully", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -61,8 +38,8 @@ describe("Effects – Resolution", () => {
   });
 
   it("handles missing source card gracefully", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -79,8 +56,8 @@ describe("Effects – Resolution", () => {
   });
 
   it("handles missing engine gracefully", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
 
     drawMany(new BattleEngine(game), 0, 5);
@@ -99,8 +76,8 @@ describe("Effects – Resolution", () => {
   });
 
   it("handles non-existent effect ID gracefully", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -121,8 +98,8 @@ describe("Effects – Resolution", () => {
   });
 
   it("logs warning for missing effect", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -147,8 +124,8 @@ describe("Effects – Resolution", () => {
   });
 
   it("only triggers effects matching the trigger type", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -177,8 +154,8 @@ describe("Effects – Resolution", () => {
   });
 
   it("accepts event data for context", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -204,8 +181,8 @@ describe("Effects – Resolution", () => {
   });
 
   it("handles multiple effect resolutions without conflicts", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 

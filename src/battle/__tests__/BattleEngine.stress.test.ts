@@ -1,39 +1,16 @@
-import cards from "@static/card-data/bn-core.json";
 import { createPlayerState } from "@battle/PlayerState";
 import { createGameState } from "@battle/GameState";
 import { BattleEngine } from "@battle/BattleEngine";
-import { CardInterface, CardType } from "@cards/types";
-import { CreatureCard } from "@cards/CreatureCard";
-import { ActionCard } from "@cards/ActionCard";
-import { SupportCard } from "@cards/SupportCard";
-import { TrapCard } from "@cards/TrapCard";
-
-function cardFactory(raw: any): CardInterface {
-  switch (raw.type) {
-    case CardType.Creature:
-      return new CreatureCard(raw);
-    case CardType.Action:
-      return new ActionCard(raw);
-    case CardType.Support:
-      return new SupportCard(raw);
-    case CardType.Trap:
-      return new TrapCard(raw);
-    default:
-      throw new Error(`Unknown card type: ${raw.type}`);
-  }
-}
-
-const deck1 = (cards as any[]).map(cardFactory);
-const deck2 = (cards as any[]).map(cardFactory);
+import { createTestDeck1, createTestDeck2 } from "@/__tests__/testUtils";
 
 /**
- * Performance & Stress Tests
+ * Stress Tests
  * Tests system behavior under load and extreme conditions
  */
 describe("BattleEngine – Performance", () => {
   it("handles many turns without performance degradation", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -56,8 +33,8 @@ describe("BattleEngine – Performance", () => {
   });
 
   it("handles large game log without memory issues", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -71,8 +48,8 @@ describe("BattleEngine – Performance", () => {
   });
 
   it("maintains event log across many operations", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 

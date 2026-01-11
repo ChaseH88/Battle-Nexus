@@ -1,37 +1,14 @@
-import cards from "@static/card-data/bn-core.json";
 import { createPlayerState } from "@battle/PlayerState";
 import { createGameState } from "@battle/GameState";
 import { BattleEngine } from "@battle/BattleEngine";
-import { CardInterface, CardType } from "@cards/types";
+import { CardType } from "@cards/types";
 import { CreatureCard } from "@cards/CreatureCard";
-import { ActionCard } from "@cards/ActionCard";
-import { SupportCard } from "@cards/SupportCard";
-import { TrapCard } from "@cards/TrapCard";
 import { createEffectUtils, executeEffect } from "@effects/handler";
-
-function cardFactory(raw: any): CardInterface {
-  switch (raw.type) {
-    case CardType.Creature:
-      return new CreatureCard(raw);
-    case CardType.Action:
-      return new ActionCard(raw);
-    case CardType.Support:
-      return new SupportCard(raw);
-    case CardType.Trap:
-      return new TrapCard(raw);
-    default:
-      throw new Error(`Unknown card type: ${raw.type}`);
-  }
-}
-
-const deck1 = (cards as any[]).map(cardFactory);
-const deck2 = (cards as any[]).map(cardFactory);
-
-function drawMany(engine: BattleEngine, playerIndex: number, count: number) {
-  for (let i = 0; i < count; i++) {
-    engine.draw(playerIndex);
-  }
-}
+import {
+  drawMany,
+  createTestDeck1,
+  createTestDeck2,
+} from "@/__tests__/testUtils";
 
 /**
  * Effect Handler Tests
@@ -39,8 +16,8 @@ function drawMany(engine: BattleEngine, playerIndex: number, count: number) {
  */
 describe("Effects – Handler", () => {
   it("creates effect utils with all utility functions", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -64,8 +41,8 @@ describe("Effects – Handler", () => {
   });
 
   it("getAllyCreatures returns creatures for player", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -84,8 +61,8 @@ describe("Effects – Handler", () => {
   });
 
   it("getEnemyCreatures returns opponent creatures", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -105,8 +82,8 @@ describe("Effects – Handler", () => {
   });
 
   it("getAllCreatures returns all creatures on board", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -129,8 +106,8 @@ describe("Effects – Handler", () => {
   });
 
   it("getCreatureInLane returns creature at specific lane", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -149,8 +126,8 @@ describe("Effects – Handler", () => {
   });
 
   it("getCreatureInLane returns null for empty lane", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -161,8 +138,8 @@ describe("Effects – Handler", () => {
   });
 
   it("filterByAffinity returns creatures with matching affinity", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -185,8 +162,8 @@ describe("Effects – Handler", () => {
   });
 
   it("drawCards adds cards to player hand", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -199,8 +176,8 @@ describe("Effects – Handler", () => {
   });
 
   it("modifyCreatureStats changes creature stats", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
@@ -223,8 +200,8 @@ describe("Effects – Handler", () => {
   });
 
   it("handles effect execution without errors", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 

@@ -1,43 +1,19 @@
-import cards from "../../static/card-data/bn-core.json";
-
 import { createPlayerState } from "../PlayerState";
 import { createGameState } from "../GameState";
 import { BattleEngine } from "../BattleEngine";
 
 import { CreatureCard } from "../../cards/CreatureCard";
-import { ActionCard } from "../../cards/ActionCard";
-import { SupportCard } from "../../cards/SupportCard";
-import { TrapCard } from "../../cards/TrapCard";
 import { CardInterface, CardType, Affinity } from "../../cards/types";
-
-function cardFactory(raw: any) {
-  switch (raw.type) {
-    case CardType.Creature:
-      return new CreatureCard(raw);
-    case CardType.Action:
-      return new ActionCard(raw);
-    case CardType.Support:
-      return new SupportCard(raw);
-    case CardType.Trap:
-      return new TrapCard(raw);
-    default:
-      throw new Error(`Unknown card type: ${raw.type}`);
-  }
-}
-
-const deck1 = (cards as any[]).map(cardFactory) as CardInterface[];
-const deck2 = (cards as any[]).map(cardFactory) as CardInterface[];
-
-function drawMany(engine: BattleEngine, playerIndex: 0 | 1, count: number) {
-  for (let i = 0; i < count; i++) {
-    engine.draw(playerIndex);
-  }
-}
+import {
+  drawMany,
+  createTestDeck1,
+  createTestDeck2,
+} from "../../__tests__/testUtils";
 
 describe("BattleEngine – Effect System", () => {
   it("triggers ON_PLAY effect when creature is summoned", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
 
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
@@ -66,8 +42,8 @@ describe("BattleEngine – Effect System", () => {
   });
 
   it("triggers ON_ATTACK effect when creature attacks", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
 
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
@@ -142,8 +118,8 @@ describe("BattleEngine – Effect System", () => {
   });
 
   it("triggers ON_DRAW effect when card is drawn", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
 
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
@@ -177,8 +153,8 @@ describe("BattleEngine – Effect System", () => {
   });
 
   it("triggers effect when support card is played", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
 
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
@@ -221,8 +197,8 @@ describe("BattleEngine – Effect System", () => {
   });
 
   it("does not trigger effects after game is won", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
 
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
@@ -255,8 +231,8 @@ describe("BattleEngine – Effect System", () => {
   });
 
   it("properly resolves effect context with correct trigger", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
 
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
@@ -301,8 +277,8 @@ describe("BattleEngine – Effect System", () => {
   });
 
   it("logs effect actions when they execute", () => {
-    const p1 = createPlayerState("P1", deck1);
-    const p2 = createPlayerState("P2", deck2);
+    const p1 = createPlayerState("P1", createTestDeck1());
+    const p2 = createPlayerState("P2", createTestDeck2());
 
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
