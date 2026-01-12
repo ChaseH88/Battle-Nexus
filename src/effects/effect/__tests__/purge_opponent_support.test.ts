@@ -8,10 +8,13 @@ import { createTestGame, drawMany, testDeck1 } from "@/__tests__/testUtils";
  * Purge Opponent Support Effect Tests
  * Tests the purge_opponent_support effect (Purge Beacon)
  */
-// TODO: Update these tests to account for momentum/cost system
-describe.skip("Effect: purge_opponent_support", () => {
+describe("Effect: purge_opponent_support", () => {
   it("removes support card from opponent's support zone", () => {
     const { p2, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);
@@ -44,6 +47,10 @@ describe.skip("Effect: purge_opponent_support", () => {
   it("moves removed card to discard pile", () => {
     const { p2, game, engine } = createTestGame();
 
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
+
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);
 
@@ -73,6 +80,10 @@ describe.skip("Effect: purge_opponent_support", () => {
 
   it("targets specific slot when provided in eventData", () => {
     const { p2, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 15);
@@ -106,6 +117,10 @@ describe.skip("Effect: purge_opponent_support", () => {
 
   it("auto-targets first occupied slot when no target specified", () => {
     const { p2, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 15);
@@ -158,6 +173,10 @@ describe.skip("Effect: purge_opponent_support", () => {
 
   it("logs removal message", () => {
     const { p2, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);

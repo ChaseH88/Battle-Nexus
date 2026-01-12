@@ -41,8 +41,7 @@ describe("BattleEngine – Effect System", () => {
     }
   });
 
-  // TODO: Update this test to account for momentum/cost system
-  it.skip("triggers ON_ATTACK effect when creature attacks", () => {
+  it("triggers ON_ATTACK effect when creature attacks", () => {
     const p1 = createPlayerState("P1", createTestDeck1());
     const p2 = createPlayerState("P2", createTestDeck2());
 
@@ -53,6 +52,10 @@ describe("BattleEngine – Effect System", () => {
     game.turn = 2;
     game.activePlayer = 0;
     game.phase = "MAIN";
+
+    // Give players momentum to play cards
+    p1.momentum = 5;
+    p2.momentum = 5;
 
     // Don't draw any cards initially - keep full deck
     drawMany(engine, 0, 1); // Just 1 to have some cards

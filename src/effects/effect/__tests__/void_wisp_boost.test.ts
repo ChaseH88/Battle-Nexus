@@ -8,10 +8,13 @@ import { createTestGame, drawMany } from "@/__tests__/testUtils";
  * Void Wisp Boost Effect Tests
  * Tests the void_wisp_boost effect: Target Fire creature gains +200 ATK
  */
-// TODO: Update these tests to account for momentum/cost system
-describe.skip("Effect: void_wisp_boost", () => {
+describe("Effect: void_wisp_boost", () => {
   it("boosts target Fire creature by +200 ATK", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 
@@ -45,6 +48,10 @@ describe.skip("Effect: void_wisp_boost", () => {
 
   it("targets specific lane when provided in eventData", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 15);
 
@@ -84,6 +91,10 @@ describe.skip("Effect: void_wisp_boost", () => {
   it("fails when targeting empty lane", () => {
     const { p1, game, engine } = createTestGame();
 
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
+
     drawMany(engine, 0, 10);
 
     const fireCreature = p1.hand.find(
@@ -114,6 +125,10 @@ describe.skip("Effect: void_wisp_boost", () => {
 
   it("fails when targeting non-Fire creature", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 15);
 
@@ -153,6 +168,10 @@ describe.skip("Effect: void_wisp_boost", () => {
   it("fails when no target is selected", () => {
     const { p1, game, engine } = createTestGame();
 
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
+
     drawMany(engine, 0, 10);
 
     const fireCreature = p1.hand.find(
@@ -189,6 +208,10 @@ describe.skip("Effect: void_wisp_boost", () => {
   it("adds active effect tracking", () => {
     const { p1, game, engine } = createTestGame();
 
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
+
     drawMany(engine, 0, 10);
 
     const fireCreature = p1.hand.find(
@@ -224,6 +247,10 @@ describe.skip("Effect: void_wisp_boost", () => {
   it("uses lane from eventData.lane if targetLane not provided", () => {
     const { p1, game, engine } = createTestGame();
 
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
+
     drawMany(engine, 0, 10);
 
     const fireCreature = p1.hand.find(
@@ -255,6 +282,10 @@ describe.skip("Effect: void_wisp_boost", () => {
 
   it("only affects owner's creatures, not opponent's", () => {
     const { p1, p2, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);

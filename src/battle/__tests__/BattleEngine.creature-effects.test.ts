@@ -6,10 +6,13 @@ import { getEffectTiming } from "@effects/registry";
  * Tests for creature effect activation from lanes
  * Creatures with effectId can activate their effects once (ONE_TIME) or multiple times (CONTINUOUS)
  */
-// TODO: Update these tests to account for momentum/cost system
-describe.skip("BattleEngine – Creature Effects", () => {
+describe("BattleEngine – Creature Effects", () => {
   it("allows creatures with effects to activate from lanes", () => {
-    const { p1, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 
@@ -42,7 +45,11 @@ describe.skip("BattleEngine – Creature Effects", () => {
   });
 
   it("prevents ONE_TIME effects from activating twice", () => {
-    const { p1, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 
@@ -76,7 +83,11 @@ describe.skip("BattleEngine – Creature Effects", () => {
   });
 
   it("allows CONTINUOUS effects to activate multiple times", () => {
-    const { p1, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 
@@ -112,7 +123,11 @@ describe.skip("BattleEngine – Creature Effects", () => {
   });
 
   it("fails when trying to activate effect from creature without effect", () => {
-    const { p1, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 
@@ -137,6 +152,10 @@ describe.skip("BattleEngine – Creature Effects", () => {
   it("requires main phase to activate creature effects", () => {
     const { p1, game, engine } = createTestGame();
 
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
+
     drawMany(engine, 0, 10);
 
     const creatureWithEffect = p1.hand.find(
@@ -158,7 +177,11 @@ describe.skip("BattleEngine – Creature Effects", () => {
   });
 
   it("checks activation requirements using metadata system", () => {
-    const { p1, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 
@@ -180,7 +203,11 @@ describe.skip("BattleEngine – Creature Effects", () => {
   });
 
   it("does not auto-trigger creature effects when played", () => {
-    const { p1, engine } = createTestGame();
+    const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 

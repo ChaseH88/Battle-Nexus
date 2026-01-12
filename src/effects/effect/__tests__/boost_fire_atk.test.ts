@@ -9,10 +9,13 @@ import { createTestGame, drawMany } from "@/__tests__/testUtils";
  * Tests the boost_fire_atk effect (Ignite Burst)
  * Now only boosts Fire creature ATK
  */
-// TODO: Update these tests to account for momentum/cost system
-describe.skip("Effect: boost_fire_atk", () => {
+describe("Effect: boost_fire_atk", () => {
   it("boosts Fire creature ATK by +200", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 
@@ -43,6 +46,10 @@ describe.skip("Effect: boost_fire_atk", () => {
 
   it("targets specific lane when provided in eventData", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 15);
 
@@ -84,6 +91,10 @@ describe.skip("Effect: boost_fire_atk", () => {
   it("fails gracefully when no Fire creatures exist", () => {
     const { p1, game, engine } = createTestGame();
 
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
+
     drawMany(engine, 0, 10);
 
     const waterCreature = p1.hand.find(
@@ -110,6 +121,10 @@ describe.skip("Effect: boost_fire_atk", () => {
 
   it("targets highest ATK Fire creature when auto-targeting", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 15);
 
@@ -150,6 +165,10 @@ describe.skip("Effect: boost_fire_atk", () => {
 
   it("adds active effect tracking", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 

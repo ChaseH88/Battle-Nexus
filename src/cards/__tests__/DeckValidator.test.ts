@@ -107,25 +107,6 @@ describe("Deck Validation System", () => {
     });
 
     // TODO: Update this test to account for required cost field
-    // Cost is now required on all cards, so cards without cost should fail
-    it.skip("handles cards without cost property", () => {
-      const cardWithoutCost = {
-        ...createMockCard("test", "Test", 1),
-        cost: undefined as any, // Type assertion to bypass compile error in skipped test
-      };
-      const deck: CardInterface[] = [
-        cardWithoutCost as CardInterface,
-        ...Array.from({ length: 19 }, (_, i) =>
-          createMockCard(`card_${i}`, `Card ${i}`, 2)
-        ),
-      ];
-
-      const result = validateDeck(deck);
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((e) => e.includes("without cost"))).toBe(true);
-    });
-
     it("calculates average cost correctly", () => {
       const deck: CardInterface[] = [
         ...Array.from({ length: 10 }, (_, i) =>
@@ -161,17 +142,6 @@ describe("Deck Validation System", () => {
       expect(totalCost).toBe(0);
     });
 
-    // TODO: Update this test - cost is now required, undefined is not allowed
-    it.skip("treats undefined cost as 0", () => {
-      const deck: CardInterface[] = [
-        createMockCard("1", "Card 1", 5),
-        { ...createMockCard("2", "Card 2", 3), cost: undefined as any },
-      ];
-
-      const totalCost = calculateDeckCost(deck);
-
-      expect(totalCost).toBe(5);
-    });
   });
 
   describe("canAddCardToDeck", () => {

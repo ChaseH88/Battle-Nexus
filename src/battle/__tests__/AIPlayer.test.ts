@@ -8,11 +8,14 @@ import {
 } from "../../__tests__/testUtils";
 
 describe("AIPlayer", () => {
-  // TODO: Update these tests to account for momentum/cost system
-  describe.skip("Trap Card Activation Logic", () => {
+  describe("Trap Card Activation Logic", () => {
     describe("shouldActivateTrap - Mirror Force", () => {
       it("skill 1-3: rarely activates (20% chance or less)", () => {
         const { game, engine, ai: ai1 } = createTestGameWithAI(1);
+
+        // Give players momentum to play cards
+        game.players[0].momentum = 10;
+        game.players[1].momentum = 10;
 
         // Set up scenario: 3 opponent creatures in attack mode
         playCreatureInLane(engine, 0, 0, undefined, false, "ATTACK");
@@ -40,6 +43,10 @@ describe("AIPlayer", () => {
       it("skill 4-5: activates if 2+ attack-mode creatures", () => {
         const { game, engine, ai } = createTestGameWithAI(5);
 
+        // Give players momentum to play cards
+        game.players[0].momentum = 10;
+        game.players[1].momentum = 10;
+
         enterMainPhase(engine); // Enter main phase
 
         // Scenario 1: Only 1 attack-mode creature
@@ -61,6 +68,10 @@ describe("AIPlayer", () => {
 
       it("skill 6-7: activates if 2+ creatures OR has no creatures (defending direct attack)", () => {
         const { game, engine, ai } = createTestGameWithAI(7);
+
+        // Give players momentum to play cards
+        game.players[0].momentum = 10;
+        game.players[1].momentum = 10;
 
         enterMainPhase(engine);
 
@@ -92,6 +103,10 @@ describe("AIPlayer", () => {
       it("skill 8-10: always activates on direct attack, or if clears 2+ creatures", () => {
         const { game, engine, ai } = createTestGameWithAI(10);
 
+        // Give players momentum to play cards
+        game.players[0].momentum = 10;
+        game.players[1].momentum = 10;
+
         enterMainPhase(engine);
 
         const mirrorForce = createTestSupport({
@@ -119,6 +134,10 @@ describe("AIPlayer", () => {
       it("does not activate against defense-mode creatures", () => {
         const { game, engine, ai } = createTestGameWithAI(10);
 
+        // Give players momentum to play cards
+        game.players[0].momentum = 10;
+        game.players[1].momentum = 10;
+
         // Opponent has creatures in defense mode
         playCreatureInLane(engine, 0, 0, undefined, false, "DEFENSE");
         playCreatureInLane(engine, 0, 1, undefined, false, "DEFENSE");
@@ -138,6 +157,10 @@ describe("AIPlayer", () => {
 
       it("handles mixed attack/defense creatures correctly", () => {
         const { game, engine, ai } = createTestGameWithAI(8);
+
+        // Give players momentum to play cards
+        game.players[0].momentum = 10;
+        game.players[1].momentum = 10;
 
         // 2 attack, 1 defense
         playCreatureInLane(engine, 0, 0, undefined, false, "ATTACK");
@@ -180,10 +203,13 @@ describe("AIPlayer", () => {
     });
   });
 
-  // TODO: Update these tests to account for momentum/cost system
-  describe.skip("Support Card Activation", () => {
+  describe("Support Card Activation", () => {
     it("skips trap cards (ON_DEFEND trigger) during manual activation", () => {
       const { game, engine } = createTestGameWithAI(10);
+
+      // Give players momentum to play cards
+      game.players[0].momentum = 10;
+      game.players[1].momentum = 10;
 
       enterMainPhase(engine);
 
@@ -208,6 +234,10 @@ describe("AIPlayer", () => {
 
     it("activates non-trap support cards normally", () => {
       const { game, engine } = createTestGameWithAI(10);
+
+      // Give players momentum to play and activate cards
+      game.players[0].momentum = 10;
+      game.players[1].momentum = 10;
 
       enterMainPhase(engine);
 
@@ -255,10 +285,13 @@ describe("AIPlayer", () => {
     });
   });
 
-  // TODO: Update these tests to account for momentum/cost system
-  describe.skip("Edge Cases", () => {
+  describe("Edge Cases", () => {
     it("handles empty board scenarios", () => {
       const { game, ai } = createTestGameWithAI(10);
+
+      // Give players momentum to play cards
+      game.players[0].momentum = 10;
+      game.players[1].momentum = 10;
 
       const mirrorForce = createTestSupport({
         id: "mirror_force_test",
@@ -276,6 +309,10 @@ describe("AIPlayer", () => {
 
     it("handles board with AI creatures vs single attacker", () => {
       const { game, engine, ai } = createTestGameWithAI(10);
+
+      // Give players momentum to play cards
+      game.players[0].momentum = 10;
+      game.players[1].momentum = 10;
 
       enterMainPhase(engine);
 
@@ -295,6 +332,10 @@ describe("AIPlayer", () => {
 
     it("handles full board scenarios", () => {
       const { game, engine, ai } = createTestGameWithAI(10);
+
+      // Give players momentum to play cards
+      game.players[0].momentum = 10;
+      game.players[1].momentum = 10;
 
       // Fill opponent's board with attack-mode creatures
       for (let i = 0; i < 3; i++) {

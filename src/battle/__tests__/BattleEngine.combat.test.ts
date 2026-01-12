@@ -92,8 +92,7 @@ describe("BattleEngine – Combat Damage", () => {
   });
 
   // TODO: Update this test to account for momentum/cost system
-  // Currently skipped because cards require momentum payment
-  describe.skip("Piercing Damage", () => {
+  describe("Piercing Damage", () => {
     it("deals excess damage to opponent's life points when destroying creature in attack mode", () => {
       const p1 = createPlayerState("P1", createTestDeck1());
       const p2 = createPlayerState("P2", createTestDeck2());
@@ -104,6 +103,10 @@ describe("BattleEngine – Combat Damage", () => {
       game.turn = 3;
       game.activePlayer = 0;
       game.phase = "MAIN";
+
+      // Give players momentum to play cards
+      p1.momentum = 10;
+      p2.momentum = 10;
 
       drawMany(engine, 0, 6);
       drawMany(engine, 1, 6);
@@ -143,6 +146,10 @@ describe("BattleEngine – Combat Damage", () => {
       game.turn = 3;
       game.activePlayer = 0;
       game.phase = "MAIN";
+
+      // Give players momentum to play cards
+      p1.momentum = 10;
+      p2.momentum = 10;
 
       drawMany(engine, 0, 15);
       drawMany(engine, 1, 15);
@@ -194,6 +201,10 @@ describe("BattleEngine – Combat Damage", () => {
       game.turn = 2;
       game.phase = "MAIN";
 
+      // Give players momentum to play cards
+      p1.momentum = 10;
+      p2.momentum = 10;
+
       drawMany(engine, 0, 6);
       drawMany(engine, 1, 6);
 
@@ -230,6 +241,10 @@ describe("BattleEngine – Combat Damage", () => {
       game.turn = 3;
       game.activePlayer = 0;
       game.phase = "MAIN";
+
+      // Give players momentum to play cards
+      p1.momentum = 10;
+      p2.momentum = 10;
 
       drawMany(engine, 0, 15);
       drawMany(engine, 1, 15);
@@ -287,6 +302,10 @@ describe("BattleEngine – Combat Damage", () => {
 
       game.turn = 2;
       game.phase = "MAIN";
+
+      // Give players momentum to play cards
+      p1.momentum = 10;
+      p2.momentum = 10;
 
       drawMany(engine, 0, 15);
       drawMany(engine, 1, 15);

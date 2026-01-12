@@ -8,10 +8,13 @@ import { createTestGame, drawMany } from "@/__tests__/testUtils";
  * Flame Aura Global Effect Tests
  * Tests the flame_aura_global effect: All Fire creatures gain +100 ATK permanently
  */
-// TODO: Update these tests to account for momentum/cost system
-describe.skip("Effect: flame_aura_global", () => {
+describe("Effect: flame_aura_global", () => {
   it("boosts ATK of all Fire creatures permanently", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 
@@ -45,6 +48,10 @@ describe.skip("Effect: flame_aura_global", () => {
 
   it("only boosts Fire creatures, not other affinities", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 15);
 
@@ -88,6 +95,10 @@ describe.skip("Effect: flame_aura_global", () => {
   it("does nothing when no Fire creatures are on the field", () => {
     const { p1, game, engine } = createTestGame();
 
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
+
     drawMany(engine, 0, 10);
 
     const waterCreature = p1.hand.find(
@@ -118,6 +129,10 @@ describe.skip("Effect: flame_aura_global", () => {
 
   it("boosts multiple Fire creatures at once", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 15);
 
@@ -156,6 +171,10 @@ describe.skip("Effect: flame_aura_global", () => {
   it("adds active effect tracking", () => {
     const { p1, game, engine } = createTestGame();
 
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
+
     drawMany(engine, 0, 10);
 
     const fireCreature = p1.hand.find(
@@ -190,6 +209,10 @@ describe.skip("Effect: flame_aura_global", () => {
 
   it("allows stacking multiple flame aura effects", () => {
     const { p1, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
 
@@ -235,6 +258,10 @@ describe.skip("Effect: flame_aura_global", () => {
 
   it("only affects the owner's Fire creatures, not opponent's", () => {
     const { p1, p2, game, engine } = createTestGame();
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);

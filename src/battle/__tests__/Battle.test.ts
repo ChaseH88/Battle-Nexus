@@ -11,13 +11,16 @@ import {
 } from "@/__tests__/testUtils";
 
 describe("BattleEngine – KO and win logic", () => {
-  // TODO: Update this test to account for momentum/cost system
-  it.skip("tracks KOs and declares a winner at 3 KOs", () => {
+  it("tracks KOs and declares a winner at 3 KOs", () => {
     const p1 = createPlayerState("P1", createTestDeck1());
     const p2 = createPlayerState("P2", createTestDeck2());
 
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
+
+    // Give players momentum to play cards
+    game.players[0].momentum = 10;
+    game.players[1].momentum = 10;
 
     // Draw enough cards to find strong creatures
     drawMany(engine, 0, 15); // Draw more to ensure we get the cards we need
