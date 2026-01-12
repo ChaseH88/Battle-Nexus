@@ -141,7 +141,6 @@ describe("Deck Validation System", () => {
 
       expect(totalCost).toBe(0);
     });
-
   });
 
   describe("canAddCardToDeck", () => {

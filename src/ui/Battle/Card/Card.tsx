@@ -7,6 +7,7 @@ import { ActionCard } from "../../../cards/ActionCard";
 import { TrapCard } from "../../../cards/TrapCard";
 import { Back } from "./Back";
 import { CreatureCard } from "../../../cards";
+import { CardSlot } from "./Card.styles";
 
 interface CardProps {
   card: CardInterface | null;
@@ -30,7 +31,7 @@ export const Card = ({
   disableHover = false,
 }: CardProps) => {
   if (!card) {
-    return <div className="card-slot empty" onClick={onClick} />;
+    return <CardSlot isEmpty onClick={onClick} />;
   }
 
   const isCreature = card.type === CardType.Creature;
@@ -67,20 +68,28 @@ export const Card = ({
     return <Back onClick={onClick} type={backType} />;
   }
 
+  const isDefeated = creature ? creature.currentHp <= 0 : false;
+  const isExhausted = creature ? creature.hasAttackedThisTurn : false;
+  const isDefenseMode = creature ? creature.mode === "DEFENSE" : false;
+  const isActiveCard = Boolean(
+    (support && support.isActive) ||
+      (action && action.isActive) ||
+      (trap && trap.isActive)
+  );
+
   return (
-    <div
-      className={`card-slot ${card.type.toLowerCase()} ${
-        selectedHandCard === card.id || isSelected ? "selected" : ""
-      } ${creature && creature.currentHp <= 0 ? "defeated" : ""} ${
-        creature && creature.hasAttackedThisTurn ? "exhausted" : ""
-      } ${creature && creature.mode === "DEFENSE" ? "defense-mode" : ""} ${
-        creature && creature.isFaceDown ? "face-down" : ""
-      } ${
-        (support || action) && (support || action)!.isActive ? "active" : ""
-      } ${canActivate ? "can-activate" : ""} ${disableHover ? "no-hover" : ""}`}
+    <CardSlot
+      cardType={card.type}
+      isSelected={selectedHandCard === card.id || isSelected}
+      isDefeated={isDefeated}
+      isExhausted={isExhausted}
+      isDefenseMode={isDefenseMode}
+      isFaceDown={false}
+      isActive={isActiveCard}
+      canActivate={canActivate}
+      disableHover={disableHover}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
-      style={{ width: 160, height: 253, display: "inline-block" }}
     >
       {creature && (
         <Creature
@@ -133,6 +142,6 @@ export const Card = ({
           isFaceDown={trap.isFaceDown}
         />
       )}
-    </div>
+    </CardSlot>
   );
 };
