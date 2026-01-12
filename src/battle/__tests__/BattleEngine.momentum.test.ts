@@ -15,8 +15,7 @@ describe("BattleEngine – Momentum System", () => {
     atk: number,
     def: number,
     hp: number,
-    isMax: boolean = false,
-    momentumCost?: number
+    isMax: boolean = false
   ): CreatureCard => {
     return new CreatureCard({
       id,
@@ -31,7 +30,6 @@ describe("BattleEngine – Momentum System", () => {
       hp,
       affinity: Affinity.Fire,
       isMax,
-      momentumCost,
     });
   };
 
@@ -236,12 +234,11 @@ describe("BattleEngine – Momentum System", () => {
       const maxCreature = createTestCreature(
         "max1",
         "MAX Fighter",
-        0,
+        5, // Use cost field instead of momentumCost
         500,
         250,
         2000,
-        true,
-        5
+        true
       );
       state.players[0].lanes[1] = maxCreature;
 
@@ -296,12 +293,11 @@ describe("BattleEngine – Momentum System", () => {
       const maxCreature = createTestCreature(
         "max1",
         "MAX Fighter",
-        0,
+        5, // Use cost field instead of momentumCost
         100,
         50,
         100,
-        true,
-        5
+        true
       );
       state.players[0].lanes[1] = maxCreature;
       state.players[1].lanes[1] = createTestCreature(

@@ -1,5 +1,14 @@
-import { styled } from "@mui/material/styles";
+import { styled, keyframes } from "@mui/material/styles";
 import { Box, Typography } from "@mui/material";
+
+export const pulseGlow = keyframes`
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(34, 211, 238, 0.4), 0 0 10px rgba(34, 211, 238, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.8), 0 0 25px rgba(34, 211, 238, 0.5);
+  }
+`;
 
 export const HandZone = styled(Box)(() => ({
   background: "rgba(0, 0, 0, 0.3)",

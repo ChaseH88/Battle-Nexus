@@ -12,6 +12,7 @@ interface HandProps {
   onDragStart?: (cardId: string) => void;
   onDragEnd?: () => void;
   onCardDropped?: (cardId: string, x: number, y: number) => void;
+  playerMomentum?: number;
 }
 
 export const Hand = ({
@@ -22,6 +23,7 @@ export const Hand = ({
   onDragStart,
   onDragEnd,
   onCardDropped,
+  playerMomentum = 0,
 }: HandProps) => {
   const [hoveredCardIndex, setHoveredCardIndex] = useState<number | null>(null);
 
@@ -71,6 +73,7 @@ export const Hand = ({
             {hand.map((card, index) => {
               const isSelected = selectedHandCard === card.id;
               const isHoveringThis = hoveredCardIndex === index;
+              const canAfford = playerMomentum >= card.cost;
 
               return (
                 <motion.div
@@ -97,7 +100,7 @@ export const Hand = ({
                     y: { type: "spring", stiffness: 300, damping: 20 },
                     x: { type: "spring", stiffness: 300, damping: 20 },
                   }}
-                  drag
+                  drag={canAfford}
                   dragSnapToOrigin={true}
                   dragElastic={0}
                   dragMomentum={false}
@@ -143,9 +146,10 @@ export const Hand = ({
                     }
                   }}
                   style={{
-                    cursor: "grab",
+                    cursor: canAfford ? "grab" : "not-allowed",
                     position: "relative",
                     zIndex: isSelected ? 1001 : isHoveringThis ? 1000 : 1,
+                    opacity: canAfford ? 1 : 0.6,
                   }}
                   className="draggable-card"
                 >
@@ -153,7 +157,20 @@ export const Hand = ({
                     animate={{
                       boxShadow: isSelected
                         ? "0 0 20px 5px rgba(34, 211, 238, 0.6)"
+                        : !isSelected && canAfford
+                        ? [
+                            "0 0 5px rgba(34, 211, 238, 0.4), 0 0 10px rgba(34, 211, 238, 0.3)",
+                            "0 0 15px rgba(34, 211, 238, 0.8), 0 0 25px rgba(34, 211, 238, 0.5)",
+                            "0 0 5px rgba(34, 211, 238, 0.4), 0 0 10px rgba(34, 211, 238, 0.3)",
+                          ]
                         : "0 4px 8px rgba(0, 0, 0, 0.3)",
+                    }}
+                    transition={{
+                      boxShadow: {
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      },
                     }}
                     style={{
                       borderRadius: "8px",

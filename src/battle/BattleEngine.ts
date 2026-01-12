@@ -147,14 +147,6 @@ export class BattleEngine {
       );
     }
 
-    // Legacy MAX card handling (deprecated - use cost field instead)
-    if (card.isMax && card.momentumCost !== undefined) {
-      // Already validated above, but log for clarity
-      this.log(
-        `[DEPRECATED] ${card.name} used old momentumCost field. Update card data to use 'cost' field.`
-      );
-    }
-
     // Move from appropriate zone
     const fromZone = isFromMaxDeck ? Zone.MaxDeck : Zone.Hand;
     moveCard(this.state, playerIndex, fromZone, Zone.Lane0, cardId, {

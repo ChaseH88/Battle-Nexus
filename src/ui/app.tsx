@@ -837,6 +837,7 @@ export default function App() {
           selectedHandCard={selectedHandCard}
           onSelectCard={(id) => dispatch(setSelectedHandCard(id))}
           onCardDoubleClick={handleHandCardDoubleClick}
+          playerMomentum={player1.momentum}
           onDragStart={(cardId) => {
             setDraggedCardId(cardId);
             dispatch(setSelectedHandCard(cardId));

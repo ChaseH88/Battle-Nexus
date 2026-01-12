@@ -28,11 +28,7 @@ export const MaxDeck = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const handleCardClick = (card: CardInterface) => {
-    if (
-      onPlayMaxCard &&
-      card.momentumCost !== undefined &&
-      playerMomentum >= card.momentumCost
-    ) {
+    if (onPlayMaxCard && playerMomentum >= card.cost) {
       onPlayMaxCard(card.id);
       setIsOpen(false);
     }
@@ -89,18 +85,14 @@ export const MaxDeck = ({
                 </div>
               ) : (
                 cards.map((card) => {
-                  const canAfford =
-                    card.momentumCost !== undefined &&
-                    playerMomentum >= card.momentumCost;
+                  const canAfford = playerMomentum >= card.cost;
                   return (
                     <MaxDeckCardWrapper
                       key={card.id}
                       canafford={canAfford ? "true" : "false"}
                       onClick={() => canAfford && handleCardClick(card)}
                     >
-                      <MaxDeckCardCost>
-                        ⚡ {card.momentumCost || 0}
-                      </MaxDeckCardCost>
+                      <MaxDeckCardCost>⚡ {card.cost}</MaxDeckCardCost>
                       <Card card={card} disableHover={true} />
                       {!canAfford && (
                         <div

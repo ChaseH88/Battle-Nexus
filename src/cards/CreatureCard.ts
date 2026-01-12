@@ -40,7 +40,6 @@ export class CreatureCard extends Card {
 
   // MAX card properties
   readonly isMax?: boolean;
-  readonly momentumCost?: number;
 
   constructor(args: CreatureCardArgs) {
     super({ ...args, type: CardType.Creature });
@@ -62,7 +61,6 @@ export class CreatureCard extends Card {
     this.hasActivatedEffect = false;
     this.hasActivatedEffectThisTurn = false;
     this.isMax = args.isMax;
-    this.momentumCost = args.momentumCost;
   }
 
   // Check if stats are modified
