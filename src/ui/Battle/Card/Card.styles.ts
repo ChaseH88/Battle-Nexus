@@ -26,8 +26,8 @@ interface CardSlotProps {
 }
 
 export const CardSlot = styled.div<CardSlotProps>`
-  background: linear-gradient(145deg, #2d3748, #1a202c);
-  border: 2px solid #4a5568;
+  background: linear-gradient(145deg, #2d374869, #1a202c76);
+  border: 2px dashed #4a5568;
   border-radius: 10px;
   padding: 15px;
   min-height: 140px;
@@ -42,15 +42,15 @@ export const CardSlot = styled.div<CardSlotProps>`
   position: relative;
 
   ${(props) =>
-    props.$disableHover &&
+    props.disableHover &&
     css`
       pointer-events: none !important;
     `}
 
   ${(props) =>
-    !props.$disableHover &&
-    !props.$isEmpty &&
-    !props.$isExhausted &&
+    !props.disableHover &&
+    !props.isEmpty &&
+    !props.isExhausted &&
     css`
       &:hover {
         transform: translateY(-5px);
@@ -61,7 +61,7 @@ export const CardSlot = styled.div<CardSlotProps>`
 
   /* Empty slot styles */
   ${(props) =>
-    props.$isEmpty &&
+    props.isEmpty &&
     css`
       background: rgba(255, 255, 255, 0.05);
       border-style: dashed;
@@ -79,7 +79,7 @@ export const CardSlot = styled.div<CardSlotProps>`
 
   /* Selected styles */
   ${(props) =>
-    props.$isSelected &&
+    props.isSelected &&
     css`
       border-color: #48bb78;
       box-shadow: 0 0 20px rgba(72, 187, 120, 0.5);
@@ -88,11 +88,11 @@ export const CardSlot = styled.div<CardSlotProps>`
 
   /* Card type specific colors */
   ${(props) =>
-    props.$cardType === CardType.Creature &&
+    props.cardType === CardType.Creature &&
     css`
       border-color: #ed8936;
 
-      ${props.$isFaceDown &&
+      ${props.isFaceDown &&
       css`
         background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
         border: 2px solid #4a5568;
@@ -100,17 +100,17 @@ export const CardSlot = styled.div<CardSlotProps>`
     `}
 
   ${(props) =>
-    props.$cardType === CardType.Support &&
+    props.cardType === CardType.Support &&
     css`
       border-color: #4299e1;
 
-      ${props.$isFaceDown &&
+      ${props.isFaceDown &&
       css`
         background: linear-gradient(145deg, #4a5568, #2d3748);
         border-color: #718096;
       `}
 
-      ${props.$isActive &&
+      ${props.isActive &&
       css`
         border-color: #48bb78;
         box-shadow: 0 0 15px rgba(72, 187, 120, 0.5);
@@ -118,17 +118,17 @@ export const CardSlot = styled.div<CardSlotProps>`
     `}
 
   ${(props) =>
-    props.$cardType === CardType.Action &&
+    props.cardType === CardType.Action &&
     css`
       border-color: #9f7aea;
 
-      ${props.$isFaceDown &&
+      ${props.isFaceDown &&
       css`
         background: linear-gradient(145deg, #553c9a, #44337a);
         border-color: #805ad5;
       `}
 
-      ${props.$isActive &&
+      ${props.isActive &&
       css`
         border-color: #d69e2e;
         box-shadow: 0 0 15px rgba(214, 158, 46, 0.5);
@@ -136,17 +136,17 @@ export const CardSlot = styled.div<CardSlotProps>`
     `}
 
   ${(props) =>
-    props.$cardType === CardType.Trap &&
+    props.cardType === CardType.Trap &&
     css`
       border-color: #9f7aea;
 
-      ${props.$isFaceDown &&
+      ${props.isFaceDown &&
       css`
         background: linear-gradient(145deg, #553c9a, #44337a);
         border-color: #805ad5;
       `}
 
-      ${props.$isActive &&
+      ${props.isActive &&
       css`
         border-color: #48bb78;
         box-shadow: 0 0 15px rgba(72, 187, 120, 0.5);
@@ -155,7 +155,7 @@ export const CardSlot = styled.div<CardSlotProps>`
 
   /* Can activate animation */
   ${(props) =>
-    props.$canActivate &&
+    props.canActivate &&
     css`
       animation: ${pulseBorder} 2s ease-in-out infinite;
       cursor: pointer;
@@ -169,7 +169,7 @@ export const CardSlot = styled.div<CardSlotProps>`
 
   /* Defeated styles */
   ${(props) =>
-    props.$isDefeated &&
+    props.isDefeated &&
     css`
       opacity: 0.5;
       filter: grayscale(100%);
@@ -177,7 +177,7 @@ export const CardSlot = styled.div<CardSlotProps>`
 
   /* Exhausted styles */
   ${(props) =>
-    props.$isExhausted &&
+    props.isExhausted &&
     css`
       opacity: 0.7;
       border-color: #718096 !important;
@@ -189,8 +189,8 @@ export const CardSlot = styled.div<CardSlotProps>`
 
   /* Defense mode styles */
   ${(props) =>
-    props.$isDefenseMode &&
-    !props.$isFaceDown &&
+    props.isDefenseMode &&
+    !props.isFaceDown &&
     css`
       border-color: rgba(50, 150, 255, 0.6) !important;
       box-shadow: 0 0 10px rgba(50, 150, 255, 0.3);

@@ -76,21 +76,6 @@ export const BackImage = styled.img`
   height: auto;
 `;
 
-export const BackCardName = styled.div`
-  font-size: 12px;
-  color: #fff;
-  font-weight: bold;
-  text-align: center;
-`;
-
-export const BackCardType = styled.div`
-  font-size: 10px;
-  color: #cbd5e0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-align: center;
-`;
-
 export const BackModeBadge = styled.div`
   position: absolute;
   top: 5px;

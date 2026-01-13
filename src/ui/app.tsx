@@ -24,16 +24,16 @@ import {
   setSelectedAttacker,
   openTargetSelectModal,
   openCardDetailModal,
-  closeCardDetailModal,
   queueEffectNotification,
-  dequeueEffectNotification,
-  setShowingEffectNotification,
 } from "../store/uiSlice";
 import backgroundImage from "../assets/background.png";
 import { useBattleEngine } from "../hooks/useBattleEngine";
 import { getEffectMetadata } from "../effects/metadata";
 import { effectsRegistry } from "../effects/registry";
 import { loadDeckFromLocalStorage, hasSavedDeck } from "../utils/deckLoader";
+import { CardActivationEffect } from "./Battle/Card/CardActivationEffect";
+import { CardAttackAnimation } from "./Battle/Card/CardAttackAnimation";
+import { useAnimationQueue } from "./Battle/Card/useAnimationQueue";
 
 function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
@@ -61,7 +61,6 @@ export default function App() {
     selectedAttacker,
     modal,
     playCreatureModal,
-    effectNotificationQueue,
     isShowingEffectNotification,
   } = useAppSelector((state) => state.ui);
 
@@ -69,6 +68,17 @@ export default function App() {
   const [showDeckLoadPrompt, setShowDeckLoadPrompt] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [draggedCardId, setDraggedCardId] = useState<string | null>(null);
+
+  // Animation queue - handles both activation and attack animations sequentially
+  const {
+    currentAnimation,
+    queueActivation,
+    queueAttack,
+    completeCurrentAnimation,
+  } = useAnimationQueue();
+
+  // Store refs for attack animation
+  const attackerRef = useRef<HTMLElement | null>(null);
 
   // Ref to store trap activation callback - needs to be stable and have access to latest state
   const trapActivationCallbackRef =
@@ -87,7 +97,6 @@ export default function App() {
     currentPlayer,
     opponent,
     isGameOver,
-    // winner,
     initializeGame,
     draw,
     playCreature,
@@ -184,36 +193,6 @@ export default function App() {
       if (engine) engine.onEffectActivated = undefined;
     };
   }, [engine, dispatch, gameState]);
-
-  // Process the effect notification queue: show CardDetailModal for 1s per effect
-  useEffect(() => {
-    // Only process if we have items and we're not currently showing one
-    if (effectNotificationQueue.length === 0 || isShowingEffectNotification) {
-      return;
-    }
-
-    const next = effectNotificationQueue[0];
-
-    // Mark as showing and open modal
-    dispatch(setShowingEffectNotification(true));
-    dispatch(
-      openCardDetailModal({
-        card: next.card,
-        activeEffects: next.activeEffects,
-      })
-    );
-
-    // Auto-close after 1 second
-    const timer = setTimeout(() => {
-      dispatch(closeCardDetailModal());
-      dispatch(dequeueEffectNotification());
-      dispatch(setShowingEffectNotification(false));
-    }, 1000);
-
-    return () => clearTimeout(timer);
-    // Only re-run when queue changes, not when isShowingEffectNotification changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectNotificationQueue, dispatch]);
 
   const startNewGame = useCallback(() => {
     const deck1 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
@@ -486,7 +465,7 @@ export default function App() {
     }
   };
 
-  const handleActivateSupport = (slot: number) => {
+  const handleActivateSupport = (slot: number, element?: HTMLElement) => {
     if (isShowingEffectNotification) return;
     if (checkNeedsToDraw()) {
       showDrawReminderModal();
@@ -618,7 +597,16 @@ export default function App() {
           title: "Activate Card",
           message: `Flip ${card.name} face-up and activate it?`,
           onConfirm: () => {
-            activateSupport(0, slot);
+            // Queue animation first if element is provided
+            if (element) {
+              queueActivation(card, element, () => {
+                // Execute activation after animation completes
+                activateSupport(0, slot);
+              });
+            } else {
+              // No animation - activate immediately
+              activateSupport(0, slot);
+            }
             dispatch(closeModal());
           },
         })
@@ -643,12 +631,59 @@ export default function App() {
     dispatch(setSelectedHandCard(null));
   };
 
-  const handleAttack = (targetLane: number) => {
+  const handleAttack = (targetLane: number, defenderElement?: HTMLElement) => {
     if (isShowingEffectNotification) return;
     if (selectedAttacker === null) return;
 
+    console.log("[DEBUG] handleAttack called:", {
+      targetLane,
+      defenderElement,
+      attackerRef: attackerRef.current,
+      selectedAttacker,
+    });
+
     // Determine defender index
     const defenderIndex = gameState.activePlayer === 0 ? 1 : 0;
+
+    const executeAttack = () => {
+      console.log("[DEBUG] executeAttack called:", {
+        hasAttackerRef: !!attackerRef.current,
+        hasDefenderElement: !!defenderElement,
+        selectedAttacker,
+        activePlayer: gameState.activePlayer,
+      });
+
+      // Only animate if it's the human player's turn (player 0) and we have both elements
+      if (
+        gameState.activePlayer === 0 &&
+        attackerRef.current &&
+        defenderElement
+      ) {
+        const attackerCard = player1.lanes[selectedAttacker];
+        if (attackerCard) {
+          console.log(
+            "[DEBUG] Triggering attack animation:",
+            attackerCard.name
+          );
+          // Store refs for animation then clear immediately to prevent re-triggers
+          const attackerElement = attackerRef.current;
+          attackerRef.current = null; // Clear immediately!
+
+          // Queue attack animation with callback to execute attack after animation
+          queueAttack(attackerCard, attackerElement, defenderElement, () => {
+            attack(gameState.activePlayer, selectedAttacker, targetLane);
+            dispatch(setSelectedAttacker(null));
+          });
+          return;
+        }
+      }
+      console.log("[DEBUG] No animation - executing attack immediately");
+      // No animation - execute attack immediately
+      // Clear refs
+      attackerRef.current = null;
+      attack(gameState.activePlayer, selectedAttacker, targetLane);
+      dispatch(setSelectedAttacker(null));
+    };
 
     // If defender is human (player 0) and they have face-down traps, prompt them
     const traps = engine?.getActivatableTraps(defenderIndex) || [];
@@ -661,17 +696,14 @@ export default function App() {
           onConfirm: () => {
             // Activate the trap (will resolve and be discarded)
             activateTrap(defenderIndex, trap.slot, { targetLane });
-
-            // Proceed with the attack after trap resolution
-            attack(gameState.activePlayer, selectedAttacker, targetLane);
-            dispatch(setSelectedAttacker(null));
             dispatch(closeModal());
+            // Proceed with the attack after trap resolution
+            executeAttack();
           },
           onCancel: () => {
-            // Don't activate trap, just proceed with attack
-            attack(gameState.activePlayer, selectedAttacker, targetLane);
-            dispatch(setSelectedAttacker(null));
             dispatch(closeModal());
+            // Don't activate trap, just proceed with attack
+            executeAttack();
           },
         })
       );
@@ -679,8 +711,7 @@ export default function App() {
     }
 
     // No trap prompt needed — proceed with attack
-    attack(gameState.activePlayer, selectedAttacker, targetLane);
-    dispatch(setSelectedAttacker(null));
+    executeAttack();
   };
 
   const handleEndTurn = () => {
@@ -801,7 +832,16 @@ export default function App() {
           isOpponent={true}
           isFirstTurn={gameState.turn === 1 && gameState.activePlayer === 0}
           selectedAttacker={selectedAttacker}
-          onAttack={handleAttack}
+          onAttack={(targetLane, defenderElement) => {
+            if (defenderElement) {
+              handleAttack(targetLane, defenderElement);
+            } else {
+              handleAttack(targetLane);
+            }
+          }}
+          onSetAttackerRef={(element) => {
+            attackerRef.current = element;
+          }}
           onCreatureDoubleClick={(lane) => handleCreatureDoubleClick(lane, 1)}
           onSupportDoubleClick={(slot) => handleSupportDoubleClick(slot, 1)}
           onActivateCreatureEffect={(lane) => {
@@ -821,11 +861,24 @@ export default function App() {
           onPlayCreature={handlePlayCreatureClick}
           onPlaySupport={handlePlaySupport}
           onActivateSupport={handleActivateSupport}
-          onActivateCreatureEffect={(lane) => {
-            if (activateCreatureEffect && engine)
-              activateCreatureEffect(0, lane);
+          onActivateCreatureEffect={(lane, element) => {
+            if (activateCreatureEffect && engine) {
+              // Queue animation if element is provided
+              const card = player1.lanes[lane];
+              if (element && card) {
+                queueActivation(card, element, () => {
+                  activateCreatureEffect(0, lane);
+                });
+              } else {
+                activateCreatureEffect(0, lane);
+              }
+            }
           }}
           onSelectAttacker={handleSelectAttacker}
+          onSetAttackerRef={(element) => {
+            console.log("[DEBUG] Setting attacker ref:", element);
+            attackerRef.current = element;
+          }}
           onToggleMode={handleToggleMode}
           onFlipFaceUp={handleFlipFaceUp}
           onCreatureDoubleClick={(lane) => handleCreatureDoubleClick(lane, 0)}
@@ -934,6 +987,25 @@ export default function App() {
         />
         <TargetSelectModal />
         <CardDetailModal />
+        {/* Activation Animation from Queue */}
+        {currentAnimation?.type === "activation" && (
+          <CardActivationEffect
+            card={currentAnimation.data.card}
+            isActivating={true}
+            originBounds={currentAnimation.data.originBounds}
+            onComplete={completeCurrentAnimation}
+          />
+        )}
+        {/* Attack Animation from Queue */}
+        {currentAnimation?.type === "attack" && (
+          <CardAttackAnimation
+            card={currentAnimation.data.card}
+            isAttacking={true}
+            attackerBounds={currentAnimation.data.attackerBounds}
+            defenderBounds={currentAnimation.data.defenderBounds}
+            onComplete={completeCurrentAnimation}
+          />
+        )}
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ interface PlayerBoardProps
       | "onFlipFaceUp"
       | "onActivateCreatureEffect"
       | "draggedCardId"
+      | "onSetAttackerRef"
     > {
   player: PlayerState;
   currentPlayerState?: PlayerState; // Pass to CreatureZone for checking attacker mode
@@ -48,6 +49,7 @@ export const PlayerBoard = ({
   onCreatureDoubleClick,
   onSupportDoubleClick,
   draggedCardId,
+  onSetAttackerRef,
   showPlayButtons = false,
 }: PlayerBoardProps) => {
   const SupportZoneComponent = useMemo(
@@ -95,6 +97,7 @@ export const PlayerBoard = ({
         onActivateCreatureEffect={onActivateCreatureEffect}
         draggedCardId={draggedCardId}
         showPlayButtons={showPlayButtons}
+        onSetAttackerRef={onSetAttackerRef}
       />
       {!isOpponent && SupportZoneComponent}
     </PlayerBoardContainer>

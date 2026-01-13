@@ -1,12 +1,6 @@
 import { useMemo } from "react";
 import backImage from "@/assets/card-back.png";
-import {
-  BackContainer,
-  BackImage,
-  BackCardName,
-  BackCardType,
-  BackModeBadge,
-} from "./Back.styles";
+import { BackContainer, BackImage, BackModeBadge } from "./Back.styles";
 
 interface BackProps {
   onClick?: () => void;
@@ -19,8 +13,6 @@ export const Back = ({ onClick, type }: BackProps) => {
   return (
     <BackContainer onClick={onClick} $type={type} $isCreature={isCreature}>
       <BackImage src={backImage} alt="Back of card" />
-      <BackCardName>???</BackCardName>
-      <BackCardType>FACE-DOWN</BackCardType>
       {isCreature && <BackModeBadge>Defense Mode!</BackModeBadge>}
     </BackContainer>
   );

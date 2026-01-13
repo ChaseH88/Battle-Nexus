@@ -2,19 +2,14 @@ import { ActionCard, CardType, SupportCard, TrapCard } from "../../../cards";
 import { PlayerState } from "../../../battle/PlayerState";
 import { Card } from "../Card";
 import { motion } from "framer-motion";
-import {
-  SupportZoneContainer,
-  SupportZoneTitle,
-  SupportSlots,
-  SupportSlot,
-  SupportActions,
-  FaceDownButton,
-} from "./SupportZone.styled";
+import { ZoneContainer, Lanes, Lane, FaceDownButton } from "./Zone.styles";
+import { SupportZoneTitle, SupportActions } from "./SupportZone.styled";
+import { useRef } from "react";
 
 export interface SupportZoneProps {
   player: PlayerState;
   selectedHandCard: string | null;
-  onActivateSupport?: (slot: number) => void;
+  onActivateSupport?: (slot: number, element: HTMLElement) => void;
   onPlaySupport?: (slot: number) => void;
   isOpponent?: boolean;
   onCardDoubleClick?: (slot: number) => void;
@@ -32,10 +27,12 @@ export const SupportZone = ({
   draggedCardId,
   showPlayButtons = false,
 }: SupportZoneProps) => {
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   return (
-    <SupportZoneContainer>
+    <ZoneContainer>
       <SupportZoneTitle />
-      <SupportSlots>
+      <Lanes>
         {player.support.map((card, i) => {
           const draggedCard = draggedCardId
             ? player.hand.find((c) => c.id === draggedCardId)
@@ -50,7 +47,8 @@ export const SupportZone = ({
               draggedCard.type === CardType.Trap);
 
           return (
-            <motion.div
+            <Lane
+              as={motion.div}
               key={i}
               data-drop-support={isDropTarget ? i : undefined}
               animate={{
@@ -65,9 +63,12 @@ export const SupportZone = ({
                 borderRadius: "8px",
               }}
             >
-              <SupportSlot
+              <div
                 data-testid={`support-slot-${i}`}
                 data-drop-support={isDropTarget ? i : undefined}
+                ref={(el) => {
+                  cardRefs.current[i] = el;
+                }}
               >
                 <div
                   data-drop-support={isDropTarget ? i : undefined}
@@ -89,7 +90,10 @@ export const SupportZone = ({
                                 | ActionCard
                                 | TrapCard;
                               if (!spellCard.isActive && onActivateSupport) {
-                                onActivateSupport(i);
+                                const element = cardRefs.current[i];
+                                if (element) {
+                                  onActivateSupport(i, element);
+                                }
                               }
                             }
                           }
@@ -131,11 +135,11 @@ export const SupportZone = ({
                       </SupportActions>
                     ) : null;
                   })()}
-              </SupportSlot>
-            </motion.div>
+              </div>
+            </Lane>
           );
         })}
-      </SupportSlots>
-    </SupportZoneContainer>
+      </Lanes>
+    </ZoneContainer>
   );
 };

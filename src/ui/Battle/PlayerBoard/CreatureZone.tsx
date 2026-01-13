@@ -3,6 +3,17 @@ import { CardType } from "../../../cards/types";
 import { CreatureCard } from "../../../cards/CreatureCard";
 import { Card } from "../Card";
 import { motion } from "framer-motion";
+import {
+  ZoneContainer,
+  Lanes,
+  Lane,
+  PlayHereButton,
+  AttackButton,
+  AttackDirectButton,
+  ToggleModeButton,
+  FlipButton,
+} from "./Zone.styles";
+import { useRef } from "react";
 
 export interface CreatureZoneProps {
   player: PlayerState;
@@ -13,13 +24,14 @@ export interface CreatureZoneProps {
   isFirstTurn?: boolean;
   onPlayCreature?: (lane: number) => void;
   onSelectAttacker?: (lane: number) => void;
-  onAttack?: (targetLane: number) => void;
+  onAttack?: (targetLane: number, defenderElement?: HTMLElement) => void;
   onToggleMode?: (lane: number) => void;
   onFlipFaceUp?: (lane: number) => void;
   onCardDoubleClick?: (lane: number) => void;
-  onActivateCreatureEffect?: (lane: number) => void; // New prop for activating creature effects
+  onActivateCreatureEffect?: (lane: number, element: HTMLElement) => void; // New prop for activating creature effects
   draggedCardId?: string | null; // Track what card is being dragged
   showPlayButtons?: boolean; // Show "Play Here" buttons for accessibility
+  onSetAttackerRef?: (element: HTMLElement | null) => void; // For attack animation
 }
 
 export const CreatureZone = ({
@@ -38,10 +50,14 @@ export const CreatureZone = ({
   onCardDoubleClick,
   onActivateCreatureEffect,
   draggedCardId,
+  onSetAttackerRef,
 }: CreatureZoneProps) => {
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const defenderRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   return (
-    <div className="creature-zone">
-      <div className="lanes">
+    <ZoneContainer>
+      <Lanes>
         {player.lanes.map((card, i) => {
           const draggedCard = draggedCardId
             ? player.hand.find((c) => c.id === draggedCardId)
@@ -54,9 +70,9 @@ export const CreatureZone = ({
             draggedCard.type === CardType.Creature;
 
           return (
-            <motion.div
+            <Lane
+              as={motion.div}
               key={i}
-              className="lane"
               data-testid={
                 isOpponent
                   ? `opponent-creature-lane-${i}`
@@ -79,6 +95,13 @@ export const CreatureZone = ({
                 data-drop-lane={isDropTarget ? i : undefined}
                 onDragStart={(e) => e.preventDefault()}
                 draggable={false}
+                ref={(el) => {
+                  cardRefs.current[i] = el;
+                  // If opponent board, store as defender ref
+                  if (isOpponent) {
+                    defenderRefs.current[i] = el;
+                  }
+                }}
               >
                 <Card
                   card={card}
@@ -92,8 +115,21 @@ export const CreatureZone = ({
                             creature.canActivateEffect &&
                             onActivateCreatureEffect
                           ) {
-                            onActivateCreatureEffect(i);
+                            const element = cardRefs.current[i];
+                            if (element) {
+                              onActivateCreatureEffect(i, element);
+                            }
                           } else if (!isFirstTurn && onSelectAttacker) {
+                            // Set the attacker ref when selecting
+                            const element = cardRefs.current[i];
+                            console.log("[DEBUG] Attacker selected:", {
+                              lane: i,
+                              element,
+                              hasOnSetAttackerRef: !!onSetAttackerRef,
+                            });
+                            if (element && onSetAttackerRef) {
+                              onSetAttackerRef(element);
+                            }
                             onSelectAttacker(i);
                           }
                         }
@@ -139,16 +175,27 @@ export const CreatureZone = ({
                   // If this lane has a creature, always show attack button
                   if (card) {
                     return (
-                      <button
-                        className="attack-here"
+                      <AttackButton
                         data-testid={`attack-button-lane-${i}`}
-                        onClick={() => onAttack(i)}
+                        onClick={() => {
+                          const defenderElement = defenderRefs.current[i];
+                          console.log("[DEBUG] Attack button clicked:", {
+                            lane: i,
+                            defenderElement,
+                            defenderRefsArray: defenderRefs.current,
+                          });
+                          if (defenderElement) {
+                            onAttack(i, defenderElement);
+                          } else {
+                            onAttack(i);
+                          }
+                        }}
                         disabled={isFirstTurn}
                       >
                         {isFirstTurn
                           ? "Cannot Attack (Turn 1)"
                           : "Attack Creature"}
-                      </button>
+                      </AttackButton>
                     );
                   }
 
@@ -156,8 +203,7 @@ export const CreatureZone = ({
                   // AND this is the first empty lane (to avoid multiple direct attack buttons)
                   if (!opponentHasCreatures && i === 0) {
                     return (
-                      <button
-                        className="attack-here attack-direct"
+                      <AttackDirectButton
                         data-testid="attack-button"
                         onClick={() => onAttack(i)}
                         disabled={isFirstTurn}
@@ -165,7 +211,7 @@ export const CreatureZone = ({
                         {isFirstTurn
                           ? "Cannot Attack (Turn 1)"
                           : "Attack Directly"}
-                      </button>
+                      </AttackDirectButton>
                     );
                   }
 
@@ -176,8 +222,7 @@ export const CreatureZone = ({
               {!isOpponent && card && card.type === CardType.Creature && (
                 <>
                   {onToggleMode && (
-                    <button
-                      className="toggle-mode-btn"
+                    <ToggleModeButton
                       onClick={() => onToggleMode(i)}
                       disabled={(card as CreatureCard).hasChangedModeThisTurn}
                       title={
@@ -188,15 +233,12 @@ export const CreatureZone = ({
                     >
                       Switch Mode
                       {(card as CreatureCard).hasChangedModeThisTurn && " ✓"}
-                    </button>
+                    </ToggleModeButton>
                   )}
                   {onFlipFaceUp && (card as CreatureCard).isFaceDown && (
-                    <button
-                      className="flip-btn"
-                      onClick={() => onFlipFaceUp(i)}
-                    >
+                    <FlipButton onClick={() => onFlipFaceUp(i)}>
                       Flip Face-Up
-                    </button>
+                    </FlipButton>
                   )}
                 </>
               )}
@@ -212,19 +254,18 @@ export const CreatureZone = ({
                     (c) => c.id === selectedHandCard
                   );
                   return handCard?.type === CardType.Creature ? (
-                    <button
-                      className="play-here"
+                    <PlayHereButton
                       data-testid={`play-creature-lane-${i}`}
                       onClick={() => onPlayCreature(i)}
                     >
                       Play Here
-                    </button>
+                    </PlayHereButton>
                   ) : null;
                 })()}
-            </motion.div>
+            </Lane>
           );
         })}
-      </div>
-    </div>
+      </Lanes>
+    </ZoneContainer>
   );
 };
