@@ -6,10 +6,10 @@ import { createTestGame, drawMany } from "@/__tests__/testUtils";
 
 /**
  * Void Wisp Boost Effect Tests
- * Tests the void_wisp_boost effect: Target Fire creature gains +200 ATK
+ * Tests the void_wisp_boost effect: Target Fire creature gains +20 ATK
  */
 describe("Effect: void_wisp_boost", () => {
-  it("boosts target Fire creature by +200 ATK", () => {
+  it("boosts target Fire creature by +20 ATK", () => {
     const { p1, game, engine } = createTestGame();
 
     // Give players momentum to play cards
@@ -41,8 +41,8 @@ describe("Effect: void_wisp_boost", () => {
         utils: createEffectUtils(game, engine),
       });
 
-      // Should have boosted ATK by 200
-      expect(playedCreature.atk).toBe(initialAtk + 200);
+      // Should have boosted ATK by 20
+      expect(playedCreature.atk).toBe(initialAtk + 20);
     }
   });
 
@@ -84,7 +84,7 @@ describe("Effect: void_wisp_boost", () => {
 
       // Only creature in lane 1 should be boosted
       expect(creature0.atk).toBe(initialAtk0);
-      expect(creature1.atk).toBe(initialAtk1 + 200);
+      expect(creature1.atk).toBe(initialAtk1 + 20);
     }
   });
 
@@ -240,7 +240,7 @@ describe("Effect: void_wisp_boost", () => {
 
       const addedEffect = game.activeEffects[initialEffectsCount];
       expect(addedEffect.name).toBe("Void Boost");
-      expect(addedEffect.statModifiers?.atk).toBe(200);
+      expect(addedEffect.statModifiers?.atk).toBe(20);
     }
   });
 
@@ -276,7 +276,7 @@ describe("Effect: void_wisp_boost", () => {
       });
 
       // Should have boosted ATK
-      expect(playedCreature.atk).toBe(initialAtk + 200);
+      expect(playedCreature.atk).toBe(initialAtk + 20);
     }
   });
 
@@ -322,7 +322,7 @@ describe("Effect: void_wisp_boost", () => {
       });
 
       // P1's creature should be boosted, P2's should not
-      expect(p1Creature.atk).toBe(p1InitialAtk + 200);
+      expect(p1Creature.atk).toBe(p1InitialAtk + 20);
       expect(p2Creature.atk).toBe(p2InitialAtk);
     }
   });

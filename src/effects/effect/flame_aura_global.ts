@@ -2,7 +2,7 @@ import { EffectContext } from "@effects/handler";
 
 /**
  * Effect Handler for Flame Aura Global
- * Gives +100 ATK to all Fire creatures permanently (global effect)
+ * Gives +10 ATK to all Fire creatures permanently (global effect)
  * This effect persists even after the source action card is sent to the discard pile
  */
 export const flame_aura_global = (ctx: EffectContext) => {
@@ -10,7 +10,7 @@ export const flame_aura_global = (ctx: EffectContext) => {
   const fireCreatures = ctx.utils.filterByAffinity(allies, "FIRE");
 
   fireCreatures.forEach((creature) => {
-    ctx.utils.modifyCreatureStats(creature, 100, undefined);
+    ctx.utils.modifyCreatureStats(creature, 10, undefined);
   });
 
   // Add as permanent global effect with tracking
@@ -24,13 +24,13 @@ export const flame_aura_global = (ctx: EffectContext) => {
     ctx.sourceCard,
     ctx.ownerIndex,
     undefined, // permanent
-    "+100 ATK to all Fire creatures",
+    "+10 ATK to all Fire creatures",
     affectedCardIds,
-    { atk: 100 },
+    { atk: 10 },
     true // mark as global effect
   );
 
   ctx.utils.log(
-    `${ctx.sourceCard.name}: All Fire creatures gain +100 ATK permanently!`
+    `${ctx.sourceCard.name}: All Fire creatures gain +10 ATK permanently!`
   );
 };

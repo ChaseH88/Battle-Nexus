@@ -3,7 +3,7 @@ import { getOpponentIndex } from "../../battle/GameState";
 
 /**
  * direct_burn_damage
- * Deal 300 damage directly to opponent, or 500 if you control a Fire creature
+ * Deal 30 damage directly to opponent, or 50 if you control a Fire creature
  */
 export const direct_burn_damage: EffectHandler = ({
   state,
@@ -19,7 +19,7 @@ export const direct_burn_damage: EffectHandler = ({
     (creature) => creature !== null && creature.affinity === "FIRE"
   );
 
-  const damage = hasFireCreature ? 500 : 300;
+  const damage = hasFireCreature ? 50 : 30;
 
   // Deal damage to opponent
   opponent.lifePoints -= damage;

@@ -19,9 +19,9 @@ describe("Call Home Effect", () => {
       name: "Test Creature 1",
       cost: 2,
       affinity: Affinity.Fire,
-      atk: 100,
-      def: 100,
-      hp: 200,
+      atk: 10,
+      def: 10,
+      hp: 40,
     });
 
     const creature2 = createTestCreature({
@@ -29,8 +29,8 @@ describe("Call Home Effect", () => {
       name: "Test Creature 2",
       cost: 3,
       affinity: Affinity.Water,
-      atk: 150,
-      def: 150,
+      atk: 10,
+      def: 10,
       hp: 250,
     });
 
@@ -39,9 +39,9 @@ describe("Call Home Effect", () => {
       name: "Test Creature 3",
       cost: 4,
       affinity: Affinity.Grass,
-      atk: 200,
-      def: 200,
-      hp: 300,
+      atk: 20,
+      def: 20,
+      hp: 30,
     });
 
     const callHomeCard = createTestAction({
@@ -226,9 +226,9 @@ describe("Call Home Effect", () => {
 
     // Damage the creature
     const originalHp = targetCreature.hp;
-    targetCreature.currentHp = 50; // originally 200
+    targetCreature.currentHp = 5; // originally 20
 
-    expect(targetCreature.currentHp).toBe(50);
+    expect(targetCreature.currentHp).toBe(5);
     expect(targetCreature.hp).toBe(originalHp);
 
     callHomeHandler({

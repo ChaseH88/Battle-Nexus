@@ -14,9 +14,9 @@ describe("BattleEngine – Win Conditions", () => {
     const p1 = createPlayerState("P1", createTestDeck1());
     const p2 = createPlayerState("P2", createTestDeck2());
 
-    // Initial life points should be 2000
-    expect(p1.lifePoints).toBe(2000);
-    expect(p2.lifePoints).toBe(2000);
+    // Initial life points should be 200
+    expect(p1.lifePoints).toBe(200);
+    expect(p2.lifePoints).toBe(200);
   });
 
   it("initializes with no winner", () => {

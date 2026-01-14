@@ -192,10 +192,10 @@ describe("Effects – Handler", () => {
       const initialDef = playedCreature.def;
 
       const utils = createEffectUtils(game, engine);
-      utils.modifyCreatureStats(playedCreature, 100, 50);
+      utils.modifyCreatureStats(playedCreature, 10, 5);
 
-      expect(playedCreature.atk).toBe(initialAtk + 100);
-      expect(playedCreature.def).toBe(initialDef + 50);
+      expect(playedCreature.atk).toBe(initialAtk + 10);
+      expect(playedCreature.def).toBe(initialDef + 5);
     }
   });
 

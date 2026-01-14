@@ -167,10 +167,10 @@ describe("BattleEngine – Support Card Lifecycle", () => {
         type: CardType.Creature,
         name: "Fire Creature",
         affinity: "FIRE",
-        atk: 200,
-        def: 200,
-        hp: 500,
-        currentHp: 500,
+        atk: 20,
+        def: 20,
+        hp: 50,
+        currentHp: 50,
       }) as CreatureCard;
 
       p1.hand.push(fireCreature);
@@ -196,10 +196,10 @@ describe("BattleEngine – Support Card Lifecycle", () => {
         id: "attacker1",
         type: CardType.Creature,
         name: "Strong Attacker",
-        atk: 600,
-        def: 300,
-        hp: 800,
-        currentHp: 800,
+        atk: 60,
+        def: 30,
+        hp: 80,
+        currentHp: 80,
       }) as CreatureCard;
 
       engine.endTurn(); // P2's turn
@@ -234,16 +234,16 @@ describe("BattleEngine – Support Card Lifecycle", () => {
         type: CardType.Creature,
         name: "Fire Creature",
         affinity: "FIRE",
-        atk: 200,
-        def: 200,
-        hp: 500,
-        currentHp: 500,
+        atk: 20,
+        def: 20,
+        hp: 50,
+        currentHp: 50,
       }) as CreatureCard;
 
       p1.hand.push(fireCreature);
       engine.playCreature(0, 0, fireCreature.id, false, "ATTACK");
 
-      // P1 plays targeted support (boosts ATK +200)
+      // P1 plays targeted support (boosts ATK +20)
       const targetedSupport = cardFactory({
         id: "ignite_burst",
         type: CardType.Support,
@@ -260,7 +260,7 @@ describe("BattleEngine – Support Card Lifecycle", () => {
 
       // Creature should have boosted ATK
       const boostedAtk = (p1.lanes[0] as CreatureCard).atk;
-      expect(boostedAtk).toBe(initialAtk + 200);
+      expect(boostedAtk).toBe(initialAtk + 20);
 
       // Should have an active effect
       const activeEffectsForSupport = engine.state.activeEffects.filter(
@@ -273,10 +273,10 @@ describe("BattleEngine – Support Card Lifecycle", () => {
         id: "attacker1",
         type: CardType.Creature,
         name: "Strong Attacker",
-        atk: 600,
-        def: 300,
-        hp: 800,
-        currentHp: 800,
+        atk: 60,
+        def: 30,
+        hp: 80,
+        currentHp: 80,
       }) as CreatureCard;
 
       engine.endTurn();
@@ -313,10 +313,10 @@ describe("BattleEngine – Support Card Lifecycle", () => {
         type: CardType.Creature,
         name: "Fire Creature 1",
         affinity: "FIRE",
-        atk: 200,
-        def: 200,
-        hp: 500,
-        currentHp: 500,
+        atk: 20,
+        def: 20,
+        hp: 50,
+        currentHp: 50,
       }) as CreatureCard;
 
       const fireCreature2 = cardFactory({
@@ -324,10 +324,10 @@ describe("BattleEngine – Support Card Lifecycle", () => {
         type: CardType.Creature,
         name: "Fire Creature 2",
         affinity: "FIRE",
-        atk: 300,
-        def: 300,
-        hp: 600,
-        currentHp: 600,
+        atk: 30,
+        def: 30,
+        hp: 60,
+        currentHp: 60,
       }) as CreatureCard;
 
       p1.hand.push(fireCreature1, fireCreature2);
@@ -355,10 +355,10 @@ describe("BattleEngine – Support Card Lifecycle", () => {
         id: "attacker1",
         type: CardType.Creature,
         name: "Attacker",
-        atk: 700,
-        def: 300,
-        hp: 800,
-        currentHp: 800,
+        atk: 70,
+        def: 30,
+        hp: 80,
+        currentHp: 80,
       }) as CreatureCard;
 
       engine.endTurn();

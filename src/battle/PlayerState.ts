@@ -26,7 +26,7 @@ export function createPlayerState(
 ): PlayerState {
   return {
     id,
-    lifePoints: 2000,
+    lifePoints: 200,
     momentum: 0, // Start at 0 momentum
     deck: [...deck],
     hand: [],

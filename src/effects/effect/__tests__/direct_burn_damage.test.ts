@@ -8,7 +8,7 @@ import { CardType, CreatureCard } from "@cards";
  * Tests the direct_burn_damage effect (Blazing Strike)
  */
 describe("Effect: direct_burn_damage", () => {
-  it("deals 300 damage to opponent when no Fire creatures are controlled", () => {
+  it("deals 30 damage to opponent when no Fire creatures are controlled", () => {
     const { p2, game, engine } = createTestGame();
 
     const initialLP = p2.lifePoints;
@@ -28,11 +28,11 @@ describe("Effect: direct_burn_damage", () => {
       utils: createEffectUtils(game, engine),
     });
 
-    // Should deal 300 damage
-    expect(p2.lifePoints).toBe(initialLP - 300);
+    // Should deal 30 damage
+    expect(p2.lifePoints).toBe(initialLP - 30);
   });
 
-  it("deals 500 damage to opponent when controlling a Fire creature", () => {
+  it("deals 50 damage to opponent when controlling a Fire creature", () => {
     const { p1, p2, game, engine } = createTestGame();
 
     const initialLP = p2.lifePoints;
@@ -43,9 +43,9 @@ describe("Effect: direct_burn_damage", () => {
       type: CardType.Creature,
       name: "Fire Beast",
       affinity: "FIRE",
-      atk: 200,
-      def: 150,
-      hp: 600,
+      atk: 20,
+      def: 15,
+      hp: 60,
     }) as CreatureCard;
     p1.lanes[0] = fireCreature;
 
@@ -65,8 +65,8 @@ describe("Effect: direct_burn_damage", () => {
       utils: createEffectUtils(game, engine),
     });
 
-    // Should deal 500 damage
-    expect(p2.lifePoints).toBe(initialLP - 500);
+    // Should deal 50 damage
+    expect(p2.lifePoints).toBe(initialLP - 50);
   });
 
   it("checks all lanes for Fire creatures", () => {
@@ -80,9 +80,9 @@ describe("Effect: direct_burn_damage", () => {
       type: CardType.Creature,
       name: "Fire Beast",
       affinity: "FIRE",
-      atk: 200,
-      def: 150,
-      hp: 600,
+      atk: 20,
+      def: 15,
+      hp: 60,
     }) as CreatureCard;
     p1.lanes[2] = fireCreature;
 
@@ -102,8 +102,8 @@ describe("Effect: direct_burn_damage", () => {
       utils: createEffectUtils(game, engine),
     });
 
-    // Should deal 500 damage (found Fire creature in lane 2)
-    expect(p2.lifePoints).toBe(initialLP - 500);
+    // Should deal 50 damage (found Fire creature in lane 2)
+    expect(p2.lifePoints).toBe(initialLP - 50);
   });
 
   it("only checks controlling player's creatures, not opponent's", () => {
@@ -117,9 +117,9 @@ describe("Effect: direct_burn_damage", () => {
       type: CardType.Creature,
       name: "Fire Beast",
       affinity: "FIRE",
-      atk: 200,
-      def: 150,
-      hp: 600,
+      atk: 20,
+      def: 15,
+      hp: 60,
     }) as CreatureCard;
     p2.lanes[0] = fireCreature;
 
@@ -139,8 +139,8 @@ describe("Effect: direct_burn_damage", () => {
       utils: createEffectUtils(game, engine),
     });
 
-    // Should deal 300 damage (opponent's Fire creature doesn't count)
-    expect(p2.lifePoints).toBe(initialLP - 300);
+    // Should deal 30 damage (opponent's Fire creature doesn't count)
+    expect(p2.lifePoints).toBe(initialLP - 30);
   });
 
   it("deals bonus damage with multiple Fire creatures", () => {
@@ -154,18 +154,18 @@ describe("Effect: direct_burn_damage", () => {
       type: CardType.Creature,
       name: "Fire Beast 1",
       affinity: "FIRE",
-      atk: 200,
-      def: 150,
-      hp: 600,
+      atk: 20,
+      def: 15,
+      hp: 60,
     }) as CreatureCard;
     const fireCreature2 = cardFactory({
       id: "fire_creature_2",
       type: CardType.Creature,
       name: "Fire Beast 2",
       affinity: "FIRE",
-      atk: 300,
-      def: 200,
-      hp: 800,
+      atk: 30,
+      def: 20,
+      hp: 80,
     }) as CreatureCard;
 
     p1.lanes[0] = fireCreature1;
@@ -187,8 +187,8 @@ describe("Effect: direct_burn_damage", () => {
       utils: createEffectUtils(game, engine),
     });
 
-    // Should still deal 500 damage (not scaled by count)
-    expect(p2.lifePoints).toBe(initialLP - 500);
+    // Should still deal 50 damage (not scaled by count)
+    expect(p2.lifePoints).toBe(initialLP - 50);
   });
 
   it("works with mixed affinity creatures (Fire + Water)", () => {
@@ -202,18 +202,18 @@ describe("Effect: direct_burn_damage", () => {
       type: CardType.Creature,
       name: "Fire Beast",
       affinity: "FIRE",
-      atk: 200,
-      def: 150,
-      hp: 600,
+      atk: 20,
+      def: 15,
+      hp: 60,
     }) as CreatureCard;
     const waterCreature = cardFactory({
       id: "water_creature",
       type: CardType.Creature,
       name: "Water Beast",
       affinity: "WATER",
-      atk: 150,
-      def: 250,
-      hp: 700,
+      atk: 15,
+      def: 25,
+      hp: 70,
     }) as CreatureCard;
 
     p1.lanes[0] = fireCreature;
@@ -235,8 +235,8 @@ describe("Effect: direct_burn_damage", () => {
       utils: createEffectUtils(game, engine),
     });
 
-    // Should deal 500 damage (has at least one Fire creature)
-    expect(p2.lifePoints).toBe(initialLP - 500);
+    // Should deal 50 damage (has at least one Fire creature)
+    expect(p2.lifePoints).toBe(initialLP - 50);
   });
 
   it("logs the damage dealt", () => {

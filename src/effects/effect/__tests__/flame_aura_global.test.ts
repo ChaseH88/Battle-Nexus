@@ -6,7 +6,7 @@ import { createTestGame, drawMany } from "@/__tests__/testUtils";
 
 /**
  * Flame Aura Global Effect Tests
- * Tests the flame_aura_global effect: All Fire creatures gain +100 ATK permanently
+ * Tests the flame_aura_global effect: All Fire creatures gain +10 ATK permanently
  */
 describe("Effect: flame_aura_global", () => {
   it("boosts ATK of all Fire creatures permanently", () => {
@@ -42,7 +42,7 @@ describe("Effect: flame_aura_global", () => {
       });
 
       // Should have boosted ATK
-      expect(playedCreature.atk).toBe(initialAtk + 100);
+      expect(playedCreature.atk).toBe(initialAtk + 10);
     }
   });
 
@@ -88,7 +88,7 @@ describe("Effect: flame_aura_global", () => {
       // Water creature should not be boosted
       expect(playedWater.atk).toBe(waterInitialAtk);
       // Fire creature should be boosted
-      expect(playedFire.atk).toBe(fireInitialAtk + 100);
+      expect(playedFire.atk).toBe(fireInitialAtk + 10);
     }
   });
 
@@ -163,8 +163,8 @@ describe("Effect: flame_aura_global", () => {
       });
 
       // Both should be boosted
-      expect(creature1.atk).toBe(initialAtk1 + 100);
-      expect(creature2.atk).toBe(initialAtk2 + 100);
+      expect(creature1.atk).toBe(initialAtk1 + 10);
+      expect(creature2.atk).toBe(initialAtk2 + 10);
     }
   });
 
@@ -203,7 +203,7 @@ describe("Effect: flame_aura_global", () => {
       const addedEffect = game.activeEffects[initialEffectsCount];
       expect(addedEffect.name).toBe("Flame Aura");
       expect(addedEffect.isGlobal).toBe(true);
-      expect(addedEffect.statModifiers?.atk).toBe(100);
+      expect(addedEffect.statModifiers?.atk).toBe(10);
     }
   });
 
@@ -239,7 +239,7 @@ describe("Effect: flame_aura_global", () => {
 
       // Wait a moment to ensure unique timestamp
       const firstAtk = playedCreature.atk;
-      expect(firstAtk).toBe(initialAtk + 100);
+      expect(firstAtk).toBe(initialAtk + 10);
 
       // Execute again
       flame_aura_global({
@@ -251,8 +251,8 @@ describe("Effect: flame_aura_global", () => {
         utils: createEffectUtils(game, engine),
       });
 
-      // Should stack (another +100)
-      expect(playedCreature.atk).toBe(initialAtk + 200);
+      // Should stack (another +10)
+      expect(playedCreature.atk).toBe(initialAtk + 20);
     }
   });
 
@@ -297,7 +297,7 @@ describe("Effect: flame_aura_global", () => {
       });
 
       // P1's creature should be boosted, P2's should not
-      expect(p1Creature.atk).toBe(p1InitialAtk + 100);
+      expect(p1Creature.atk).toBe(p1InitialAtk + 10);
       expect(p2Creature.atk).toBe(p2InitialAtk);
     }
   });

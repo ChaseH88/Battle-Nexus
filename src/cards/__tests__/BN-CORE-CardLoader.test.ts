@@ -41,7 +41,7 @@ describe("cards.json loader", () => {
     const emberCub = instances.find(
       (c) => c.id === "ember_cub"
     ) as CreatureCard;
-    expect(emberCub.atk).toBe(150); // Updated from balance changes
+    expect(emberCub.atk).toBe(10); // Pokémon TCG-style balance: clean multiples of 10
     expect(emberCub.affinity).toBeDefined();
   });
 });

@@ -5,7 +5,7 @@ import { Affinity } from "@cards";
 
 /**
  * Ignite Burst Effect
- * Boosts a Fire creature with +200 ATK
+ * Boosts a Fire creature with +20 ATK
  *
  * Handler function with metadata as static properties
  */
@@ -47,8 +47,8 @@ export const boost_fire_atk = (ctx: EffectContext) => {
   }
 
   // Apply persistent ATK boost
-  ctx.utils.modifyCreatureStats(target, 200, undefined);
-  ctx.utils.log(`  ${(target as any).name} gained +200 ATK`);
+  ctx.utils.modifyCreatureStats(target, 20, undefined);
+  ctx.utils.log(`  ${(target as any).name} gained +20 ATK`);
 
   // Track as an active persistent effect while the source card remains
   ctx.utils.addActiveEffect(
@@ -67,7 +67,7 @@ export const boost_fire_atk = (ctx: EffectContext) => {
 boost_fire_atk.metadata = {
   id: "boost_fire_atk",
   name: "Ignite Burst",
-  description: "+200 ATK and IGNITE to target Fire creature",
+  description: "+20 ATK and IGNITE to target Fire creature",
 
   canActivate: (state: GameState, ownerIndex: 0 | 1) => {
     const player = state.players[ownerIndex];

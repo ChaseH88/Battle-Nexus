@@ -68,9 +68,9 @@ describe("BattleEngine – Effect System", () => {
       name: "Test Attacker",
       description: "Test creature with ON_ATTACK effect",
       cost: 1,
-      atk: 300,
-      def: 200,
-      hp: 800,
+      atk: 30,
+      def: 20,
+      hp: 80,
       affinity: Affinity.Fire,
       onAttackEffectId: "battle_rage", // ON_ATTACK effect that draws a card
       rarity: "C",

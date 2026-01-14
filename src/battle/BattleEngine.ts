@@ -962,7 +962,7 @@ export class BattleEngine {
           this.log(
             `⚡ PIERCING DAMAGE! ${piercingDamage} excess damage dealt to ${opponent.id}'s Life Points!`
           );
-          this.log(`${opponent.id} Life Points: ${opponent.lifePoints}/2000`);
+          this.log(`${opponent.id} Life Points: ${opponent.lifePoints}/200`);
 
           // Check for victory by reducing life points to 0
           if (opponent.lifePoints <= 0 && this.state.winnerIndex === null) {

@@ -35,18 +35,18 @@ describe("BattleEngine – Momentum System", () => {
 
   beforeEach(() => {
     const p1Deck = [
-      createTestCreature("c1", "Weak Fighter", 1, 100, 50, 500),
-      createTestCreature("c2", "Medium Fighter", 3, 200, 100, 800),
-      createTestCreature("c3", "Strong Fighter", 5, 300, 150, 1200),
+      createTestCreature("c1", "Weak Fighter", 1, 10, 5, 50),
+      createTestCreature("c2", "Medium Fighter", 3, 20, 10, 80),
+      createTestCreature("c3", "Strong Fighter", 5, 30, 15, 120),
     ];
     const p2Deck = [
-      createTestCreature("c4", "Enemy Weak", 1, 80, 40, 400),
-      createTestCreature("c5", "Enemy Medium", 3, 180, 90, 700),
-      createTestCreature("c6", "Enemy Strong", 5, 280, 140, 1100),
+      createTestCreature("c4", "Enemy Weak", 1, 8, 4, 40),
+      createTestCreature("c5", "Enemy Medium", 3, 18, 9, 70),
+      createTestCreature("c6", "Enemy Strong", 5, 28, 14, 110),
     ];
 
     const p1MaxDeck = [
-      createTestCreature("max1", "MAX Fighter", 5, 500, 250, 2000, true),
+      createTestCreature("max1", "MAX Fighter", 5, 50, 25, 200, true),
     ];
 
     state = {

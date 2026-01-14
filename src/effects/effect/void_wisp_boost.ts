@@ -5,7 +5,7 @@ import { Affinity } from "@cards";
 
 /**
  * Void Wisp Boost Effect
- * Boosts a Fire creature with +200 ATK (one-time activation)
+ * Boosts a Fire creature with +20 ATK (one-time activation)
  *
  * Handler function with metadata as static properties
  */
@@ -36,9 +36,9 @@ export const void_wisp_boost = (ctx: EffectContext) => {
   }
 
   // Apply persistent ATK boost
-  ctx.utils.modifyCreatureStats(target, 200, undefined);
+  ctx.utils.modifyCreatureStats(target, 20, undefined);
   ctx.utils.log(
-    `  ${(target as any).name} gained +200 ATK from ${ctx.sourceCard.name}`
+    `  ${(target as any).name} gained +20 ATK from ${ctx.sourceCard.name}`
   );
 
   // Track as an active persistent effect (permanent boost, not tied to source card staying on field)
@@ -48,9 +48,9 @@ export const void_wisp_boost = (ctx: EffectContext) => {
     ctx.sourceCard,
     ctx.ownerIndex,
     undefined, // permanent
-    "+200 ATK",
+    "+20 ATK",
     [(target as any).id],
-    { atk: 200 }
+    { atk: 20 }
   );
 };
 
@@ -58,7 +58,7 @@ export const void_wisp_boost = (ctx: EffectContext) => {
 void_wisp_boost.metadata = {
   id: "void_wisp_boost",
   name: "Void Boost",
-  description: "+200 ATK to target Fire creature (one-time activation)",
+  description: "+20 ATK to target Fire creature (one-time activation)",
 
   canActivate: (state: GameState, ownerIndex: 0 | 1) => {
     const player = state.players[ownerIndex];

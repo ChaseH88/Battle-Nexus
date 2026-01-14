@@ -10,7 +10,7 @@ import { createTestGame, drawMany } from "@/__tests__/testUtils";
  * Now only boosts Fire creature ATK
  */
 describe("Effect: boost_fire_atk", () => {
-  it("boosts Fire creature ATK by +200", () => {
+  it("boosts Fire creature ATK by +20", () => {
     const { p1, game, engine } = createTestGame();
 
     // Give players momentum to play cards
@@ -39,8 +39,8 @@ describe("Effect: boost_fire_atk", () => {
         utils: createEffectUtils(game, engine),
       });
 
-      // Should have +200 ATK
-      expect(creature.atk).toBe(initialAtk + 200);
+      // Should have +20 ATK
+      expect(creature.atk).toBe(initialAtk + 20);
     }
   });
 
@@ -84,7 +84,7 @@ describe("Effect: boost_fire_atk", () => {
 
       // Only creature in lane 1 should be boosted
       expect(creature0.atk).toBe(atk0);
-      expect(creature1.atk).toBe(atk1 + 200);
+      expect(creature1.atk).toBe(atk1 + 20);
     }
   });
 
@@ -159,7 +159,7 @@ describe("Effect: boost_fire_atk", () => {
       });
 
       // Highest ATK creature should be boosted
-      expect(higherAtkCreature.atk).toBe(initialAtk + 200);
+      expect(higherAtkCreature.atk).toBe(initialAtk + 20);
     }
   });
 

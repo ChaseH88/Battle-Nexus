@@ -42,7 +42,7 @@ describe("Effect: fire_atk_boost_aura", () => {
       });
 
       // Should have boosted ATK
-      expect(playedCreature.atk).toBe(initialAtk + 100);
+      expect(playedCreature.atk).toBe(initialAtk + 10);
     }
   });
 
@@ -88,7 +88,7 @@ describe("Effect: fire_atk_boost_aura", () => {
       // Water creature should not be boosted
       expect(playedWater.atk).toBe(waterInitialAtk);
       // Fire creature should be boosted
-      expect(playedFire.atk).toBe(fireInitialAtk + 100);
+      expect(playedFire.atk).toBe(fireInitialAtk + 10);
     }
   });
 
@@ -166,8 +166,8 @@ describe("Effect: fire_atk_boost_aura", () => {
       });
 
       // Both should be boosted
-      expect(creature1.atk).toBe(atk1 + 100);
-      expect(creature2.atk).toBe(atk2 + 100);
+      expect(creature1.atk).toBe(atk1 + 10);
+      expect(creature2.atk).toBe(atk2 + 10);
     }
   });
 
