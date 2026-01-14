@@ -11,6 +11,7 @@ import { mirror_force } from "./effect/mirror_force";
 import { direct_burn_damage } from "./effect/direct_burn_damage";
 import { quick_assessment } from "./effect/quick_assessment";
 import { battle_rage } from "./effect/battle_rage";
+import { callHomeHandler } from "./effect/call_home";
 
 /**
  * Effect Context - provides access to all game state and utility functions
@@ -289,6 +290,7 @@ export const effectHandlers: Record<string, EffectHandler> = {
   direct_burn_damage,
   quick_assessment,
   battle_rage,
+  call_home: callHomeHandler,
 };
 
 /**

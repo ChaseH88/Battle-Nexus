@@ -2,6 +2,7 @@ import { GameState } from "../battle/GameState";
 import { ActivationRequirement, TargetingConfig } from "./types";
 import { purge_opponent_support } from "./effect/purge_opponent_support";
 import { boost_fire_atk } from "./effect/boost_fire_atk";
+import { callHomeHandler } from "./effect/call_home";
 
 /**
  * Centralized Effect Metadata
@@ -55,6 +56,7 @@ export interface EffectMetadata {
 export const effectMetadata: Record<string, EffectMetadata> = {
   purge_opponent_support: purge_opponent_support.metadata!,
   boost_fire_atk: boost_fire_atk.metadata!,
+  call_home: callHomeHandler.metadata!,
 
   // Add new effects here
 };
