@@ -23,7 +23,8 @@
     "hp": 50,
     "affinity": "WATER",
     "rarity": "C",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "riptide_pixie.jpg"
   },
   {
     "id": "mossback_scarab",
@@ -36,7 +37,8 @@
     "hp": 60,
     "affinity": "GRASS",
     "rarity": "C",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "mossback_scarab.jpg"
   },
   {
     "id": "lumen_sprite",
@@ -49,7 +51,8 @@
     "hp": 50,
     "affinity": "LIGHT",
     "rarity": "C",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "lumen_sprite.jpg"
   },
   {
     "id": "inferno_lion",
@@ -252,7 +255,8 @@
     "speed": "NORMAL",
     "effectId": "call_home",
     "rarity": "C",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "call_home.jpg"
   },
   {
     "id": "flame_spark",
@@ -362,7 +366,8 @@
     "speed": "NORMAL",
     "effectId": "fusion_drive",
     "rarity": "R",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "fusiondrive.jpg"
   },
   {
     "id": "inferno_detonation",

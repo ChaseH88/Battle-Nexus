@@ -13,9 +13,11 @@ import psychicAffinity from "@assets/affinity/psychic.png";
 import { Affinity } from "@cards";
 import { useCallback } from "react";
 import { Cost } from "./Common/Cost";
+import { CardImage } from "./CardImage";
 
 type CreatureProps = Pick<
   CreatureCard,
+  | "id"
   | "mode"
   | "isAtkModified"
   | "isDefModified"
@@ -31,9 +33,11 @@ type CreatureProps = Pick<
   | "name"
   | "type"
   | "cost"
+  | "image"
 >;
 
 export const Creature = ({
+  id,
   mode,
   isAtkModified,
   isDefModified,
@@ -49,6 +53,7 @@ export const Creature = ({
   name,
   type,
   cost,
+  image,
 }: CreatureProps) => {
   const getAffinityIcon = useCallback((affinity: Affinity) => {
     switch (affinity) {
@@ -80,7 +85,13 @@ export const Creature = ({
   return (
     <article
       className="creature-card-details"
-      style={{ width: 160, height: 253, fontSize: "11px", padding: "8px" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        fontSize: "11px",
+        padding: "8px",
+        boxSizing: "border-box",
+      }}
     >
       <div>
         <Cost cost={cost} affinity={affinity} />
@@ -108,14 +119,7 @@ export const Creature = ({
       >
         {mode === "ATTACK" ? "⚔️ ATTACK" : "🛡️ DEFENSE"}
       </div>
-      <div
-        style={{
-          height: 80,
-          width: 80,
-          background: "white",
-          margin: "4px auto",
-        }}
-      />
+      <CardImage card={{ id, name, image }} width={80} height={80} />
       <div
         className="card-description"
         style={{ fontSize: "9px", marginBottom: "4px", lineHeight: "1.2" }}

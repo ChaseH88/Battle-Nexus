@@ -1,26 +1,42 @@
 import { SupportCard } from "@cards/SupportCard";
+import { CardImage } from "./CardImage";
 
 interface SupportProps
   extends Pick<
     SupportCard,
-    "name" | "type" | "description" | "cost" | "isActive" | "isFaceDown"
+    | "id"
+    | "name"
+    | "type"
+    | "description"
+    | "cost"
+    | "isActive"
+    | "isFaceDown"
+    | "image"
   > {
   targetPlayerIndex?: 0 | 1;
 }
 
 export const Support = ({
+  id,
   name,
   type,
   description,
   cost,
   isActive,
   isFaceDown,
+  image,
 }: SupportProps) => {
   if (isFaceDown) {
     return (
       <article
         className="support-card-details face-down"
-        style={{ width: 160, height: 285, fontSize: "11px", padding: "8px" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          fontSize: "11px",
+          padding: "8px",
+          boxSizing: "border-box",
+        }}
       >
         <div>
           <div className="card-type" style={{ fontSize: "9px" }}>
@@ -59,7 +75,13 @@ export const Support = ({
   return (
     <article
       className="support-card-details"
-      style={{ width: 160, height: 285, fontSize: "11px", padding: "8px" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        fontSize: "11px",
+        padding: "8px",
+        boxSizing: "border-box",
+      }}
     >
       <div>
         <div className="card-type" style={{ fontSize: "9px" }}>
@@ -77,14 +99,7 @@ export const Support = ({
           </div>
         )}
       </div>
-      <div
-        style={{
-          height: 80,
-          width: 80,
-          background: "white",
-          margin: "4px auto",
-        }}
-      />
+      <CardImage card={{ id, name, image }} width={80} height={80} />
       <div
         className="card-description"
         style={{ fontSize: "9px", marginBottom: "4px", lineHeight: "1.2" }}

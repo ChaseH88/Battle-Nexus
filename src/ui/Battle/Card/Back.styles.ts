@@ -1,4 +1,5 @@
 import styled, { css } from "styled-components";
+import { CARD_DIMENSIONS } from "./cardDimensions";
 
 interface BackContainerProps {
   $type: "creature" | "support" | "action" | "trap";
@@ -6,14 +7,15 @@ interface BackContainerProps {
 }
 
 export const BackContainer = styled.div<BackContainerProps>`
+  box-sizing: border-box;
   background: linear-gradient(145deg, #2d3748, #1a202c);
   border: 2px solid #4a5568;
   border-radius: 10px;
   padding: 15px;
   min-height: 140px;
-  min-width: 160px;
-  width: 160px;
-  height: 253px;
+  min-width: ${CARD_DIMENSIONS.WIDTH}px;
+  width: ${CARD_DIMENSIONS.WIDTH}px;
+  height: ${CARD_DIMENSIONS.HEIGHT}px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: inline-flex;

@@ -1,11 +1,21 @@
 import { ActionCard } from "@cards/ActionCard";
+import { CardImage } from "./CardImage";
 
 type ActionProps = Pick<
   ActionCard,
-  "name" | "type" | "description" | "cost" | "speed" | "isActive" | "isFaceDown"
+  | "id"
+  | "name"
+  | "type"
+  | "description"
+  | "cost"
+  | "speed"
+  | "isActive"
+  | "isFaceDown"
+  | "image"
 >;
 
 export const Action = ({
+  id,
   name,
   type,
   description,
@@ -13,12 +23,19 @@ export const Action = ({
   speed,
   isActive,
   isFaceDown,
+  image,
 }: ActionProps) => {
   if (isFaceDown) {
     return (
       <article
         className="action-card-details face-down"
-        style={{ width: 160, height: 253, fontSize: "11px", padding: "8px" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          fontSize: "11px",
+          padding: "8px",
+          boxSizing: "border-box",
+        }}
       >
         <div>
           <div className="card-type" style={{ fontSize: "9px" }}>
@@ -57,7 +74,13 @@ export const Action = ({
   return (
     <article
       className="action-card-details"
-      style={{ width: 160, height: 253, fontSize: "11px", padding: "8px" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        fontSize: "11px",
+        padding: "8px",
+        boxSizing: "border-box",
+      }}
     >
       <div>
         <div className="card-type" style={{ fontSize: "9px" }}>
@@ -78,14 +101,7 @@ export const Action = ({
           Speed: {speed}
         </div>
       </div>
-      <div
-        style={{
-          height: 80,
-          width: 80,
-          background: "white",
-          margin: "4px auto",
-        }}
-      />
+      <CardImage card={{ id, name, image }} width={80} height={80} />
       <div
         className="card-description"
         style={{ fontSize: "9px", marginBottom: "4px", lineHeight: "1.2" }}

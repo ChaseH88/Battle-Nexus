@@ -3,6 +3,7 @@ import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card";
 import { HandZone, HandCards } from "./styled";
 import { motion, AnimatePresence } from "framer-motion";
+import { CARD_DIMENSIONS } from "../Card/cardDimensions";
 
 interface HandProps {
   hand: CardInterface[];
@@ -150,6 +151,8 @@ export const Hand = ({
                     position: "relative",
                     zIndex: isSelected ? 1001 : isHoveringThis ? 1000 : 1,
                     opacity: canAfford ? 1 : 0.6,
+                    height: CARD_DIMENSIONS.HEIGHT,
+                    width: CARD_DIMENSIONS.WIDTH,
                   }}
                   className="draggable-card"
                 >
@@ -174,6 +177,8 @@ export const Hand = ({
                     }}
                     style={{
                       borderRadius: "8px",
+                      width: CARD_DIMENSIONS.WIDTH,
+                      height: CARD_DIMENSIONS.HEIGHT,
                     }}
                   >
                     <Card

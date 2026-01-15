@@ -93,6 +93,7 @@ export const Card = ({
     >
       {creature && (
         <Creature
+          id={creature.id}
           mode={creature.mode}
           isAtkModified={creature.isAtkModified}
           isDefModified={creature.isDefModified}
@@ -108,10 +109,12 @@ export const Card = ({
           name={creature.name}
           type={creature.type}
           cost={creature.cost}
+          image={creature.image}
         />
       )}
       {support && (
         <Support
+          id={support.id}
           name={support.name}
           type={support.type}
           description={support.description}
@@ -119,10 +122,12 @@ export const Card = ({
           isActive={support.isActive}
           isFaceDown={support.isFaceDown}
           targetPlayerIndex={support.targetPlayerIndex}
+          image={support.image}
         />
       )}
       {action && (
         <Action
+          id={action.id}
           name={action.name}
           type={action.type}
           description={action.description}
@@ -130,16 +135,19 @@ export const Card = ({
           speed={action.speed}
           isActive={action.isActive}
           isFaceDown={action.isFaceDown}
+          image={action.image}
         />
       )}
       {trap && (
         <Support
+          id={trap.id}
           name={trap.name}
           type={trap.type}
           description={trap.description}
           cost={trap.cost}
           isActive={trap.isActive}
           isFaceDown={trap.isFaceDown}
+          image={trap.image}
         />
       )}
     </CardSlot>

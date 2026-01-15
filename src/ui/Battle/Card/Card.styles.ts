@@ -1,5 +1,6 @@
 import styled, { css, keyframes } from "styled-components";
 import { CardType } from "@cards/types";
+import { CARD_DIMENSIONS } from "./cardDimensions";
 
 const pulseBorder = keyframes`
   0%, 100% {
@@ -26,14 +27,13 @@ interface CardSlotProps {
 }
 
 export const CardSlot = styled.div<CardSlotProps>`
+  box-sizing: border-box;
   background: linear-gradient(145deg, #2d374869, #1a202c76);
   border: 2px dashed #4a5568;
   border-radius: 10px;
   padding: 15px;
-  min-height: 140px;
-  min-width: 160px;
-  width: 160px;
-  height: 253px;
+  width: ${CARD_DIMENSIONS.WIDTH}px;
+  height: ${CARD_DIMENSIONS.HEIGHT}px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: inline-flex;

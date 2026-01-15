@@ -10,6 +10,7 @@ export abstract class Card {
   readonly set: "Base";
   readonly effectId?: string;
   readonly effectType?: "ONE_TIME" | "CONTINUOUS";
+  readonly image?: string;
 
   protected constructor(args: CardInterface) {
     this.id = args.id;
@@ -21,5 +22,6 @@ export abstract class Card {
     this.set = args.set;
     this.effectId = args.effectId;
     this.effectType = args.effectType;
+    this.image = args.image;
   }
 }
