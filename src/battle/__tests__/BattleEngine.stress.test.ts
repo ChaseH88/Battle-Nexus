@@ -38,13 +38,16 @@ describe("BattleEngine – Performance", () => {
     const game = createGameState(p1, p2);
     const engine = new BattleEngine(game);
 
-    // Generate many log entries
+    // Generate many log entries (more than the cap)
     for (let i = 0; i < 1000; i++) {
       engine.log(`Test log entry ${i}`);
     }
 
-    expect(game.log.getEvents().length).toBeGreaterThanOrEqual(1000);
-    expect(game.log.getMessages().length).toBeGreaterThanOrEqual(1000);
+    // Verify events are capped at 100 to prevent memory leak
+    expect(game.log.getEvents().length).toBeLessThanOrEqual(100);
+    expect(game.log.getMessages().length).toBeLessThanOrEqual(100);
+    // But should have some events
+    expect(game.log.getEvents().length).toBeGreaterThan(0);
   });
 
   it("maintains event log across many operations", () => {

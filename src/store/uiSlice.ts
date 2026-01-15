@@ -141,6 +141,11 @@ export const uiSlice = createSlice({
       action: PayloadAction<EffectNotification>
     ) => {
       state.effectNotificationQueue.push(action.payload);
+      // Cap at 10 notifications to prevent memory leak
+      if (state.effectNotificationQueue.length > 10) {
+        state.effectNotificationQueue =
+          state.effectNotificationQueue.slice(-10);
+      }
     },
     dequeueEffectNotification: (state) => {
       state.effectNotificationQueue.shift();

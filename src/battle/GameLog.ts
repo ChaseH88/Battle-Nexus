@@ -195,11 +195,16 @@ export class GameLogger {
   private events: GameLogEvent[] = [];
   private sequence = 0;
   private snapshotOnMajorEvents = true; // Enable automatic state snapshots
+  private maxEvents = 100; // Cap events at 100 to prevent memory leak
 
-  constructor(options?: { snapshotOnMajorEvents?: boolean }) {
+  constructor(options?: {
+    snapshotOnMajorEvents?: boolean;
+    maxEvents?: number;
+  }) {
     this.events = [];
     this.sequence = 0;
     this.snapshotOnMajorEvents = options?.snapshotOnMajorEvents ?? true;
+    this.maxEvents = options?.maxEvents ?? 100;
   }
 
   /**
@@ -333,8 +338,13 @@ export class GameLogger {
     params: Omit<GameLogEvent<TType, TData>, "id" | "seq" | "ts">,
     gameState?: any
   ): void {
+    // In production, disable snapshots to save memory
+    const isProduction = process.env.NODE_ENV === "production";
     const shouldSnapshot =
-      this.snapshotOnMajorEvents && gameState && this.isMajorEvent(params.type);
+      !isProduction &&
+      this.snapshotOnMajorEvents &&
+      gameState &&
+      this.isMajorEvent(params.type);
 
     const event: GameLogEvent<TType, TData> = {
       id: generateUUID(),
@@ -344,6 +354,11 @@ export class GameLogger {
       ...(shouldSnapshot && { stateSnapshot: this.createSnapshot(gameState) }),
     };
     this.events.push(event);
+
+    // Prune old events if we exceed max (keep most recent)
+    if (this.events.length > this.maxEvents) {
+      this.events = this.events.slice(-this.maxEvents);
+    }
   }
 
   /**

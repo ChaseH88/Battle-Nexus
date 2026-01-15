@@ -14,6 +14,8 @@ import { Affinity } from "@cards";
 import { useCallback } from "react";
 import { Cost } from "./Common/Cost";
 import { CardImage } from "./CardImage";
+import { StatBox } from "./StatBox";
+import { Box } from "@mui/material";
 
 type CreatureProps = Pick<
   CreatureCard,
@@ -83,7 +85,8 @@ export const Creature = ({
   }, []);
 
   return (
-    <article
+    <Box
+      component="article"
       className="creature-card-details"
       style={{
         width: "100%",
@@ -93,97 +96,74 @@ export const Creature = ({
         boxSizing: "border-box",
       }}
     >
-      <div>
+      <Box>
         <Cost cost={cost} affinity={affinity} />
-        <div className="card-type" style={{ fontSize: "9px" }}>
-          {type}
-        </div>
-        <div
+        <Box className="card-type" style={{ fontSize: "9px" }}>
+          {cost === 5 ? `MAX ${type.toUpperCase()}` : type}
+        </Box>
+        <Box
           className="card-name"
           style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "4px" }}
         >
           {name}
-        </div>
-        <div className="card-affinity">
+        </Box>
+        <Box className="card-affinity">
           <img
             src={getAffinityIcon(affinity)}
             alt={affinity}
             style={{ width: "16px", height: "16px", verticalAlign: "middle" }}
             title={affinity}
           />{" "}
-        </div>
-      </div>
-      <div
+        </Box>
+      </Box>
+      <Box
         className="card-mode-badge"
         style={{ fontSize: "10px", fontWeight: "bold" }}
       >
         {mode === "ATTACK" ? "⚔️ ATTACK" : "🛡️ DEFENSE"}
-      </div>
+      </Box>
       <CardImage card={{ id, name, image }} width={80} height={80} />
-      <div
+      <Box
         className="card-description"
         style={{ fontSize: "9px", marginBottom: "4px", lineHeight: "1.2" }}
       >
         {description}
-      </div>
-      <div
-        className="card-stats"
-        style={{
+      </Box>
+      <Box
+        sx={{
           display: "flex",
           flexDirection: "column",
           gap: "4px",
           fontSize: "10px",
         }}
       >
-        <div
-          className="card-hp"
-          style={{
-            fontWeight: "bold",
-            color: currentHp < hp * 0.3 ? "#ef4444" : "#22c55e",
-          }}
-        >
-          <span className="hp-label">❤️ HP:</span>
-          <span className={`hp-value ${currentHp < hp * 0.3 ? "low" : ""}`}>
-            {currentHp}/{hp}
-          </span>
-        </div>
-        <div
-          className="attack"
-          style={{ opacity: mode === "ATTACK" ? 1 : 0.5 }}
-        >
-          <span className={`atk ${isAtkModified ? "modified" : ""}`}>
-            ⚔️ ATK: {atk}
-            {isAtkModified && <span className="base-stat">({baseAtk})</span>}
-            {isAtkModified && (
-              <span className="stat-icon" title="Modified">
-                ⚡
-              </span>
-            )}
-          </span>
-        </div>
-        <div
-          className="defense"
-          style={{ opacity: mode === "DEFENSE" ? 1 : 0.5 }}
-        >
-          <span className={`def ${isDefModified ? "modified" : ""}`}>
-            🛡️ DEF: {def}
-            {isDefModified && <span className="base-stat">({baseDef})</span>}
-            {isDefModified && (
-              <span className="stat-icon" title="Modified">
-                ⚡
-              </span>
-            )}
-          </span>
-        </div>
-      </div>
+        <StatBox
+          label="HP"
+          value={currentHp}
+          isModified={false}
+          baseValue={hp}
+        />
+        <StatBox
+          label="ATK"
+          value={atk}
+          isModified={isAtkModified}
+          baseValue={baseAtk}
+        />
+        <StatBox
+          label="DEF"
+          value={def}
+          isModified={isDefModified}
+          baseValue={baseDef}
+        />
+      </Box>
       {hasAttackedThisTurn && (
-        <div
+        <Box
           className="attacked-badge"
           style={{ fontSize: "9px", padding: "2px 4px" }}
         >
           ATTACKED
-        </div>
+        </Box>
       )}
-    </article>
+    </Box>
   );
 };
