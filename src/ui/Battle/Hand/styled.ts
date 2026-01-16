@@ -30,7 +30,7 @@ export const HandTitle = styled(Typography)(() => ({
 export const HandCards = styled(Box)(() => ({
   display: "flex",
   justifyContent: "center",
-  gap: "15px",
+  gap: "25px",
   padding: "10px",
   "&::-webkit-scrollbar": {
     height: "8px",

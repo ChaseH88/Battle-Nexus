@@ -7,7 +7,6 @@ import { CARD_DIMENSIONS } from "../Card/cardDimensions";
 
 interface HandProps {
   hand: CardInterface[];
-  selectedHandCard: string | null;
   onSelectCard: (id: string) => void;
   onCardDoubleClick?: (card: CardInterface) => void;
   onDragStart?: (cardId: string) => void;
@@ -18,7 +17,6 @@ interface HandProps {
 
 export const Hand = ({
   hand,
-  selectedHandCard,
   onSelectCard,
   onCardDoubleClick,
   onDragStart,
@@ -31,19 +29,33 @@ export const Hand = ({
   const totalCards = hand.length;
   const midPoint = (totalCards - 1) / 2;
 
+  const getVerticalOffset = () => {
+    switch (true) {
+      case totalCards <= 3:
+        return 6;
+      case totalCards <= 5:
+        return 8.5;
+      default:
+        return 3;
+    }
+  };
+
   const getCardAnimation = (index: number) => {
     const distanceFromCenter = index - midPoint;
 
-    // Create a fan spread - cards further from center are more rotated and lower
+    // Create a fan spread - cards further from center are more rotated
     const maxRotation = 8; // degrees
     const baseRotation =
       (distanceFromCenter / Math.max(totalCards - 1, 1)) * maxRotation * 2;
 
-    // Create arc - cards on the edges are lower
-    const arcDepth = 15; // pixels
-    const normalizedDistance =
-      Math.abs(distanceFromCenter) / Math.max(midPoint, 1);
-    const baseYOffset = Math.pow(normalizedDistance, 1.5) * arcDepth;
+    // Create natural hand-holding effect:
+    // - Center card(s) are at the top (y = 0)
+    // - Cards further from center are progressively lower
+    // - Each step away from center adds more vertical distance
+    const verticalStepSize = getVerticalOffset(); // pixels per step from center
+    const normalizedDistance = Math.abs(distanceFromCenter);
+    // Use quadratic function for more natural curve (cards drop faster at edges)
+    const baseYOffset = Math.pow(normalizedDistance, 1.8) * verticalStepSize;
 
     // X offset to create fan spread
     const fanSpread = totalCards > 5 ? -8 : -5;
@@ -72,7 +84,6 @@ export const Hand = ({
         <HandCards height={305}>
           <AnimatePresence mode="popLayout">
             {hand.map((card, index) => {
-              const isSelected = selectedHandCard === card.id;
               const isHoveringThis = hoveredCardIndex === index;
               const canAfford = playerMomentum >= card.cost;
 
@@ -107,8 +118,8 @@ export const Hand = ({
                   dragMomentum={false}
                   dragTransition={{ bounceStiffness: 300, bounceDamping: 25 }}
                   whileHover={{
-                    scale: 1.15,
-                    y: -30,
+                    scale: 1.5,
+                    y: -100,
                     rotate: 0,
                     zIndex: 1000,
                     transition: {
@@ -149,7 +160,7 @@ export const Hand = ({
                   style={{
                     cursor: canAfford ? "grab" : "not-allowed",
                     position: "relative",
-                    zIndex: isSelected ? 1001 : isHoveringThis ? 1000 : 1,
+                    zIndex: isHoveringThis ? 1000 : 1,
                     opacity: canAfford ? 1 : 0.6,
                     height: CARD_DIMENSIONS.HEIGHT,
                     width: CARD_DIMENSIONS.WIDTH,
@@ -158,9 +169,7 @@ export const Hand = ({
                 >
                   <motion.div
                     animate={{
-                      boxShadow: isSelected
-                        ? "0 0 20px 5px rgba(34, 211, 238, 0.6)"
-                        : !isSelected && canAfford
+                      boxShadow: canAfford
                         ? [
                             "0 0 5px rgba(34, 211, 238, 0.4), 0 0 10px rgba(34, 211, 238, 0.3)",
                             "0 0 15px rgba(34, 211, 238, 0.8), 0 0 25px rgba(34, 211, 238, 0.5)",
@@ -189,7 +198,6 @@ export const Hand = ({
                           ? () => onCardDoubleClick(card)
                           : undefined
                       }
-                      selectedHandCard={selectedHandCard}
                     />
                   </motion.div>
                 </motion.div>
