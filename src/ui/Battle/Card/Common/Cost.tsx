@@ -1,6 +1,6 @@
 import { CreatureCard } from "@cards/CreatureCard";
 import { useMemo, memo, useId } from "react";
-import { darken, lighten, mix, readableColor } from "polished";
+import { darken, lighten, mix } from "polished";
 import { Affinity } from "@/cards";
 
 const AFFINITY_BASE: Record<Affinity, string> = {
@@ -22,7 +22,7 @@ const deriveColors = (base: string) => ({
   whiteRing: "#FFFFFF",
   top: lighten(0.16, base),
   bottom: darken(0.12, base),
-  text: readableColor(base, "#111111", "#FFFFFF", false),
+  text: undefined, // can override if needed
 });
 
 interface CostProps extends Pick<CreatureCard, "cost" | "affinity"> {
@@ -34,35 +34,34 @@ export const Cost = memo(
   ({ size = 35, cost = 1, affinity = Affinity.Fire, textColor }: CostProps) => {
     const gradId = useId();
 
-    // Memoize dimensions to prevent recalculation
+    // Pointy-top hex: flat sides LEFT/RIGHT, points TOP/BOTTOM
     const dimensions = useMemo(() => {
-      const w = size;
-      const h = Math.round(size * 0.8660254); // flat-top hex height
+      const h = size; // full height
+      const w = Math.round(size * 0.8660254); // pointy-top hex width
       const cx = w / 2;
       const cy = h / 2;
       return { w, h, cx, cy };
     }, [size]);
+
+    const points = useMemo(() => {
+      const { w, h } = dimensions;
+      return [
+        [w * 0.5, 0], // top point
+        [w, h * 0.25], // upper-right
+        [w, h * 0.75], // lower-right
+        [w * 0.5, h], // bottom point
+        [0, h * 0.75], // lower-left
+        [0, h * 0.25], // upper-left
+      ]
+        .map(([x, y]) => `${x},${y}`)
+        .join(" ");
+    }, [dimensions]);
 
     // Memoize colors to prevent polished recalculations
     const colors = useMemo(() => {
       const base = AFFINITY_BASE[affinity] ?? AFFINITY_BASE.FIRE;
       return deriveColors(base);
     }, [affinity]);
-
-    // Memoize polygon points
-    const points = useMemo(() => {
-      const { w, h } = dimensions;
-      return [
-        [w * 0.25, 0],
-        [w * 0.75, 0],
-        [w, h * 0.5],
-        [w * 0.75, h],
-        [w * 0.25, h],
-        [0, h * 0.5],
-      ]
-        .map(([x, y]) => `${x},${y}`)
-        .join(" ");
-    }, [dimensions]);
 
     // Memoize transform function
     const getTransform = useMemo(() => {

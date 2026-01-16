@@ -14,8 +14,8 @@ import { Affinity } from "@cards";
 import { useCallback } from "react";
 import { Cost } from "./Common/Cost";
 import { CardImage } from "./CardImage";
-import { StatBox } from "./StatBox";
 import { Box } from "@mui/material";
+import { Stats } from "./Common/Stats";
 
 type CreatureProps = Pick<
   CreatureCard,
@@ -45,9 +45,9 @@ export const Creature = ({
   isDefModified,
   atk,
   def,
-  baseAtk,
-  baseDef,
-  hp,
+  // baseAtk,
+  // baseDef,
+  // hp,
   currentHp,
   hasAttackedThisTurn,
   description,
@@ -88,12 +88,13 @@ export const Creature = ({
     <Box
       component="article"
       className="creature-card-details"
-      style={{
+      sx={{
         width: "100%",
         height: "100%",
         fontSize: "11px",
         padding: "8px",
         boxSizing: "border-box",
+        position: "relative",
       }}
     >
       <Box>
@@ -129,33 +130,22 @@ export const Creature = ({
       >
         {description}
       </Box>
-      <Box
+      <Stats
+        affinity={affinity}
+        atk={atk}
+        def={def}
+        hp={currentHp}
+        isAtkModified={isAtkModified}
+        isDefModified={isDefModified}
+        width={183}
+        height={25}
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "4px",
-          fontSize: "10px",
+          position: "absolute",
+          bottom: "0px",
+          left: "50%",
+          transform: "translateX(-50%)",
         }}
-      >
-        <StatBox
-          label="HP"
-          value={currentHp}
-          isModified={false}
-          baseValue={hp}
-        />
-        <StatBox
-          label="ATK"
-          value={atk}
-          isModified={isAtkModified}
-          baseValue={baseAtk}
-        />
-        <StatBox
-          label="DEF"
-          value={def}
-          isModified={isDefModified}
-          baseValue={baseDef}
-        />
-      </Box>
+      />
       {hasAttackedThisTurn && (
         <Box
           className="attacked-badge"
