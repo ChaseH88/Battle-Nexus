@@ -11,6 +11,8 @@ interface AnimationQueueItem {
     originBounds?: DOMRect;
     attackerBounds?: DOMRect;
     defenderBounds?: DOMRect;
+    damage?: number; // Damage dealt to defender
+    counterDamage?: number; // Counter damage dealt to attacker
   };
   onComplete?: () => void;
 }
@@ -30,6 +32,8 @@ interface UseAnimationQueueReturn {
     card: CardInterface,
     attackerElement: HTMLElement,
     defenderElement: HTMLElement,
+    damage: number,
+    counterDamage: number,
     onComplete?: () => void
   ) => void;
   completeCurrentAnimation: () => void;
@@ -70,6 +74,8 @@ export const useAnimationQueue = (): UseAnimationQueueReturn => {
       card: CardInterface,
       attackerElement: HTMLElement,
       defenderElement: HTMLElement,
+      damage: number,
+      counterDamage: number,
       onComplete?: () => void
     ) => {
       const attackerBounds = attackerElement.getBoundingClientRect();
@@ -82,6 +88,8 @@ export const useAnimationQueue = (): UseAnimationQueueReturn => {
           card,
           attackerBounds,
           defenderBounds,
+          damage,
+          counterDamage,
         },
         onComplete,
       };

@@ -16,6 +16,7 @@ import { Cost } from "./Common/Cost";
 import { CardImage } from "./CardImage";
 import { Box } from "@mui/material";
 import { Stats } from "./Common/Stats";
+import { DescriptionStatsBackground } from "./Common/DescriptionStatsBackground";
 
 type CreatureProps = Pick<
   CreatureCard,
@@ -130,6 +131,19 @@ export const Creature = ({
       >
         {description}
       </Box>
+      <DescriptionStatsBackground
+        affinity={affinity}
+        width={189}
+        height={95}
+        sx={{
+          position: "absolute",
+          bottom: "0",
+          left: "50%",
+          transformOrigin: "top center",
+          transform: "translateX(-50%) translateY(14%)",
+          zIndex: -1,
+        }}
+      />
       <Stats
         affinity={affinity}
         atk={atk}

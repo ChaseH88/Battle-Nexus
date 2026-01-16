@@ -256,14 +256,10 @@ export function useBattleEngine(): BattleEngineHookReturn {
 
     const executeAITurn = async () => {
       aiTurnInProgressRef.current = true;
-      console.log("[useBattleEngine] AI taking turn...");
 
       try {
         await ai.takeTurn(engine.state);
-        console.log("[useBattleEngine] AI turn complete");
         refresh();
-      } catch (error) {
-        console.error("[useBattleEngine] AI turn error:", error);
       } finally {
         aiTurnInProgressRef.current = false;
       }

@@ -47,16 +47,11 @@ export class AIPlayer {
     if (state.activePlayer !== this.playerIndex) return;
     if (state.winnerIndex !== null) return;
 
-    console.log(
-      `[AI] Player ${this.playerIndex} taking turn (skill: ${this.skillLevel})`
-    );
-
     // Add slight delay for visual effect
     await this.delay(500);
 
     // DRAW PHASE - AI must draw
     if (state.phase === "DRAW") {
-      console.log("[AI] Draw phase - drawing card");
       this.engine.draw(this.playerIndex);
       // Don't call onActionComplete here - it would trigger a re-render mid-turn
       await this.delay(300);
@@ -66,12 +61,10 @@ export class AIPlayer {
     // MAIN PHASE - AI makes strategic decisions
     // Re-check phase after drawing (it may have changed from DRAW to MAIN)
     if (state.phase === "MAIN") {
-      console.log("[AI] Main phase - executing actions");
       await this.executeMainPhase(state);
     }
 
     // End turn
-    console.log("[AI] Ending turn");
     this.engine.endTurn();
   }
 

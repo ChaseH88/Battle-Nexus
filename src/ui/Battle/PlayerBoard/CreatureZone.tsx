@@ -122,11 +122,6 @@ export const CreatureZone = ({
                           } else if (!isFirstTurn && onSelectAttacker) {
                             // Set the attacker ref when selecting
                             const element = cardRefs.current[i];
-                            console.log("[DEBUG] Attacker selected:", {
-                              lane: i,
-                              element,
-                              hasOnSetAttackerRef: !!onSetAttackerRef,
-                            });
                             if (element && onSetAttackerRef) {
                               onSetAttackerRef(element);
                             }
@@ -179,11 +174,6 @@ export const CreatureZone = ({
                         data-testid={`attack-button-lane-${i}`}
                         onClick={() => {
                           const defenderElement = defenderRefs.current[i];
-                          console.log("[DEBUG] Attack button clicked:", {
-                            lane: i,
-                            defenderElement,
-                            defenderRefsArray: defenderRefs.current,
-                          });
                           if (defenderElement) {
                             onAttack(i, defenderElement);
                           } else {

@@ -635,24 +635,10 @@ export default function App() {
     if (isShowingEffectNotification) return;
     if (selectedAttacker === null) return;
 
-    console.log("[DEBUG] handleAttack called:", {
-      targetLane,
-      defenderElement,
-      attackerRef: attackerRef.current,
-      selectedAttacker,
-    });
-
     // Determine defender index
     const defenderIndex = gameState.activePlayer === 0 ? 1 : 0;
 
     const executeAttack = () => {
-      console.log("[DEBUG] executeAttack called:", {
-        hasAttackerRef: !!attackerRef.current,
-        hasDefenderElement: !!defenderElement,
-        selectedAttacker,
-        activePlayer: gameState.activePlayer,
-      });
-
       // Only animate if it's the human player's turn (player 0) and we have both elements
       if (
         gameState.activePlayer === 0 &&
@@ -660,24 +646,62 @@ export default function App() {
         defenderElement
       ) {
         const attackerCard = player1.lanes[selectedAttacker];
+        const defenderCard =
+          targetLane !== null ? player2.lanes[targetLane] : null;
+
         if (attackerCard) {
-          console.log(
-            "[DEBUG] Triggering attack animation:",
-            attackerCard.name
-          );
+          // Calculate damage that will be dealt to defender
+          let damageToDefender = 0;
+          let damageToAttacker = 0; // Counter damage
+          if (defenderCard) {
+            // Combat damage calculation
+            if (
+              attackerCard.mode === "ATTACK" &&
+              defenderCard.mode === "ATTACK"
+            ) {
+              // ATTACK vs ATTACK: both deal damage, calculate net counter damage
+              damageToDefender = attackerCard.atk;
+              // Counter damage is defender's ATK minus attacker's DEF
+              damageToAttacker = Math.max(
+                0,
+                defenderCard.atk - attackerCard.def
+              );
+            } else if (
+              attackerCard.mode === "ATTACK" &&
+              defenderCard.mode === "DEFENSE"
+            ) {
+              // ATTACK vs DEFENSE: only attacker deals damage (ATK - DEF)
+              damageToDefender = Math.max(
+                0,
+                attackerCard.atk - defenderCard.def
+              );
+              damageToAttacker = 0;
+            }
+          } else {
+            // Direct attack
+            damageToDefender = attackerCard.atk;
+            damageToAttacker = 0;
+          }
+
           // Store refs for animation then clear immediately to prevent re-triggers
           const attackerElement = attackerRef.current;
           attackerRef.current = null; // Clear immediately!
 
           // Queue attack animation with callback to execute attack after animation
-          queueAttack(attackerCard, attackerElement, defenderElement, () => {
-            attack(gameState.activePlayer, selectedAttacker, targetLane);
-            dispatch(setSelectedAttacker(null));
-          });
+          queueAttack(
+            attackerCard,
+            attackerElement,
+            defenderElement,
+            damageToDefender,
+            damageToAttacker,
+            () => {
+              attack(gameState.activePlayer, selectedAttacker, targetLane);
+              dispatch(setSelectedAttacker(null));
+            }
+          );
           return;
         }
       }
-      console.log("[DEBUG] No animation - executing attack immediately");
       // No animation - execute attack immediately
       // Clear refs
       attackerRef.current = null;
@@ -876,7 +900,6 @@ export default function App() {
           }}
           onSelectAttacker={handleSelectAttacker}
           onSetAttackerRef={(element) => {
-            console.log("[DEBUG] Setting attacker ref:", element);
             attackerRef.current = element;
           }}
           onToggleMode={handleToggleMode}
@@ -887,7 +910,6 @@ export default function App() {
         />
         <Hand
           hand={player1.hand}
-          selectedHandCard={selectedHandCard}
           onSelectCard={(id) => dispatch(setSelectedHandCard(id))}
           onCardDoubleClick={handleHandCardDoubleClick}
           playerMomentum={player1.momentum}
@@ -1003,6 +1025,8 @@ export default function App() {
             isAttacking={true}
             attackerBounds={currentAnimation.data.attackerBounds}
             defenderBounds={currentAnimation.data.defenderBounds}
+            damage={currentAnimation.data.damage}
+            counterDamage={currentAnimation.data.counterDamage}
             onComplete={completeCurrentAnimation}
           />
         )}
