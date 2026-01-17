@@ -14,6 +14,12 @@ interface CardDetailModalState {
   isOpen: boolean;
   card: CardInterface | null;
   activeEffects: ActiveEffect[];
+  originRect?: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  };
 }
 
 interface PlayCreatureModalState {
@@ -76,6 +82,7 @@ const initialState: UIState = {
     isOpen: false,
     card: null,
     activeEffects: [],
+    originRect: undefined,
   },
   selectedHandCard: null,
   selectedAttacker: null,
@@ -125,12 +132,19 @@ export const uiSlice = createSlice({
       action: PayloadAction<{
         card: CardInterface;
         activeEffects: ActiveEffect[];
+        originRect?: {
+          left: number;
+          top: number;
+          width: number;
+          height: number;
+        };
       }>
     ) => {
       state.cardDetailModal = {
         isOpen: true,
         card: action.payload.card,
         activeEffects: action.payload.activeEffects,
+        originRect: action.payload.originRect,
       };
     },
     closeCardDetailModal: (state) => {

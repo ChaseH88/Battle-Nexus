@@ -235,7 +235,11 @@ export default function App() {
       if (!attackerElement || !gameState) {
         // Fallback: execute attack without animation
         if (engine) {
-          engine.attack(1, attackerLane, targetLane);
+          engine.attack(
+            1,
+            attackerLane,
+            targetLane === null ? undefined : targetLane
+          );
         }
         return;
       }
@@ -291,7 +295,11 @@ export default function App() {
             () => {
               // Execute the actual attack after animation
               if (engine) {
-                engine.attack(1, attackerLane, targetLane);
+                engine.attack(
+                  1,
+                  attackerLane,
+                  targetLane === null ? undefined : targetLane
+                );
               }
               resolve();
             }
@@ -299,7 +307,11 @@ export default function App() {
         } else {
           // Fallback
           if (engine) {
-            engine.attack(1, attackerLane, targetLane);
+            engine.attack(
+              1,
+              attackerLane,
+              targetLane === null ? undefined : targetLane
+            );
           }
           resolve();
         }
@@ -371,7 +383,7 @@ export default function App() {
       if (!attackerElement || !gameState) {
         // Fallback: execute attack without animation
         if (engine) {
-          engine.attack(1, attackerLane, targetLane);
+          engine.attack(1, attackerLane, targetLane ?? undefined);
         }
         return;
       }
@@ -427,7 +439,7 @@ export default function App() {
             () => {
               // Execute the actual attack after animation
               if (engine) {
-                engine.attack(1, attackerLane, targetLane);
+                engine.attack(1, attackerLane, targetLane ?? undefined);
               }
               resolve();
             }
@@ -435,7 +447,7 @@ export default function App() {
         } else {
           // Fallback
           if (engine) {
-            engine.attack(1, attackerLane, targetLane);
+            engine.attack(1, attackerLane, targetLane ?? undefined);
           }
           resolve();
         }

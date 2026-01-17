@@ -8,6 +8,9 @@ import { TrapCard } from "../../../cards/TrapCard";
 import { Back } from "./Back";
 import { CreatureCard } from "../../../cards";
 import { CardSlot } from "./Card.styles";
+import { useDispatch } from "react-redux";
+import { openCardDetailModal } from "../../../store/uiSlice";
+import { useRef } from "react";
 
 interface CardProps {
   card: CardInterface | null;
@@ -30,6 +33,8 @@ export const Card = ({
   canActivate = false,
   disableHover = false,
 }: CardProps) => {
+  const dispatch = useDispatch();
+  const cardSlotRef = useRef<HTMLDivElement>(null);
   if (!card) {
     return <CardSlot isEmpty onClick={onClick} />;
   }
@@ -77,8 +82,28 @@ export const Card = ({
       (trap && trap.isActive)
   );
 
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDoubleClick) onDoubleClick();
+    if (!cardSlotRef.current) return;
+    const rect = cardSlotRef.current.getBoundingClientRect();
+    dispatch(
+      openCardDetailModal({
+        card,
+        activeEffects: [],
+        originRect: {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        },
+      })
+    );
+  };
+
   return (
     <CardSlot
+      ref={cardSlotRef}
       cardType={card.type}
       isSelected={selectedHandCard === card.id || isSelected}
       isDefeated={isDefeated}
@@ -89,7 +114,7 @@ export const Card = ({
       canActivate={canActivate}
       disableHover={disableHover}
       onClick={onClick}
-      onDoubleClick={onDoubleClick}
+      onDoubleClick={handleDoubleClick}
     >
       {creature && (
         <Creature
