@@ -360,15 +360,7 @@ export class AIPlayer {
 
       const target = this.chooseAttackTarget(state, laneIndex);
 
-      console.log(
-        `[AI Attack Debug] Lane ${laneIndex}: Attacker=${attacker.name}, Mode=${attacker.mode}, Target=${target}, SkillLevel=${this.skillLevel}`
-      );
-
       if (target !== null) {
-        console.log(
-          `[AI Attack Debug] Executing attack from lane ${laneIndex} to target ${target}`
-        );
-
         // Check if opponent has traps before attacking
         const defenderIndex = getOpponentIndex(this.playerIndex);
         if (this.trapActivationCallback) {
@@ -379,7 +371,6 @@ export class AIPlayer {
           );
           // If trap was activated, state may have changed
           if (trapActivated) {
-            console.log(`[AI Attack Debug] Trap was activated`);
             this.onActionComplete?.();
             await this.delay(500);
           }
@@ -387,23 +378,16 @@ export class AIPlayer {
 
         // Trigger attack animation if callback provided
         if (this.attackAnimationCallback) {
-          console.log(`[AI Attack Debug] Calling attack animation callback`);
           await this.attackAnimationCallback(laneIndex, target);
-          console.log(`[AI Attack Debug] Attack animation completed`);
           // Call onActionComplete after animation to trigger state refresh
           this.onActionComplete?.();
           await this.delay(300);
         } else {
-          console.log(
-            `[AI Attack Debug] No animation callback, executing attack directly`
-          );
           // Fallback: execute attack immediately without animation
           this.engine.attack(this.playerIndex, laneIndex, target);
           this.onActionComplete?.();
           await this.delay(500);
         }
-      } else {
-        console.log(`[AI Attack Debug] No target selected - attack skipped`);
       }
     }
   }

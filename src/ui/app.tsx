@@ -92,9 +92,9 @@ export default function App() {
 
   // Ref to store AI attack animation callback - needs to be stable and have access to latest state
   const aiAttackAnimationCallbackRef =
-    useRef<
-      (attackerLane: number, targetLane: number | null) => Promise<void>
-    >(undefined);
+    useRef<(attackerLane: number, targetLane: number | null) => Promise<void>>(
+      undefined
+    );
 
   // Use the battle engine hook for all state management
   const {
@@ -183,20 +183,11 @@ export default function App() {
 
   // Create stable AI attack animation callback
   const aiAttackAnimationCallback = useCallback(
-    async (
-      attackerLane: number,
-      targetLane: number | null
-    ): Promise<void> => {
-      console.log(
-        `[AI Animation] Starting animation for lane ${attackerLane} -> ${targetLane}`
-      );
-
+    async (attackerLane: number, targetLane: number | null): Promise<void> => {
       // Query DOM for attacker element (AI is player 1, opponent board)
       const attackerElement = document.querySelector(
         `[data-testid="opponent-creature-lane-${attackerLane}"] > div`
       ) as HTMLElement | null;
-
-      console.log(`[AI Animation] Attacker element found:`, !!attackerElement);
 
       // Query DOM for defender element (player is player 0)
       const defenderElement =
@@ -206,12 +197,7 @@ export default function App() {
             ) as HTMLElement | null)
           : null;
 
-      console.log(`[AI Animation] Defender element found:`, !!defenderElement);
-
       if (!attackerElement || !gameState) {
-        console.log(
-          `[AI Animation] Fallback - no attacker element or game state`
-        );
         // Fallback: execute attack without animation
         if (engine) {
           engine.attack(
@@ -229,13 +215,7 @@ export default function App() {
       const defenderCard =
         targetLane !== null ? player1.lanes[targetLane] : null;
 
-      console.log(`[AI Animation] Attacker card:`, attackerCard?.name);
-      console.log(`[AI Animation] Defender card:`, defenderCard?.name);
-
       if (!attackerCard) {
-        console.log(
-          `[AI Animation] No attacker card found in lane ${attackerLane}`
-        );
         return;
       }
 
@@ -263,8 +243,6 @@ export default function App() {
 
       // Queue animation and wait for completion
       return new Promise<void>((resolve) => {
-        console.log(`[AI Animation] Creating animation promise`);
-
         // If no defender element (direct attack), use player's board center as target
         const targetElement =
           defenderElement ||
@@ -272,10 +250,7 @@ export default function App() {
             '[data-testid="creature-lane-0"]'
           ) as HTMLElement);
 
-        console.log(`[AI Animation] Target element found:`, !!targetElement);
-
         if (targetElement) {
-          console.log(`[AI Animation] Queueing attack animation`);
           queueAttack(
             attackerCard,
             attackerElement,
@@ -283,7 +258,6 @@ export default function App() {
             damageToDefender,
             damageToAttacker,
             () => {
-              console.log(`[AI Animation] Animation callback executing attack`);
               // Execute the actual attack after animation
               if (engine) {
                 engine.attack(
@@ -296,7 +270,6 @@ export default function App() {
             }
           );
         } else {
-          console.log(`[AI Animation] Fallback - no target element`);
           // Fallback
           if (engine) {
             engine.attack(
@@ -366,13 +339,7 @@ export default function App() {
       }
     };
 
-    initializeGame(
-      deck1,
-      deck2,
-      aiSkillLevel,
-      trapCallback,
-      aiAttackCallback
-    );
+    initializeGame(deck1, deck2, aiSkillLevel, trapCallback, aiAttackCallback);
     dispatch(setSelectedHandCard(null));
     dispatch(setSelectedAttacker(null));
   }, [initializeGame, aiSkillLevel, dispatch]);
@@ -420,21 +387,10 @@ export default function App() {
       }
     };
 
-    initializeGame(
-      deck1,
-      deck2,
-      aiSkillLevel,
-      trapCallback,
-      aiAttackCallback
-    );
+    initializeGame(deck1, deck2, aiSkillLevel, trapCallback, aiAttackCallback);
     dispatch(setSelectedHandCard(null));
     dispatch(setSelectedAttacker(null));
-  }, [
-    initializeGame,
-    aiSkillLevel,
-    dispatch,
-    startNewGame,
-  ]);
+  }, [initializeGame, aiSkillLevel, dispatch, startNewGame]);
 
   const handleNewGame = useCallback(() => {
     if (hasSavedDeck()) {
