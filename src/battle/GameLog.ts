@@ -451,7 +451,7 @@ export class GameLogger {
         phase,
         actor: player,
         type: "CARD_DRAWN",
-        message: `${playerName} drew ${cardName}`,
+        message: `${playerName} drew a card.`,
         severity: "INFO",
         entities: {
           players: [player],

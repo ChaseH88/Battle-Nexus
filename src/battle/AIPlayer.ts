@@ -115,6 +115,11 @@ export class AIPlayer {
     ) as CreatureCard[];
 
     for (const creature of creatures) {
+      // Check if we have enough momentum to play this creature
+      if (player.momentum < creature.cost) {
+        continue; // Skip cards we can't afford
+      }
+
       const emptyLanes = player.lanes
         .map((c, i) => (c === null ? i : -1))
         .filter((i) => i >= 0);
@@ -259,6 +264,12 @@ export class AIPlayer {
         }
       }
 
+      // Check if we have enough momentum to activate this card
+      const cardCost = spellCard.cost ?? 0;
+      if (player.momentum < cardCost) {
+        continue; // Skip cards we can't afford
+      }
+
       // Skill determines when to flip face-down cards
       if (this.shouldFlipSupport(state, i)) {
         this.engine.activateSupport(this.playerIndex, i);
@@ -349,7 +360,15 @@ export class AIPlayer {
 
       const target = this.chooseAttackTarget(state, laneIndex);
 
+      console.log(
+        `[AI Attack Debug] Lane ${laneIndex}: Attacker=${attacker.name}, Mode=${attacker.mode}, Target=${target}, SkillLevel=${this.skillLevel}`
+      );
+
       if (target !== null) {
+        console.log(
+          `[AI Attack Debug] Executing attack from lane ${laneIndex} to target ${target}`
+        );
+
         // Check if opponent has traps before attacking
         const defenderIndex = getOpponentIndex(this.playerIndex);
         if (this.trapActivationCallback) {
@@ -360,6 +379,7 @@ export class AIPlayer {
           );
           // If trap was activated, state may have changed
           if (trapActivated) {
+            console.log(`[AI Attack Debug] Trap was activated`);
             this.onActionComplete?.();
             await this.delay(500);
           }
@@ -367,16 +387,23 @@ export class AIPlayer {
 
         // Trigger attack animation if callback provided
         if (this.attackAnimationCallback) {
+          console.log(`[AI Attack Debug] Calling attack animation callback`);
           await this.attackAnimationCallback(laneIndex, target);
+          console.log(`[AI Attack Debug] Attack animation completed`);
           // Call onActionComplete after animation to trigger state refresh
           this.onActionComplete?.();
           await this.delay(300);
         } else {
+          console.log(
+            `[AI Attack Debug] No animation callback, executing attack directly`
+          );
           // Fallback: execute attack immediately without animation
           this.engine.attack(this.playerIndex, laneIndex, target);
           this.onActionComplete?.();
           await this.delay(500);
         }
+      } else {
+        console.log(`[AI Attack Debug] No target selected - attack skipped`);
       }
     }
   }
@@ -531,49 +558,70 @@ export class AIPlayer {
     for (let laneIndex = 0; laneIndex < player.lanes.length; laneIndex++) {
       const creature = player.lanes[laneIndex] as CreatureCard | null;
       if (!creature) continue;
+      if (creature.isFaceDown) continue; // Skip face-down creatures
 
       const opponentCreature = opponent.lanes[laneIndex] as CreatureCard | null;
+      const inAttackMode = creature.mode === "ATTACK";
 
       // Skill 4-6: Basic mode decisions
       if (this.skillLevel <= 6) {
-        // If opponent has stronger creature in same lane, go defense
-        if (opponentCreature && opponentCreature.atk > creature.atk) {
-          if (creature.mode === "ATTACK" && Math.random() < 0.6) {
+        // Switch to DEFENSE only if we'd lose badly in combat
+        if (opponentCreature && inAttackMode) {
+          const wouldGetDestroyed = opponentCreature.atk >= creature.currentHp;
+          const wouldNotDestroyThem = creature.atk < opponentCreature.currentHp;
+
+          if (wouldGetDestroyed && wouldNotDestroyThem && Math.random() < 0.5) {
             this.engine.toggleCreatureMode(this.playerIndex, laneIndex);
             this.onActionComplete?.();
             await this.delay(300);
           }
         }
+        // Switch back to ATTACK if opponent is gone or we can win
+        else if (!opponentCreature && !inAttackMode) {
+          this.engine.toggleCreatureMode(this.playerIndex, laneIndex);
+          this.onActionComplete?.();
+          await this.delay(300);
+        }
       } else {
         // Skill 7-10: Strategic mode switching
         if (opponentCreature) {
-          const inAttackMode = creature.mode === "ATTACK";
-
-          // Calculate outcomes
           if (inAttackMode) {
-            // In attack: both use ATK
-            const wouldLose =
-              opponentCreature.atk > creature.atk + creature.currentHp;
-            // Switch to defense if we'd lose badly
-            if (wouldLose && creature.def > creature.atk) {
+            // Consider switching to DEFENSE if we'd lose
+            const damageToUs = Math.max(0, opponentCreature.atk - creature.atk);
+            const wouldGetDestroyed = damageToUs >= creature.currentHp;
+            const canDefendBetter = creature.def > creature.atk;
+
+            // Only switch to defense if it would actually help us survive
+            if (wouldGetDestroyed && canDefendBetter && Math.random() < 0.4) {
               this.engine.toggleCreatureMode(this.playerIndex, laneIndex);
               this.onActionComplete?.();
               await this.delay(300);
             }
           } else {
-            // In defense: use DEF
-            const canSurvive = creature.def >= opponentCreature.atk;
-            const shouldAttack = creature.atk > opponentCreature.atk;
-            // Switch to attack if we can win
-            if (canSurvive && shouldAttack && Math.random() < 0.7) {
+            // In DEFENSE mode - consider switching to ATTACK
+            // Calculate if we could win the battle
+            const damageToThem = Math.max(
+              0,
+              creature.atk - opponentCreature.def
+            );
+            const wouldDestroyThem = damageToThem >= opponentCreature.currentHp;
+            const wouldSurvive =
+              creature.currentHp >
+              Math.max(0, opponentCreature.atk - creature.atk);
+
+            // Switch to attack if we can destroy them or if we have advantage
+            if (
+              (wouldDestroyThem && wouldSurvive) ||
+              (creature.atk > opponentCreature.atk && Math.random() < 0.6)
+            ) {
               this.engine.toggleCreatureMode(this.playerIndex, laneIndex);
               this.onActionComplete?.();
               await this.delay(300);
             }
           }
         } else {
-          // No opponent - prefer attack mode for direct attacks
-          if (creature.mode === "DEFENSE" && Math.random() < 0.8) {
+          // No opponent in this lane - ALWAYS switch to ATTACK mode for direct attacks
+          if (!inAttackMode) {
             this.engine.toggleCreatureMode(this.playerIndex, laneIndex);
             this.onActionComplete?.();
             await this.delay(300);

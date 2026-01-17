@@ -90,6 +90,12 @@ export default function App() {
       ) => Promise<boolean>
     >(undefined);
 
+  // Ref to store AI attack animation callback - needs to be stable and have access to latest state
+  const aiAttackAnimationCallbackRef =
+    useRef<
+      (attackerLane: number, targetLane: number | null) => Promise<void>
+    >(undefined);
+
   // Use the battle engine hook for all state management
   const {
     engine,
@@ -175,6 +181,142 @@ export default function App() {
     trapActivationCallbackRef.current = trapActivationCallback;
   }, [trapActivationCallback]);
 
+  // Create stable AI attack animation callback
+  const aiAttackAnimationCallback = useCallback(
+    async (
+      attackerLane: number,
+      targetLane: number | null
+    ): Promise<void> => {
+      console.log(
+        `[AI Animation] Starting animation for lane ${attackerLane} -> ${targetLane}`
+      );
+
+      // Query DOM for attacker element (AI is player 1, opponent board)
+      const attackerElement = document.querySelector(
+        `[data-testid="opponent-creature-lane-${attackerLane}"] > div`
+      ) as HTMLElement | null;
+
+      console.log(`[AI Animation] Attacker element found:`, !!attackerElement);
+
+      // Query DOM for defender element (player is player 0)
+      const defenderElement =
+        targetLane !== null
+          ? (document.querySelector(
+              `[data-testid="creature-lane-${targetLane}"] > div`
+            ) as HTMLElement | null)
+          : null;
+
+      console.log(`[AI Animation] Defender element found:`, !!defenderElement);
+
+      if (!attackerElement || !gameState) {
+        console.log(
+          `[AI Animation] Fallback - no attacker element or game state`
+        );
+        // Fallback: execute attack without animation
+        if (engine) {
+          engine.attack(
+            1,
+            attackerLane,
+            targetLane === null ? undefined : targetLane
+          );
+        }
+        return;
+      }
+
+      const player2 = gameState.players[1]; // AI
+      const player1 = gameState.players[0]; // Human
+      const attackerCard = player2.lanes[attackerLane];
+      const defenderCard =
+        targetLane !== null ? player1.lanes[targetLane] : null;
+
+      console.log(`[AI Animation] Attacker card:`, attackerCard?.name);
+      console.log(`[AI Animation] Defender card:`, defenderCard?.name);
+
+      if (!attackerCard) {
+        console.log(
+          `[AI Animation] No attacker card found in lane ${attackerLane}`
+        );
+        return;
+      }
+
+      // Calculate damage
+      let damageToDefender = 0;
+      let damageToAttacker = 0;
+
+      if (defenderCard && defenderElement) {
+        // Combat damage calculation
+        if (attackerCard.mode === "ATTACK" && defenderCard.mode === "ATTACK") {
+          damageToDefender = attackerCard.atk;
+          damageToAttacker = Math.max(0, defenderCard.atk - attackerCard.def);
+        } else if (
+          attackerCard.mode === "ATTACK" &&
+          defenderCard.mode === "DEFENSE"
+        ) {
+          damageToDefender = Math.max(0, attackerCard.atk - defenderCard.def);
+          damageToAttacker = 0;
+        }
+      } else {
+        // Direct attack
+        damageToDefender = attackerCard.atk;
+        damageToAttacker = 0;
+      }
+
+      // Queue animation and wait for completion
+      return new Promise<void>((resolve) => {
+        console.log(`[AI Animation] Creating animation promise`);
+
+        // If no defender element (direct attack), use player's board center as target
+        const targetElement =
+          defenderElement ||
+          (document.querySelector(
+            '[data-testid="creature-lane-0"]'
+          ) as HTMLElement);
+
+        console.log(`[AI Animation] Target element found:`, !!targetElement);
+
+        if (targetElement) {
+          console.log(`[AI Animation] Queueing attack animation`);
+          queueAttack(
+            attackerCard,
+            attackerElement,
+            targetElement,
+            damageToDefender,
+            damageToAttacker,
+            () => {
+              console.log(`[AI Animation] Animation callback executing attack`);
+              // Execute the actual attack after animation
+              if (engine) {
+                engine.attack(
+                  1,
+                  attackerLane,
+                  targetLane === null ? undefined : targetLane
+                );
+              }
+              resolve();
+            }
+          );
+        } else {
+          console.log(`[AI Animation] Fallback - no target element`);
+          // Fallback
+          if (engine) {
+            engine.attack(
+              1,
+              attackerLane,
+              targetLane === null ? undefined : targetLane
+            );
+          }
+          resolve();
+        }
+      });
+    },
+    [engine, gameState, queueAttack]
+  );
+
+  // Update ref whenever callback changes
+  useEffect(() => {
+    aiAttackAnimationCallbackRef.current = aiAttackAnimationCallback;
+  }, [aiAttackAnimationCallback]);
+
   // Wire BattleEngine effect callback into the UI queue
   useEffect(() => {
     if (!engine) return;
@@ -214,108 +356,14 @@ export default function App() {
       return false;
     };
 
-    // AI attack animation callback
-    const aiAttackAnimationCallback = async (
+    // Wrap AI attack animation callback in a function that uses the ref
+    const aiAttackCallback = async (
       attackerLane: number,
       targetLane: number | null
     ): Promise<void> => {
-      // Query DOM for attacker element (AI is player 1, opponent board)
-      const attackerElement = document.querySelector(
-        `[data-testid="opponent-creature-lane-${attackerLane}"] > div`
-      ) as HTMLElement | null;
-
-      // Query DOM for defender element (player is player 0)
-      const defenderElement =
-        targetLane !== null
-          ? (document.querySelector(
-              `[data-testid="creature-lane-${targetLane}"] > div`
-            ) as HTMLElement | null)
-          : null;
-
-      if (!attackerElement || !gameState) {
-        // Fallback: execute attack without animation
-        if (engine) {
-          engine.attack(
-            1,
-            attackerLane,
-            targetLane === null ? undefined : targetLane
-          );
-        }
-        return;
+      if (aiAttackAnimationCallbackRef.current) {
+        return aiAttackAnimationCallbackRef.current(attackerLane, targetLane);
       }
-
-      const player2 = gameState.players[1]; // AI
-      const player1 = gameState.players[0]; // Human
-      const attackerCard = player2.lanes[attackerLane];
-      const defenderCard =
-        targetLane !== null ? player1.lanes[targetLane] : null;
-
-      if (!attackerCard) {
-        return;
-      }
-
-      // Calculate damage
-      let damageToDefender = 0;
-      let damageToAttacker = 0;
-
-      if (defenderCard && defenderElement) {
-        // Combat damage calculation
-        if (attackerCard.mode === "ATTACK" && defenderCard.mode === "ATTACK") {
-          damageToDefender = attackerCard.atk;
-          damageToAttacker = Math.max(0, defenderCard.atk - attackerCard.def);
-        } else if (
-          attackerCard.mode === "ATTACK" &&
-          defenderCard.mode === "DEFENSE"
-        ) {
-          damageToDefender = Math.max(0, attackerCard.atk - defenderCard.def);
-          damageToAttacker = 0;
-        }
-      } else {
-        // Direct attack - use a dummy element for the player's life point area
-        damageToDefender = attackerCard.atk;
-        damageToAttacker = 0;
-      }
-
-      // Queue animation and wait for completion
-      return new Promise<void>((resolve) => {
-        // If no defender element (direct attack), use player's board center as target
-        const targetElement =
-          defenderElement ||
-          (document.querySelector(
-            '[data-testid="creature-lane-0"]'
-          ) as HTMLElement);
-
-        if (targetElement) {
-          queueAttack(
-            attackerCard,
-            attackerElement,
-            targetElement,
-            damageToDefender,
-            damageToAttacker,
-            () => {
-              // Execute the actual attack after animation
-              if (engine) {
-                engine.attack(
-                  1,
-                  attackerLane,
-                  targetLane === null ? undefined : targetLane
-                );
-              }
-              resolve();
-            }
-          );
-        } else {
-          // Fallback
-          if (engine) {
-            engine.attack(
-              1,
-              attackerLane,
-              targetLane === null ? undefined : targetLane
-            );
-          }
-          resolve();
-        }
-      });
     };
 
     initializeGame(
@@ -323,11 +371,11 @@ export default function App() {
       deck2,
       aiSkillLevel,
       trapCallback,
-      aiAttackAnimationCallback
+      aiAttackCallback
     );
     dispatch(setSelectedHandCard(null));
     dispatch(setSelectedAttacker(null));
-  }, [initializeGame, aiSkillLevel, dispatch, queueAttack, engine, gameState]);
+  }, [initializeGame, aiSkillLevel, dispatch]);
 
   const startNewGameWithCustomDeck = useCallback(() => {
     const customDeck = loadDeckFromLocalStorage();
@@ -362,96 +410,14 @@ export default function App() {
       return false;
     };
 
-    // AI attack animation callback
-    const aiAttackAnimationCallback = async (
+    // Wrap AI attack animation callback in a function that uses the ref
+    const aiAttackCallback = async (
       attackerLane: number,
       targetLane: number | null
     ): Promise<void> => {
-      // Query DOM for attacker element (AI is player 1, opponent board)
-      const attackerElement = document.querySelector(
-        `[data-testid="opponent-creature-lane-${attackerLane}"] > div`
-      ) as HTMLElement | null;
-
-      // Query DOM for defender element (player is player 0)
-      const defenderElement =
-        targetLane !== null
-          ? (document.querySelector(
-              `[data-testid="creature-lane-${targetLane}"] > div`
-            ) as HTMLElement | null)
-          : null;
-
-      if (!attackerElement || !gameState) {
-        // Fallback: execute attack without animation
-        if (engine) {
-          engine.attack(1, attackerLane, targetLane ?? undefined);
-        }
-        return;
+      if (aiAttackAnimationCallbackRef.current) {
+        return aiAttackAnimationCallbackRef.current(attackerLane, targetLane);
       }
-
-      const player2 = gameState.players[1]; // AI
-      const player1 = gameState.players[0]; // Human
-      const attackerCard = player2.lanes[attackerLane];
-      const defenderCard =
-        targetLane !== null ? player1.lanes[targetLane] : null;
-
-      if (!attackerCard) {
-        return;
-      }
-
-      // Calculate damage
-      let damageToDefender = 0;
-      let damageToAttacker = 0;
-
-      if (defenderCard && defenderElement) {
-        // Combat damage calculation
-        if (attackerCard.mode === "ATTACK" && defenderCard.mode === "ATTACK") {
-          damageToDefender = attackerCard.atk;
-          damageToAttacker = Math.max(0, defenderCard.atk - attackerCard.def);
-        } else if (
-          attackerCard.mode === "ATTACK" &&
-          defenderCard.mode === "DEFENSE"
-        ) {
-          damageToDefender = Math.max(0, attackerCard.atk - defenderCard.def);
-          damageToAttacker = 0;
-        }
-      } else {
-        // Direct attack - use a dummy element for the player's life point area
-        damageToDefender = attackerCard.atk;
-        damageToAttacker = 0;
-      }
-
-      // Queue animation and wait for completion
-      return new Promise<void>((resolve) => {
-        // If no defender element (direct attack), use player's board center as target
-        const targetElement =
-          defenderElement ||
-          (document.querySelector(
-            '[data-testid="creature-lane-0"]'
-          ) as HTMLElement);
-
-        if (targetElement) {
-          queueAttack(
-            attackerCard,
-            attackerElement,
-            targetElement,
-            damageToDefender,
-            damageToAttacker,
-            () => {
-              // Execute the actual attack after animation
-              if (engine) {
-                engine.attack(1, attackerLane, targetLane ?? undefined);
-              }
-              resolve();
-            }
-          );
-        } else {
-          // Fallback
-          if (engine) {
-            engine.attack(1, attackerLane, targetLane ?? undefined);
-          }
-          resolve();
-        }
-      });
     };
 
     initializeGame(
@@ -459,7 +425,7 @@ export default function App() {
       deck2,
       aiSkillLevel,
       trapCallback,
-      aiAttackAnimationCallback
+      aiAttackCallback
     );
     dispatch(setSelectedHandCard(null));
     dispatch(setSelectedAttacker(null));
@@ -468,9 +434,6 @@ export default function App() {
     aiSkillLevel,
     dispatch,
     startNewGame,
-    queueAttack,
-    engine,
-    gameState,
   ]);
 
   const handleNewGame = useCallback(() => {
