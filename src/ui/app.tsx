@@ -214,10 +214,108 @@ export default function App() {
       return false;
     };
 
-    initializeGame(deck1, deck2, aiSkillLevel, trapCallback);
+    // AI attack animation callback
+    const aiAttackAnimationCallback = async (
+      attackerLane: number,
+      targetLane: number | null
+    ): Promise<void> => {
+      // Query DOM for attacker element (AI is player 1, opponent board)
+      const attackerElement = document.querySelector(
+        `[data-testid="opponent-creature-lane-${attackerLane}"] > div`
+      ) as HTMLElement | null;
+
+      // Query DOM for defender element (player is player 0)
+      const defenderElement =
+        targetLane !== null
+          ? (document.querySelector(
+              `[data-testid="creature-lane-${targetLane}"] > div`
+            ) as HTMLElement | null)
+          : null;
+
+      if (!attackerElement || !gameState) {
+        // Fallback: execute attack without animation
+        if (engine) {
+          engine.attack(1, attackerLane, targetLane);
+        }
+        return;
+      }
+
+      const player2 = gameState.players[1]; // AI
+      const player1 = gameState.players[0]; // Human
+      const attackerCard = player2.lanes[attackerLane];
+      const defenderCard =
+        targetLane !== null ? player1.lanes[targetLane] : null;
+
+      if (!attackerCard) {
+        return;
+      }
+
+      // Calculate damage
+      let damageToDefender = 0;
+      let damageToAttacker = 0;
+
+      if (defenderCard && defenderElement) {
+        // Combat damage calculation
+        if (attackerCard.mode === "ATTACK" && defenderCard.mode === "ATTACK") {
+          damageToDefender = attackerCard.atk;
+          damageToAttacker = Math.max(0, defenderCard.atk - attackerCard.def);
+        } else if (
+          attackerCard.mode === "ATTACK" &&
+          defenderCard.mode === "DEFENSE"
+        ) {
+          damageToDefender = Math.max(0, attackerCard.atk - defenderCard.def);
+          damageToAttacker = 0;
+        }
+      } else {
+        // Direct attack - use a dummy element for the player's life point area
+        damageToDefender = attackerCard.atk;
+        damageToAttacker = 0;
+      }
+
+      // Queue animation and wait for completion
+      return new Promise<void>((resolve) => {
+        // If no defender element (direct attack), use player's board center as target
+        const targetElement =
+          defenderElement ||
+          (document.querySelector(
+            '[data-testid="creature-lane-0"]'
+          ) as HTMLElement);
+
+        if (targetElement) {
+          queueAttack(
+            attackerCard,
+            attackerElement,
+            targetElement,
+            damageToDefender,
+            damageToAttacker,
+            () => {
+              // Execute the actual attack after animation
+              if (engine) {
+                engine.attack(1, attackerLane, targetLane);
+              }
+              resolve();
+            }
+          );
+        } else {
+          // Fallback
+          if (engine) {
+            engine.attack(1, attackerLane, targetLane);
+          }
+          resolve();
+        }
+      });
+    };
+
+    initializeGame(
+      deck1,
+      deck2,
+      aiSkillLevel,
+      trapCallback,
+      aiAttackAnimationCallback
+    );
     dispatch(setSelectedHandCard(null));
     dispatch(setSelectedAttacker(null));
-  }, [initializeGame, aiSkillLevel, dispatch]);
+  }, [initializeGame, aiSkillLevel, dispatch, queueAttack, engine, gameState]);
 
   const startNewGameWithCustomDeck = useCallback(() => {
     const customDeck = loadDeckFromLocalStorage();
@@ -252,10 +350,116 @@ export default function App() {
       return false;
     };
 
-    initializeGame(deck1, deck2, aiSkillLevel, trapCallback);
+    // AI attack animation callback
+    const aiAttackAnimationCallback = async (
+      attackerLane: number,
+      targetLane: number | null
+    ): Promise<void> => {
+      // Query DOM for attacker element (AI is player 1, opponent board)
+      const attackerElement = document.querySelector(
+        `[data-testid="opponent-creature-lane-${attackerLane}"] > div`
+      ) as HTMLElement | null;
+
+      // Query DOM for defender element (player is player 0)
+      const defenderElement =
+        targetLane !== null
+          ? (document.querySelector(
+              `[data-testid="creature-lane-${targetLane}"] > div`
+            ) as HTMLElement | null)
+          : null;
+
+      if (!attackerElement || !gameState) {
+        // Fallback: execute attack without animation
+        if (engine) {
+          engine.attack(1, attackerLane, targetLane);
+        }
+        return;
+      }
+
+      const player2 = gameState.players[1]; // AI
+      const player1 = gameState.players[0]; // Human
+      const attackerCard = player2.lanes[attackerLane];
+      const defenderCard =
+        targetLane !== null ? player1.lanes[targetLane] : null;
+
+      if (!attackerCard) {
+        return;
+      }
+
+      // Calculate damage
+      let damageToDefender = 0;
+      let damageToAttacker = 0;
+
+      if (defenderCard && defenderElement) {
+        // Combat damage calculation
+        if (attackerCard.mode === "ATTACK" && defenderCard.mode === "ATTACK") {
+          damageToDefender = attackerCard.atk;
+          damageToAttacker = Math.max(0, defenderCard.atk - attackerCard.def);
+        } else if (
+          attackerCard.mode === "ATTACK" &&
+          defenderCard.mode === "DEFENSE"
+        ) {
+          damageToDefender = Math.max(0, attackerCard.atk - defenderCard.def);
+          damageToAttacker = 0;
+        }
+      } else {
+        // Direct attack - use a dummy element for the player's life point area
+        damageToDefender = attackerCard.atk;
+        damageToAttacker = 0;
+      }
+
+      // Queue animation and wait for completion
+      return new Promise<void>((resolve) => {
+        // If no defender element (direct attack), use player's board center as target
+        const targetElement =
+          defenderElement ||
+          (document.querySelector(
+            '[data-testid="creature-lane-0"]'
+          ) as HTMLElement);
+
+        if (targetElement) {
+          queueAttack(
+            attackerCard,
+            attackerElement,
+            targetElement,
+            damageToDefender,
+            damageToAttacker,
+            () => {
+              // Execute the actual attack after animation
+              if (engine) {
+                engine.attack(1, attackerLane, targetLane);
+              }
+              resolve();
+            }
+          );
+        } else {
+          // Fallback
+          if (engine) {
+            engine.attack(1, attackerLane, targetLane);
+          }
+          resolve();
+        }
+      });
+    };
+
+    initializeGame(
+      deck1,
+      deck2,
+      aiSkillLevel,
+      trapCallback,
+      aiAttackAnimationCallback
+    );
     dispatch(setSelectedHandCard(null));
     dispatch(setSelectedAttacker(null));
-  }, [initializeGame, aiSkillLevel, dispatch, startNewGame]);
+  }, [
+    initializeGame,
+    aiSkillLevel,
+    dispatch,
+    startNewGame,
+    queueAttack,
+    engine,
+    gameState,
+  ]);
 
   const handleNewGame = useCallback(() => {
     if (hasSavedDeck()) {

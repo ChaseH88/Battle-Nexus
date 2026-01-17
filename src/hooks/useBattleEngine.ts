@@ -32,7 +32,11 @@ export interface BattleEngineHookReturn {
       defenderIndex: 0 | 1,
       attackerLane: number,
       targetLane: number
-    ) => Promise<boolean>
+    ) => Promise<boolean>,
+    attackAnimationCallback?: (
+      attackerLane: number,
+      targetLane: number | null
+    ) => Promise<void>
   ) => void;
   draw: (playerIndex: number) => void;
   playCreature: (
@@ -100,7 +104,11 @@ export function useBattleEngine(): BattleEngineHookReturn {
         defenderIndex: 0 | 1,
         attackerLane: number,
         targetLane: number
-      ) => Promise<boolean>
+      ) => Promise<boolean>,
+      attackAnimationCallback?: (
+        attackerLane: number,
+        targetLane: number | null
+      ) => Promise<void>
     ) => {
       const p1 = createPlayerState("Player 1", [...player1Deck]);
       const p2 = createPlayerState("AI Opponent", [...player2Deck]);
@@ -127,12 +135,13 @@ export function useBattleEngine(): BattleEngineHookReturn {
 
       setEngine(newEngine);
 
-      // Initialize AI with refresh callback and trap callback
+      // Initialize AI with refresh callback, trap callback, and attack animation callback
       const newAI = new AIPlayer(
         { skillLevel: aiSkillLevel, playerIndex: 1 },
         newEngine,
         () => refreshRef.current(),
-        trapCallback
+        trapCallback,
+        attackAnimationCallback
       );
       setAI(newAI);
 

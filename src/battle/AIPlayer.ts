@@ -22,6 +22,10 @@ export class AIPlayer {
     attackerLane: number,
     targetLane: number
   ) => Promise<boolean>;
+  private attackAnimationCallback?: (
+    attackerLane: number,
+    targetLane: number | null
+  ) => Promise<void>;
 
   constructor(
     config: AIConfig,
@@ -31,13 +35,18 @@ export class AIPlayer {
       defenderIndex: 0 | 1,
       attackerLane: number,
       targetLane: number
-    ) => Promise<boolean>
+    ) => Promise<boolean>,
+    attackAnimationCallback?: (
+      attackerLane: number,
+      targetLane: number | null
+    ) => Promise<void>
   ) {
     this.skillLevel = Math.max(1, Math.min(10, config.skillLevel)); // Clamp 1-10
     this.playerIndex = config.playerIndex;
     this.engine = engine;
     this.onActionComplete = onActionComplete;
     this.trapActivationCallback = trapActivationCallback;
+    this.attackAnimationCallback = attackAnimationCallback;
   }
 
   /**
@@ -356,9 +365,18 @@ export class AIPlayer {
           }
         }
 
-        this.engine.attack(this.playerIndex, laneIndex, target);
-        this.onActionComplete?.();
-        await this.delay(500);
+        // Trigger attack animation if callback provided
+        if (this.attackAnimationCallback) {
+          await this.attackAnimationCallback(laneIndex, target);
+          // Call onActionComplete after animation to trigger state refresh
+          this.onActionComplete?.();
+          await this.delay(300);
+        } else {
+          // Fallback: execute attack immediately without animation
+          this.engine.attack(this.playerIndex, laneIndex, target);
+          this.onActionComplete?.();
+          await this.delay(500);
+        }
       }
     }
   }
