@@ -12,6 +12,7 @@ import { direct_burn_damage } from "./effect/direct_burn_damage";
 import { quick_assessment } from "./effect/quick_assessment";
 import { battle_rage } from "./effect/battle_rage";
 import { callHomeHandler } from "./effect/call_home";
+import { fusion_drive } from "./effect/fusion_drive";
 
 /**
  * Effect Context - provides access to all game state and utility functions
@@ -291,6 +292,7 @@ export const effectHandlers: Record<string, EffectHandler> = {
   quick_assessment,
   battle_rage,
   call_home: callHomeHandler,
+  fusion_drive,
 };
 
 /**

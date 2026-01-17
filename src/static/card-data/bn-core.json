@@ -361,7 +361,7 @@
     "id": "fusion_drive",
     "type": "ACTION",
     "name": "Fusion Drive",
-    "description": "Gain 5 momentum. Your opponent gains 2 momentum.",
+    "description": "Gain 2 momentum. This card's cost does not reduce your momentum.",
     "cost": 3,
     "speed": "NORMAL",
     "effectId": "fusion_drive",
