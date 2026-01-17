@@ -3,6 +3,7 @@ import { ActivationRequirement, TargetingConfig } from "./types";
 import { purge_opponent_support } from "./effect/purge_opponent_support";
 import { boost_fire_atk } from "./effect/boost_fire_atk";
 import { callHomeHandler } from "./effect/call_home";
+import { minor_reinforcement } from "./effect/minor_reinforcement";
 
 /**
  * Centralized Effect Metadata
@@ -57,6 +58,7 @@ export const effectMetadata: Record<string, EffectMetadata> = {
   purge_opponent_support: purge_opponent_support.metadata!,
   boost_fire_atk: boost_fire_atk.metadata!,
   call_home: callHomeHandler.metadata!,
+  minor_reinforcement: minor_reinforcement.metadata!,
 
   // Add new effects here
 };

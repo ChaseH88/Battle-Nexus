@@ -239,7 +239,7 @@
     "id": "minor_reinforcement",
     "type": "ACTION",
     "name": "Minor Reinforcement",
-    "description": "Target creature gains +20 HP.",
+    "description": "Target one of your creatures. That creature gains +20 HP.",
     "cost": 1,
     "speed": "NORMAL",
     "effectId": "minor_reinforcement",

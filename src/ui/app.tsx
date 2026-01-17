@@ -779,28 +779,50 @@ export default function App() {
           return;
         }
 
-        // Open target selection modal with metadata-driven configuration
+        // First show confirmation modal, then target selection
         dispatch(
-          openTargetSelectModal({
-            title: metadata?.targeting?.description || "Select target",
-            message: `Choose a target for ${card.name}`,
-            options,
-            onConfirm: (targetValue: number) => {
-              // Determine what the target value represents based on effect type
-              const eventData: any = {};
+          openModal({
+            title: "Activate Card",
+            message: `Flip ${card.name} face-up and activate it?`,
+            onConfirm: () => {
+              dispatch(closeModal());
+              // After confirmation, open target selection modal
+              dispatch(
+                openTargetSelectModal({
+                  title: metadata?.targeting?.description || "Select target",
+                  message: `Choose a target for ${card.name}`,
+                  options,
+                  onConfirm: (targetValue: number) => {
+                    // Determine what the target value represents based on effect type
+                    const eventData: any = {};
 
-              if (metadata?.targeting?.targetType === "OPPONENT_SUPPORT") {
-                eventData.targetPlayer = 1;
-                eventData.targetLane = targetValue;
-              } else if (
-                metadata?.targeting?.targetType?.includes("CREATURE")
-              ) {
-                eventData.targetLane = targetValue;
-                eventData.lane = targetValue; // Also set lane for effect handler
-              }
+                    if (
+                      metadata?.targeting?.targetType === "OPPONENT_SUPPORT"
+                    ) {
+                      eventData.targetPlayer = 1;
+                      eventData.targetLane = targetValue;
+                    } else if (
+                      metadata?.targeting?.targetType?.includes("CREATURE")
+                    ) {
+                      eventData.targetLane = targetValue;
+                      eventData.lane = targetValue; // Also set lane for effect handler
+                    }
 
-              engine.activateSupport(0 as 0 | 1, slot, eventData);
-              refresh();
+                    // Queue animation first if element is provided
+                    if (element) {
+                      queueActivation(card, element, () => {
+                        // Execute activation after animation completes
+                        engine.activateSupport(0 as 0 | 1, slot, eventData);
+                        refresh();
+                      });
+                    } else {
+                      // No animation - activate immediately
+                      engine.activateSupport(0 as 0 | 1, slot, eventData);
+                      refresh();
+                    }
+                  },
+                })
+              );
             },
           })
         );

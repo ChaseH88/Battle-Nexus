@@ -172,12 +172,12 @@
     "trigger": "ON_PLAY",
     "requiresTarget": true,
     "targetType": "ALLY_CREATURE",
-    "description": "Target creature gains +200 HP.",
+    "description": "Target creature gains +20 HP.",
     "actions": [
       {
         "type": "HP_CHANGE",
         "target": "ALLY_CREATURE",
-        "amount": 200
+        "amount": 20
       }
     ]
   },
@@ -347,17 +347,28 @@
     "name": "Fusion Drive",
     "timing": "NORMAL",
     "trigger": "ON_PLAY",
-    "description": "Gain 5 momentum. Your opponent gains 2 momentum.",
+    "description": "Gain 2 momentum. This card's cost does not reduce your momentum.",
     "actions": [
       {
         "type": "MOMENTUM_CHANGE",
         "target": "PLAYER",
-        "amount": 5
-      },
-      {
-        "type": "MOMENTUM_CHANGE",
-        "target": "OPPONENT",
         "amount": 2
+      }
+    ]
+  },
+  {
+    "id": "minor_reinforcement",
+    "name": "Minor Reinforcement",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "requiresTarget": true,
+    "targetType": "ALLY_CREATURE",
+    "description": "Target creature gains +20 HP.",
+    "actions": [
+      {
+        "type": "HP_CHANGE",
+        "target": "ALLY_CREATURE",
+        "amount": 20
       }
     ]
   },

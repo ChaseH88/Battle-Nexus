@@ -13,6 +13,7 @@ import { quick_assessment } from "./effect/quick_assessment";
 import { battle_rage } from "./effect/battle_rage";
 import { callHomeHandler } from "./effect/call_home";
 import { fusion_drive } from "./effect/fusion_drive";
+import { minor_reinforcement } from "./effect/minor_reinforcement";
 
 /**
  * Effect Context - provides access to all game state and utility functions
@@ -41,6 +42,9 @@ export interface EffectContext {
     targetPlayer?: 0 | 1;
   };
 
+  // Target card (for effects that require targeting)
+  targetCard?: CardInterface;
+
   // Utility functions
   utils: EffectUtils;
 }
@@ -51,6 +55,7 @@ export interface EffectUtils {
   getEnemyCreatures: (playerIndex: 0 | 1) => CreatureCard[];
   getAllCreatures: () => CreatureCard[];
   getCreatureInLane: (playerIndex: 0 | 1, lane: number) => CreatureCard | null;
+  findCreatureById: (cardId: string) => CreatureCard | null;
 
   // Modify stats
   modifyCreatureStats: (
@@ -131,6 +136,19 @@ export function createEffectUtils(
       const card = state.players[playerIndex].lanes[lane];
       if (card && card.type === CardType.Creature) {
         return card as unknown as CreatureCard;
+      }
+      return null;
+    },
+
+    findCreatureById: (cardId: string) => {
+      // Search both players' lanes for the creature
+      for (const playerIndex of [0, 1] as const) {
+        const creature = state.players[playerIndex].lanes.find(
+          (card) => card?.id === cardId && card.type === CardType.Creature
+        );
+        if (creature) {
+          return creature as CreatureCard;
+        }
       }
       return null;
     },
@@ -274,7 +292,9 @@ export function createEffectUtils(
 /**
  * Effect Handler - custom callback function for each effect
  */
-export type EffectHandler = (context: EffectContext) => void;
+export type EffectHandler = ((context: EffectContext) => void) & {
+  metadata?: import("./metadata").EffectMetadata;
+};
 
 /**
  * Registry of custom effect handlers
@@ -293,6 +313,7 @@ export const effectHandlers: Record<string, EffectHandler> = {
   battle_rage,
   call_home: callHomeHandler,
   fusion_drive,
+  minor_reinforcement,
 };
 
 /**
