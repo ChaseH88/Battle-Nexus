@@ -3,8 +3,6 @@ import {
   Box,
   Typography,
   Grid,
-  Card as MuiCard,
-  CardContent,
   Chip,
   TextField,
   Select,
@@ -16,9 +14,29 @@ import {
   Alert,
 } from "@mui/material";
 import cardData from "../../static/card-data/bn-core.json";
-import { CardType, Affinity } from "../../cards/types";
+import { CardType, Affinity, CardInterface } from "../../cards/types";
+import { CreatureCard } from "../../cards/CreatureCard";
+import { SupportCard } from "../../cards/SupportCard";
+import { ActionCard } from "../../cards/ActionCard";
+import { TrapCard } from "../../cards/TrapCard";
+import { Card } from "../Battle/Card/Card";
 
 const DECK_STORAGE_KEY = "battle-nexus-deck";
+
+function cardFactory(raw: any): CardInterface {
+  switch (raw.type) {
+    case CardType.Creature:
+      return new CreatureCard(raw);
+    case CardType.Action:
+      return new ActionCard(raw);
+    case CardType.Support:
+      return new SupportCard(raw);
+    case CardType.Trap:
+      return new TrapCard(raw);
+    default:
+      throw new Error(`Unknown card type: ${raw.type}`);
+  }
+}
 
 interface CardData {
   id: string;
@@ -32,9 +50,10 @@ interface CardData {
   affinity: Affinity;
   rarity: string;
   set: string;
+  effectId?: string;
 }
 
-const DeckBuilder: React.FC = () => {
+const DeckBuilder = () => {
   // Load deck from localStorage on initialization using lazy initializer
   const [selectedCards, setSelectedCards] = useState<Map<string, number>>(
     () => {
@@ -146,40 +165,6 @@ const DeckBuilder: React.FC = () => {
     }
   );
 
-  const getAffinityColor = (affinity: Affinity) => {
-    switch (affinity) {
-      case Affinity.Fire:
-        return "#ef4444";
-      case Affinity.Water:
-        return "#3b82f6";
-      case Affinity.Grass:
-        return "#84cc16";
-      case Affinity.Wind:
-        return "#22d3ee";
-      case Affinity.Light:
-        return "#fbbf24";
-      case Affinity.Shadow:
-        return "#8b5cf6";
-      case Affinity.Metal:
-        return "#9ca3af";
-      default:
-        return "#6b7280";
-    }
-  };
-
-  const getTypeColor = (type: CardType) => {
-    switch (type) {
-      case "CREATURE":
-        return "#ed8936";
-      case "SUPPORT":
-        return "#4299e1";
-      case "ACTION":
-        return "#9f7aea";
-      default:
-        return "#718096";
-    }
-  };
-
   return (
     <Box sx={{ maxWidth: "1600px", margin: "0 auto", padding: "20px" }}>
       <Typography
@@ -189,9 +174,9 @@ const DeckBuilder: React.FC = () => {
         Deck Builder
       </Typography>
 
-      <Grid container spacing={3}>
+      <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "nowrap" }}>
         {/* Left Panel - Card Collection */}
-        <Grid>
+        <Box className="left-container" flex="0 0 73%">
           <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
             <TextField
               label="Search Cards"
@@ -241,128 +226,69 @@ const DeckBuilder: React.FC = () => {
             </FormControl>
           </Box>
 
-          <Grid container spacing={2}>
+          <Box display="flex" flexWrap="wrap" gap={5}>
             {filteredCards.map((card) => {
               const countInDeck = selectedCards.get(card.id) || 0;
+              const cardInstance = cardFactory(card);
+
               return (
                 <Grid key={card.id}>
-                  <MuiCard
+                  <Box
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addCardToDeck(card.id);
+                    }}
                     sx={{
-                      background: "linear-gradient(145deg, #2d3748, #1a202c)",
-                      border: `2px solid ${getTypeColor(card.type)}`,
                       cursor: "pointer",
                       transition: "all 0.3s ease",
+                      position: "relative",
                       "&:hover": {
                         transform: "translateY(-5px)",
-                        boxShadow: "0 10px 20px rgba(0,0,0,0.3)",
+                        filter: "brightness(1.2)",
                       },
                     }}
-                    onClick={() => addCardToDeck(card.id)}
                   >
-                    <CardContent>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          mb: 1,
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{ color: "#fff", fontWeight: "bold" }}
-                        >
-                          {card.name}
-                        </Typography>
-                        <Chip
-                          label={`${countInDeck}/3`}
-                          size="small"
-                          sx={{
-                            background:
-                              countInDeck === 3
-                                ? "#48bb78"
-                                : "rgba(255,255,255,0.2)",
-                            color: "#fff",
-                            fontWeight: "bold",
-                          }}
-                        />
-                      </Box>
-                      <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
-                        <Chip
-                          label={card.type}
-                          size="small"
-                          sx={{
-                            background: getTypeColor(card.type),
-                            color: "#fff",
-                            fontSize: "0.7rem",
-                          }}
-                        />
-                        <Chip
-                          label={card.affinity}
-                          size="small"
-                          sx={{
-                            background: getAffinityColor(card.affinity),
-                            color: "#fff",
-                            fontSize: "0.7rem",
-                          }}
-                        />
-                        <Chip
-                          label={`Cost: ${card.cost}`}
-                          size="small"
-                          sx={{
-                            background: "rgba(255,255,255,0.2)",
-                            color: "#fff",
-                            fontSize: "0.7rem",
-                          }}
-                        />
-                      </Box>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: "#cbd5e0",
-                          fontSize: "0.85rem",
-                          mb: 1,
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {card.description}
-                      </Typography>
-                      {card.type === "CREATURE" && (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            gap: 2,
-                            justifyContent: "center",
-                            mt: 1,
-                          }}
-                        >
-                          <Typography
-                            sx={{ color: "#fc8181", fontWeight: "bold" }}
-                          >
-                            ATK: {card.atk}
-                          </Typography>
-                          <Typography
-                            sx={{ color: "#63b3ed", fontWeight: "bold" }}
-                          >
-                            DEF: {card.def}
-                          </Typography>
-                          <Typography
-                            sx={{ color: "#68d391", fontWeight: "bold" }}
-                          >
-                            HP: {card.hp}
-                          </Typography>
-                        </Box>
-                      )}
-                    </CardContent>
-                  </MuiCard>
+                    {/* Count badge */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: -8,
+                        right: -8,
+                        zIndex: 10,
+                        background:
+                          countInDeck === 3
+                            ? "#48bb78"
+                            : countInDeck > 0
+                            ? "#4299e1"
+                            : "rgba(255,255,255,0.2)",
+                        borderRadius: "50%",
+                        width: "32px",
+                        height: "32px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: "2px solid #1a202c",
+                        fontWeight: "bold",
+                        color: "#fff",
+                        fontSize: "0.875rem",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeCardFromDeck(card.id);
+                      }}
+                    >
+                      {countInDeck}/3
+                    </Box>
+                    <Card card={cardInstance} disableHover={false} readonly />
+                  </Box>
                 </Grid>
               );
             })}
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Right Panel - Current Deck */}
-        <Grid>
+        <Box className="right-container" flex="0 0 27%">
           <Box
             sx={{
               background: "rgba(0,0,0,0.4)",
@@ -438,7 +364,7 @@ const DeckBuilder: React.FC = () => {
                         background: "rgba(255,255,255,0.1)",
                         padding: "10px",
                         borderRadius: "5px",
-                        border: `1px solid ${getTypeColor(card.type)}`,
+                        border: "1px solid rgba(255,255,255,0.2)",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
@@ -480,8 +406,8 @@ const DeckBuilder: React.FC = () => {
               </Box>
             )}
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       <Snackbar
         open={snackbarOpen}

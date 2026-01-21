@@ -7,9 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export const CardDetailModal = () => {
   const dispatch = useDispatch();
-  const { isOpen, card, originRect } = useSelector(
-    (state: RootState) => state.ui.cardDetailModal
-  );
+  const {
+    isOpen,
+    card,
+    originRect,
+    playerMomentum = 0,
+  } = useSelector((state: RootState) => state.ui.cardDetailModal);
 
   if (!isOpen || !card) return null;
 
@@ -72,7 +75,11 @@ export const CardDetailModal = () => {
               transition: "transform 1s ease",
             }}
           >
-            <Card card={card} disableHover={true} />
+            <Card
+              card={card}
+              playerMomentum={playerMomentum}
+              disableHover={true}
+            />
           </div>
         </motion.div>
       </AnimatePresence>

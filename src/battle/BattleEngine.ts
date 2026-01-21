@@ -15,6 +15,7 @@ import {
   createSuccess,
   validateMomentumCost,
 } from "./CommandTypes";
+import { getMomentumGlobalBuff } from "./MomentumPressure";
 
 export class BattleEngine {
   public onEffectActivated?: (card: CardInterface, effectName: string) => void;
@@ -41,7 +42,95 @@ export class BattleEngine {
       this.log(
         `${player.id} gained ${gained} Momentum! (${player.momentum}/10)`
       );
+      // Apply Momentum Pressure adjustments when momentum increases
+      this.applyMomentumPressureToPlayer(playerIndex);
     }
+  }
+
+  /**
+   * Apply Momentum Pressure global buff adjustments to all creatures owned by a player.
+   * This is called whenever momentum changes or creatures enter/leave play.
+   *
+   * Momentum Pressure Rule:
+   * - Buffs creatures based on owner's momentum (1-2: none, 3-5: +10, 6-9: +20, 10: +30)
+   * - When momentum drops and buffs are removed:
+   *   - Current HP may NOT drop below 10 (Momentum Pressure cannot kill)
+   *   - ATK and DEF may NOT drop below 0
+   *   - If current HP exceeds new max HP, clamp it
+   */
+  private applyMomentumPressureToPlayer(playerIndex: number) {
+    const player = this.state.players[playerIndex];
+    const buff = getMomentumGlobalBuff(player.momentum);
+
+    // Iterate through all creature lanes
+    for (const creature of player.lanes) {
+      if (!creature) continue;
+
+      // IMPORTANT: Momentum Pressure adjusts current HP when max HP changes
+      // Calculate the new max HP with momentum buff
+      const newMaxHp = creature.hp + buff.hp;
+
+      // If current HP exceeds new max HP (momentum dropped), clamp it
+      // But NEVER let it drop below 10 due to Momentum Pressure alone
+      if (creature.currentHp > newMaxHp) {
+        creature.currentHp = Math.max(10, newMaxHp);
+      } else if (creature.currentHp < 10) {
+        // Edge case: ensure HP is never below 10 due to momentum changes
+        creature.currentHp = 10;
+      }
+
+      // NOTE: ATK and DEF buffs are applied dynamically during combat/display
+      // They don't need to be stored on the creature since they're derived from momentum
+    }
+  }
+
+  /**
+   * Spend momentum (reduces momentum and applies Momentum Pressure adjustments).
+   * Used when playing cards or activating effects that cost momentum.
+   */
+  private spendMomentum(playerIndex: number, amount: number) {
+    const player = this.state.players[playerIndex];
+    const oldMomentum = player.momentum;
+    player.momentum = Math.max(0, player.momentum - amount);
+    const spent = oldMomentum - player.momentum;
+
+    if (spent > 0) {
+      // Apply Momentum Pressure adjustments when momentum decreases
+      this.applyMomentumPressureToPlayer(playerIndex);
+    }
+  }
+
+  /**
+   * Get effective ATK for a creature with Momentum Pressure applied.
+   * This should be used for all combat calculations.
+   */
+  private getEffectiveAtk(creature: CreatureCard, playerIndex: number): number {
+    const player = this.state.players[playerIndex];
+    const buff = getMomentumGlobalBuff(player.momentum);
+    return Math.max(0, creature.atk + buff.atk);
+  }
+
+  /**
+   * Get effective DEF for a creature with Momentum Pressure applied.
+   * This should be used for all combat calculations.
+   */
+  private getEffectiveDef(creature: CreatureCard, playerIndex: number): number {
+    const player = this.state.players[playerIndex];
+    const buff = getMomentumGlobalBuff(player.momentum);
+    return Math.max(0, creature.def + buff.def);
+  }
+
+  /**
+   * Get effective max HP for a creature with Momentum Pressure applied.
+   * This should be used for display purposes.
+   */
+  private getEffectiveMaxHp(
+    creature: CreatureCard,
+    playerIndex: number
+  ): number {
+    const player = this.state.players[playerIndex];
+    const buff = getMomentumGlobalBuff(player.momentum);
+    return creature.hp + buff.hp;
   }
 
   draw(playerIndex: number) {
@@ -140,11 +229,13 @@ export class BattleEngine {
     }
 
     // COST PAYMENT: Deduct momentum cost BEFORE playing the card
-    player.momentum -= cardCost;
     if (cardCost > 0) {
       this.log(
-        `${player.id} spent ${cardCost} Momentum to play ${card.name}! (${player.momentum}/10 remaining)`
+        `${player.id} spent ${cardCost} Momentum to play ${card.name}! (${
+          player.momentum - cardCost
+        }/10 remaining)`
       );
+      this.spendMomentum(playerIndex, cardCost);
     }
 
     // Move from appropriate zone
@@ -499,7 +590,7 @@ export class BattleEngine {
     }
 
     // COST PAYMENT: Deduct momentum cost BEFORE activating the card
-    player.momentum -= cardCost;
+    this.spendMomentum(playerIndex, cardCost);
     if (cardCost > 0) {
       this.log(
         `${player.id} spent ${cardCost} Momentum to activate ${card.name}! (${player.momentum}/10 remaining)`
@@ -874,7 +965,8 @@ export class BattleEngine {
 
       if (!hasAnyCreatures) {
         // Opponent has no creatures - direct attack deals damage to life points
-        const damage = attacker.atk;
+        const effectiveAtk = this.getEffectiveAtk(attacker, playerIndex);
+        const damage = effectiveAtk;
         opponent.lifePoints -= damage;
 
         this.log(`${attacker.name} attacked ${opponent.id} directly!`);
@@ -914,11 +1006,20 @@ export class BattleEngine {
     if (attacker.mode === "ATTACK" && defender.mode === "ATTACK") {
       // Both in attack mode - attacker gets advantage
       // Attacker deals full damage, defender only counters with the difference
-      const damageToDefender = attacker.atk;
-      const damageToAttacker = Math.max(0, defender.atk - attacker.atk);
+      const attackerEffectiveAtk = this.getEffectiveAtk(attacker, playerIndex);
+      const defenderEffectiveAtk = this.getEffectiveAtk(
+        defender,
+        opponentIndex
+      );
+
+      const damageToDefender = attackerEffectiveAtk;
+      const damageToAttacker = Math.max(
+        0,
+        defenderEffectiveAtk - attackerEffectiveAtk
+      );
 
       this.log(
-        `⚔️ CLASH! ${attacker.name} (ATK: ${attacker.atk}) vs ${defender.name} (ATK: ${defender.atk})`
+        `⚔️ CLASH! ${attacker.name} (ATK: ${attackerEffectiveAtk}) vs ${defender.name} (ATK: ${defenderEffectiveAtk})`
       );
 
       // Attacker deals full damage
@@ -1010,12 +1111,18 @@ export class BattleEngine {
       }
     } else if (attacker.mode === "ATTACK" && defender.mode === "DEFENSE") {
       // Defender in defense mode - reduces damage and NO counter-attack
-      const rawDamage = attacker.atk;
-      const blockedDamage = defender.def;
+      const attackerEffectiveAtk = this.getEffectiveAtk(attacker, playerIndex);
+      const defenderEffectiveDef = this.getEffectiveDef(
+        defender,
+        opponentIndex
+      );
+
+      const rawDamage = attackerEffectiveAtk;
+      const blockedDamage = defenderEffectiveDef;
       const damageToDefender = Math.max(0, rawDamage - blockedDamage);
 
       this.log(
-        `🛡️ DEFENSE! ${attacker.name} (ATK: ${attacker.atk}) attacks ${defender.name} (DEF: ${defender.def})`
+        `🛡️ DEFENSE! ${attacker.name} (ATK: ${attackerEffectiveAtk}) attacks ${defender.name} (DEF: ${defenderEffectiveDef})`
       );
 
       if (damageToDefender > 0) {

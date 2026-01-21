@@ -111,8 +111,8 @@ describe("BattleEngine – KO and win logic", () => {
     const lifeBeforeDirectAttack = p2.lifePoints;
     engine.attack(0, 0); // Direct attack
 
-    // P2 should have lost life points equal to attacker's ATK
-    expect(p2.lifePoints).toBe(lifeBeforeDirectAttack - attackerAtk);
+    // P2 should have lost life points equal to attacker's ATK (with +30 buff at momentum 10)
+    expect(p2.lifePoints).toBe(lifeBeforeDirectAttack - (attackerAtk + 30));
     expect(game.winnerIndex).toBeNull();
 
     // ---------- More Direct Attacks to Win ----------

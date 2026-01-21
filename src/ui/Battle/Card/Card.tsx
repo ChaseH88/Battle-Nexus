@@ -10,7 +10,8 @@ import { CreatureCard } from "../../../cards";
 import { CardSlot } from "./Card.styles";
 import { useDispatch } from "react-redux";
 import { openCardDetailModal } from "../../../store/uiSlice";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
+import { getEffectiveCreatureStats } from "../../../battle/MomentumPressure";
 
 interface CardProps {
   card: CardInterface | null;
@@ -21,6 +22,8 @@ interface CardProps {
   selectedHandCard?: string | null;
   canActivate?: boolean; // New prop to show pulsing border
   disableHover?: boolean; // Disable hover animations (for modal display)
+  playerMomentum?: number; // Player's current momentum for Momentum Pressure buffs
+  readonly?: boolean; // If true, the card is in a read-only state
 }
 
 export const Card = ({
@@ -32,9 +35,24 @@ export const Card = ({
   selectedHandCard,
   canActivate = false,
   disableHover = false,
+  playerMomentum = 0,
+  readonly = false,
 }: CardProps) => {
   const dispatch = useDispatch();
   const cardSlotRef = useRef<HTMLDivElement>(null);
+
+  // Calculate effective stats with Momentum Pressure buffs (must be before early returns)
+  const effectiveStats = useMemo(() => {
+    if (!card || card.type !== CardType.Creature) return null;
+    const creature = card as CreatureCard;
+    return {
+      ...getEffectiveCreatureStats(creature, playerMomentum),
+      ...(readonly && {
+        currentHp: undefined,
+      }),
+    };
+  }, [card, playerMomentum, readonly]);
+
   if (!card) {
     return <CardSlot isEmpty onClick={onClick} />;
   }
@@ -91,6 +109,7 @@ export const Card = ({
       openCardDetailModal({
         card,
         activeEffects: [],
+        playerMomentum,
         originRect: {
           left: rect.left,
           top: rect.top,
@@ -116,18 +135,18 @@ export const Card = ({
       onClick={onClick}
       onDoubleClick={handleDoubleClick}
     >
-      {creature && (
+      {creature && effectiveStats && (
         <Creature
           id={creature.id}
           mode={creature.mode}
           isAtkModified={creature.isAtkModified}
           isDefModified={creature.isDefModified}
-          atk={creature.atk}
-          def={creature.def}
+          atk={effectiveStats.atk}
+          def={effectiveStats.def}
           baseAtk={creature.baseAtk}
           baseDef={creature.baseDef}
-          hp={creature.hp}
-          currentHp={creature.currentHp}
+          hp={effectiveStats.maxHp}
+          currentHp={effectiveStats.currentHp}
           hasAttackedThisTurn={creature.hasAttackedThisTurn}
           description={creature.description}
           affinity={creature.affinity}

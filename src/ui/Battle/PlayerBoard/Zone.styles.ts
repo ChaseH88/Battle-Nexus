@@ -7,7 +7,7 @@ export const ZoneContainer = styled.div`
 export const Lanes = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.15em;
+  gap: 5em;
   justify-content: center;
   max-width: 520px;
   margin: 0 auto;

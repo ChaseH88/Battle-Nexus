@@ -48,7 +48,7 @@ export const Creature = ({
   def,
   // baseAtk,
   // baseDef,
-  // hp,
+  hp,
   currentHp,
   hasAttackedThisTurn,
   description,
@@ -148,7 +148,8 @@ export const Creature = ({
         affinity={affinity}
         atk={atk}
         def={def}
-        hp={currentHp}
+        hp={hp}
+        currentHp={currentHp}
         isAtkModified={isAtkModified}
         isDefModified={isDefModified}
         width={183}

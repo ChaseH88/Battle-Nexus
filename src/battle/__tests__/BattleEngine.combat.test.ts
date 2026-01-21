@@ -128,13 +128,14 @@ describe("BattleEngine – Combat Damage", () => {
 
       const initialLifePoints = p2.lifePoints;
 
-      // Attack: 30 ATK vs 10 ATK creature with 20 HP
-      // Defender takes 30 damage, dies with -10 HP
-      // 10 piercing damage should go to life points
+      // Attack: 30 base ATK + 30 momentum buff (P1 has 10 momentum after playing and attacking) = 60 ATK
+      // vs 10 ATK creature with 20 HP
+      // Defender takes 60 damage, dies with -40 HP
+      // 40 piercing damage should go to life points
       engine.attack(0, 0, 0);
 
       expect(p2.lanes[0]).toBeNull(); // Defender destroyed
-      expect(p2.lifePoints).toBe(initialLifePoints - 10); // Piercing damage applied
+      expect(p2.lifePoints).toBe(initialLifePoints - 40); // Piercing damage applied
     });
 
     it("deals larger piercing damage with stronger attacker", () => {
@@ -182,13 +183,17 @@ describe("BattleEngine – Combat Damage", () => {
       const attackerCard = p1.lanes[0] as CreatureCard;
       const initialLifePoints = p2.lifePoints;
 
-      // Attack: attacker damage to 10 HP creature
-      // Creature dies with negative HP
-      // Excess damage goes to life points
+      // Momentum flow:
+      // Start: 10
+      // Play Seismic Hart (cost 3): 10 - 3 = 7
+      // Declare attack: 7 + 2 = 9
+      // At momentum 9, +20 ATK buff applies
+      // Seismic Hart (40 base ATK) + 20 buff = 60 effective ATK
+      // Piercing: 60 - 10 HP = 50 damage to life points
       engine.attack(0, 0, 0);
 
       expect(p2.lanes[0]).toBeNull();
-      const expectedPiercing = attackerCard.atk - 10;
+      const expectedPiercing = attackerCard.atk + 20 - 10;
       expect(p2.lifePoints).toBe(initialLifePoints - expectedPiercing);
     });
 
@@ -323,8 +328,8 @@ describe("BattleEngine – Combat Damage", () => {
         const defenderCard = p2.lanes[0] as CreatureCard;
         const attackerCard = p1.lanes[0] as CreatureCard;
         defenderCard.mode = "ATTACK";
-        // Set HP high enough to survive the attack
-        defenderCard.currentHp = attackerCard.atk + 20;
+        // Set HP high enough to survive the attack (with +30 ATK buff at momentum 10)
+        defenderCard.currentHp = attackerCard.atk + 30 + 20;
       }
 
       const initialLifePoints = p2.lifePoints;

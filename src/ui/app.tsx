@@ -31,6 +31,7 @@ import { useBattleEngine } from "../hooks/useBattleEngine";
 import { getEffectMetadata } from "../effects/metadata";
 import { effectsRegistry } from "../effects/registry";
 import { loadDeckFromLocalStorage, hasSavedDeck } from "../utils/deckLoader";
+import { getEffectiveCreatureStats } from "../battle/MomentumPressure";
 import { CardActivationEffect } from "./Battle/Card/CardActivationEffect";
 import { CardAttackAnimation } from "./Battle/Card/CardAttackAnimation";
 import { useAnimationQueue } from "./Battle/Card/useAnimationQueue";
@@ -219,25 +220,36 @@ export default function App() {
         return;
       }
 
-      // Calculate damage
+      // Calculate damage using effective stats with momentum buffs
       let damageToDefender = 0;
       let damageToAttacker = 0;
 
+      // Get effective stats with momentum buffs
+      const attackerStats = getEffectiveCreatureStats(
+        attackerCard,
+        player2.momentum
+      );
+
       if (defenderCard && defenderElement) {
+        const defenderStats = getEffectiveCreatureStats(
+          defenderCard,
+          player1.momentum
+        );
+
         // Combat damage calculation
         if (attackerCard.mode === "ATTACK" && defenderCard.mode === "ATTACK") {
-          damageToDefender = attackerCard.atk;
-          damageToAttacker = Math.max(0, defenderCard.atk - attackerCard.def);
+          damageToDefender = attackerStats.atk;
+          damageToAttacker = Math.max(0, defenderStats.atk - attackerStats.def);
         } else if (
           attackerCard.mode === "ATTACK" &&
           defenderCard.mode === "DEFENSE"
         ) {
-          damageToDefender = Math.max(0, attackerCard.atk - defenderCard.def);
+          damageToDefender = Math.max(0, attackerStats.atk - defenderStats.def);
           damageToAttacker = 0;
         }
       } else {
         // Direct attack
-        damageToDefender = attackerCard.atk;
+        damageToDefender = attackerStats.atk;
         damageToAttacker = 0;
       }
 
@@ -689,7 +701,7 @@ export default function App() {
               title: "Cannot Activate",
               message: `${card.name} has no valid targets. The card will be discarded.`,
               onConfirm: () => {
-                engine.activateSupport(0 as 0 | 1, slot);
+                engine.activateSupport(0 as 0 | 1, slot); // removes the card from play - may want to revisit this later
                 refresh();
                 dispatch(closeModal());
               },
@@ -807,21 +819,32 @@ export default function App() {
           targetLane !== null ? player2.lanes[targetLane] : null;
 
         if (attackerCard) {
+          // Get effective stats with momentum buffs
+          const attackerStats = getEffectiveCreatureStats(
+            attackerCard,
+            player1.momentum
+          );
+
           // Calculate damage that will be dealt to defender
           let damageToDefender = 0;
           let damageToAttacker = 0; // Counter damage
           if (defenderCard) {
+            const defenderStats = getEffectiveCreatureStats(
+              defenderCard,
+              player2.momentum
+            );
+
             // Combat damage calculation
             if (
               attackerCard.mode === "ATTACK" &&
               defenderCard.mode === "ATTACK"
             ) {
               // ATTACK vs ATTACK: both deal damage, calculate net counter damage
-              damageToDefender = attackerCard.atk;
+              damageToDefender = attackerStats.atk;
               // Counter damage is defender's ATK minus attacker's DEF
               damageToAttacker = Math.max(
                 0,
-                defenderCard.atk - attackerCard.def
+                defenderStats.atk - attackerStats.def
               );
             } else if (
               attackerCard.mode === "ATTACK" &&
@@ -830,13 +853,13 @@ export default function App() {
               // ATTACK vs DEFENSE: only attacker deals damage (ATK - DEF)
               damageToDefender = Math.max(
                 0,
-                attackerCard.atk - defenderCard.def
+                attackerStats.atk - defenderStats.def
               );
               damageToAttacker = 0;
             }
           } else {
             // Direct attack
-            damageToDefender = attackerCard.atk;
+            damageToDefender = attackerStats.atk;
             damageToAttacker = 0;
           }
 

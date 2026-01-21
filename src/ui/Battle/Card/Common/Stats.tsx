@@ -41,7 +41,8 @@ type StatBarProps = {
 
   atk?: number;
   def?: number;
-  hp?: number;
+  hp?: number; // maxHp
+  currentHp?: number; // if provided, displays "currentHp/maxHp"
 
   isAtkModified?: boolean;
   isDefModified?: boolean;
@@ -59,6 +60,7 @@ export const Stats = memo(
     atk = 20,
     def: d = 10,
     hp = 60,
+    currentHp,
     isAtkModified = false,
     isDefModified = false,
     isHpModified = false,
@@ -317,7 +319,7 @@ export const Stats = memo(
           {[
             {
               label: "HP",
-              value: hp,
+              value: currentHp !== undefined ? `${currentHp}/${hp}` : hp,
               slot: slots[0],
               isModified: isHpModified,
             },
@@ -346,7 +348,9 @@ export const Stats = memo(
                   textAnchor="end"
                   fontFamily="system-ui, -apple-system, Segoe UI, Roboto"
                   fontWeight="900"
-                  fontSize="36"
+                  fontSize={
+                    idx === 0 && typeof t.value === "string" ? "24" : "36"
+                  }
                   fill={t.isModified ? "#7AF1FF" : colors.text}
                 >
                   {t.value}

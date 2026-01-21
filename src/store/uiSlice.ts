@@ -14,6 +14,7 @@ interface CardDetailModalState {
   isOpen: boolean;
   card: CardInterface | null;
   activeEffects: ActiveEffect[];
+  playerMomentum?: number;
   originRect?: {
     left: number;
     top: number;
@@ -132,6 +133,7 @@ export const uiSlice = createSlice({
       action: PayloadAction<{
         card: CardInterface;
         activeEffects: ActiveEffect[];
+        playerMomentum?: number;
         originRect?: {
           left: number;
           top: number;
@@ -144,6 +146,7 @@ export const uiSlice = createSlice({
         isOpen: true,
         card: action.payload.card,
         activeEffects: action.payload.activeEffects,
+        playerMomentum: action.payload.playerMomentum,
         originRect: action.payload.originRect,
       };
     },

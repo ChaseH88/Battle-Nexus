@@ -192,6 +192,7 @@ export const Hand = ({
                   >
                     <Card
                       card={card}
+                      playerMomentum={playerMomentum}
                       onClick={() => onSelectCard(card.id)}
                       onDoubleClick={
                         onCardDoubleClick

@@ -117,10 +117,7 @@ const SpeedButton = styled(Button)`
  * - Event timeline display
  * - Real-time state updates
  */
-export const ReplayViewer: React.FC<ReplayViewerProps> = ({
-  events,
-  onStateUpdate,
-}) => {
+export const ReplayViewer = ({ events, onStateUpdate }: ReplayViewerProps) => {
   const [replayEngine, setReplayEngine] = useState<ReplayEngine | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState<ReplaySpeed>(1);

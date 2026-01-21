@@ -105,6 +105,7 @@ export const CreatureZone = ({
               >
                 <Card
                   card={card}
+                  playerMomentum={player.momentum}
                   onClick={
                     !isOpponent && card
                       ? () => {

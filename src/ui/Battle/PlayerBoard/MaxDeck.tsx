@@ -93,7 +93,11 @@ export const MaxDeck = ({
                       onClick={() => canAfford && handleCardClick(card)}
                     >
                       <MaxDeckCardCost>⚡ {card.cost}</MaxDeckCardCost>
-                      <Card card={card} disableHover={true} />
+                      <Card
+                        card={card}
+                        playerMomentum={playerMomentum}
+                        disableHover={true}
+                      />
                       {!canAfford && (
                         <div
                           style={{
