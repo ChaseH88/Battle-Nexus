@@ -10,7 +10,8 @@
     "hp": 40,
     "affinity": "FIRE",
     "rarity": "C",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "ember_cub.jpg"
   },
   {
     "id": "riptide_pixie",
@@ -65,7 +66,8 @@
     "hp": 80,
     "affinity": "FIRE",
     "rarity": "R",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "inferno_lion.jpg"
   },
   {
     "id": "cinder_vixen",
@@ -79,7 +81,8 @@
     "affinity": "FIRE",
     "effectId": "draw_on_play",
     "rarity": "R",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "cinder_vixen.png"
   },
   {
     "id": "granite_colossus",
@@ -92,7 +95,8 @@
     "hp": 60,
     "affinity": "GRASS",
     "rarity": "C",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "granite_colossus.jpg"
   },
   {
     "id": "umbral_wisp",
@@ -106,7 +110,8 @@
     "affinity": "SHADOW",
     "effectId": "void_wisp_boost",
     "rarity": "R",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "umbral_wisp.png"
   },
   {
     "id": "abyssal_bulwark",
@@ -119,7 +124,8 @@
     "hp": 100,
     "affinity": "WATER",
     "rarity": "SR",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "abyssal_bulwark.jpg"
   },
   {
     "id": "seismic_hart",
@@ -132,7 +138,8 @@
     "hp": 120,
     "affinity": "GRASS",
     "rarity": "SR",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "seismic_hart.jpg"
   },
   {
     "id": "tempest_raptor",
@@ -146,7 +153,8 @@
     "affinity": "WIND",
     "effectId": "fire_atk_boost_aura",
     "rarity": "SR",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "tempest_raptor.png"
   },
   {
     "id": "leviathan_coil",
@@ -160,7 +168,8 @@
     "affinity": "WATER",
     "effectId": "purge_opponent_support",
     "rarity": "SR",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "leviathan_coil.jpg"
   },
   {
     "id": "ignite_burst",

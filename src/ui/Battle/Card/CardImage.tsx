@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { CardInterface } from "@cards/types";
+import { Box, SxProps } from "@mui/material";
 
 // Use Vite's import.meta.glob to dynamically import all images in the cards folder
 const imageModules = import.meta.glob<{ default: string }>(
   "../../../assets/cards/*.{jpg,jpeg,png,webp}",
-  { eager: true }
+  { eager: true },
 );
 
 // Create a mapping from filename to image URL
@@ -21,6 +22,7 @@ interface CardImageProps {
   width?: number;
   height?: number;
   alt?: string;
+  sx?: SxProps;
 }
 
 /**
@@ -32,8 +34,15 @@ export const CardImage = ({
   width = 80,
   height = 80,
   alt,
+  sx,
 }: CardImageProps) => {
   const [imageError, setImageError] = useState(false);
+  const styles: SxProps = {
+    position: "absolute",
+    left: "50%",
+    transform: "translateX(-50%)",
+    ...sx,
+  };
 
   // Get the image source from the mapping
   const imageSrc = card.image ? IMAGE_MAP[card.image] : null;
@@ -41,8 +50,8 @@ export const CardImage = ({
   // If no image specified or not found in mapping, show placeholder
   if (!card.image || !imageSrc || imageError) {
     return (
-      <div
-        style={{
+      <Box
+        sx={{
           width,
           height,
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -54,28 +63,30 @@ export const CardImage = ({
           fontSize: "10px",
           textAlign: "center",
           padding: "4px",
+          ...styles,
         }}
       >
         {card.name.slice(0, 3).toUpperCase()}
-      </div>
+      </Box>
     );
   }
 
   // Show image
   return (
-    <img
-      src={imageSrc}
-      alt={alt || card.name}
-      onError={() => setImageError(true)}
-      style={{
-        width,
-        height,
-        objectFit: "cover",
-        objectPosition: "center center",
-        borderRadius: "4px",
-        userSelect: "none",
-        pointerEvents: "none",
-      }}
-    />
+    <Box sx={styles}>
+      <img
+        src={imageSrc}
+        alt={alt || card.name}
+        onError={() => setImageError(true)}
+        style={{
+          width,
+          height,
+          objectFit: "cover",
+          objectPosition: "center center",
+          userSelect: "none",
+          pointerEvents: "none",
+        }}
+      />
+    </Box>
   );
 };

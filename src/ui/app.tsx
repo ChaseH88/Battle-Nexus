@@ -30,7 +30,11 @@ import backgroundImage from "../assets/background.png";
 import { useBattleEngine } from "../hooks/useBattleEngine";
 import { getEffectMetadata } from "../effects/metadata";
 import { effectsRegistry } from "../effects/registry";
-import { loadDeckFromLocalStorage, hasSavedDeck } from "../utils/deckLoader";
+import {
+  loadDeckFromLocalStorage,
+  hasSavedDeck,
+  loadAIDeck,
+} from "../utils/deckLoader";
 import { getEffectiveCreatureStats } from "../battle/MomentumPressure";
 import { CardActivationEffect } from "./Battle/Card/CardActivationEffect";
 import { CardAttackAnimation } from "./Battle/Card/CardAttackAnimation";
@@ -87,14 +91,14 @@ export default function App() {
       (
         defenderIndex: 0 | 1,
         attackerLane: number,
-        targetLane: number
+        targetLane: number,
       ) => Promise<boolean>
     >(undefined);
 
   // Ref to store AI attack animation callback - needs to be stable and have access to latest state
   const aiAttackAnimationCallbackRef =
     useRef<(attackerLane: number, targetLane: number | null) => Promise<void>>(
-      undefined
+      undefined,
     );
 
   // Use the battle engine hook for all state management
@@ -123,7 +127,7 @@ export default function App() {
     async (
       defenderIndex: 0 | 1,
       attackerLane: number,
-      targetLane: number
+      targetLane: number,
     ): Promise<boolean> => {
       if (!engine || !gameState) return false;
 
@@ -139,7 +143,7 @@ export default function App() {
           gameState,
           trap.card,
           attackerLane,
-          targetLane
+          targetLane,
         );
 
         if (shouldActivate) {
@@ -167,14 +171,14 @@ export default function App() {
                 dispatch(closeModal());
                 resolve(false);
               },
-            })
+            }),
           );
         });
       }
 
       return false;
     },
-    [engine, gameState, ai, activateTrap, dispatch]
+    [engine, gameState, ai, activateTrap, dispatch],
   );
 
   // Update ref whenever callback changes
@@ -187,14 +191,14 @@ export default function App() {
     async (attackerLane: number, targetLane: number | null): Promise<void> => {
       // Query DOM for attacker element (AI is player 1, opponent board)
       const attackerElement = document.querySelector(
-        `[data-testid="opponent-creature-lane-${attackerLane}"] > div`
+        `[data-testid="opponent-creature-lane-${attackerLane}"] > div`,
       ) as HTMLElement | null;
 
       // Query DOM for defender element (player is player 0)
       const defenderElement =
         targetLane !== null
           ? (document.querySelector(
-              `[data-testid="creature-lane-${targetLane}"] > div`
+              `[data-testid="creature-lane-${targetLane}"] > div`,
             ) as HTMLElement | null)
           : null;
 
@@ -204,7 +208,7 @@ export default function App() {
           engine.attack(
             1,
             attackerLane,
-            targetLane === null ? undefined : targetLane
+            targetLane === null ? undefined : targetLane,
           );
         }
         return;
@@ -227,13 +231,13 @@ export default function App() {
       // Get effective stats with momentum buffs
       const attackerStats = getEffectiveCreatureStats(
         attackerCard,
-        player2.momentum
+        player2.momentum,
       );
 
       if (defenderCard && defenderElement) {
         const defenderStats = getEffectiveCreatureStats(
           defenderCard,
-          player1.momentum
+          player1.momentum,
         );
 
         // Combat damage calculation
@@ -259,7 +263,7 @@ export default function App() {
         const targetElement =
           defenderElement ||
           (document.querySelector(
-            '[data-testid="creature-lane-0"]'
+            '[data-testid="creature-lane-0"]',
           ) as HTMLElement);
 
         if (targetElement) {
@@ -275,11 +279,11 @@ export default function App() {
                 engine.attack(
                   1,
                   attackerLane,
-                  targetLane === null ? undefined : targetLane
+                  targetLane === null ? undefined : targetLane,
                 );
               }
               resolve();
-            }
+            },
           );
         } else {
           // Fallback
@@ -287,14 +291,14 @@ export default function App() {
             engine.attack(
               1,
               attackerLane,
-              targetLane === null ? undefined : targetLane
+              targetLane === null ? undefined : targetLane,
             );
           }
           resolve();
         }
       });
     },
-    [engine, gameState, queueAttack]
+    [engine, gameState, queueAttack],
   );
 
   // Update ref whenever callback changes
@@ -312,7 +316,7 @@ export default function App() {
           card,
           effectName,
           activeEffects: gameState ? gameState.activeEffects : [],
-        })
+        }),
       );
     };
 
@@ -323,19 +327,19 @@ export default function App() {
 
   const startNewGame = useCallback(() => {
     const deck1 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
-    const deck2 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
+    const deck2 = loadAIDeck();
 
     // Wrap trap callback in a function that uses the ref
     const trapCallback = async (
       defenderIndex: 0 | 1,
       attackerLane: number,
-      targetLane: number
+      targetLane: number,
     ): Promise<boolean> => {
       if (trapActivationCallbackRef.current) {
         return trapActivationCallbackRef.current(
           defenderIndex,
           attackerLane,
-          targetLane
+          targetLane,
         );
       }
       return false;
@@ -344,7 +348,7 @@ export default function App() {
     // Wrap AI attack animation callback in a function that uses the ref
     const aiAttackCallback = async (
       attackerLane: number,
-      targetLane: number | null
+      targetLane: number | null,
     ): Promise<void> => {
       if (aiAttackAnimationCallbackRef.current) {
         return aiAttackAnimationCallbackRef.current(attackerLane, targetLane);
@@ -361,7 +365,7 @@ export default function App() {
 
     if (customDeck && customDeck.length < 20) {
       alert(
-        `Your saved deck has ${customDeck.length} cards. You need exactly 20 cards to use it. Please update your deck in the Deck Builder.`
+        `Your saved deck has ${customDeck.length} cards. You need exactly 20 cards to use it. Please update your deck in the Deck Builder.`,
       );
       startNewGame();
       return;
@@ -371,19 +375,19 @@ export default function App() {
       customDeck && customDeck.length >= 20
         ? [...customDeck].sort(() => 0.5 - Math.random())
         : allCards.map(cardFactory).sort(() => 0.5 - Math.random());
-    const deck2 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
+    const deck2 = loadAIDeck();
 
     // Wrap trap callback in a function that uses the ref
     const trapCallback = async (
       defenderIndex: 0 | 1,
       attackerLane: number,
-      targetLane: number
+      targetLane: number,
     ): Promise<boolean> => {
       if (trapActivationCallbackRef.current) {
         return trapActivationCallbackRef.current(
           defenderIndex,
           attackerLane,
-          targetLane
+          targetLane,
         );
       }
       return false;
@@ -392,7 +396,7 @@ export default function App() {
     // Wrap AI attack animation callback in a function that uses the ref
     const aiAttackCallback = async (
       attackerLane: number,
-      targetLane: number | null
+      targetLane: number | null,
     ): Promise<void> => {
       if (aiAttackAnimationCallbackRef.current) {
         return aiAttackAnimationCallbackRef.current(attackerLane, targetLane);
@@ -444,7 +448,7 @@ export default function App() {
           handleDraw();
           dispatch(closeModal());
         },
-      })
+      }),
     );
   };
 
@@ -550,7 +554,7 @@ export default function App() {
   const handlePlayCreature = (
     lane: number,
     faceDown: boolean = false,
-    mode: "ATTACK" | "DEFENSE" = "ATTACK"
+    mode: "ATTACK" | "DEFENSE" = "ATTACK",
   ) => {
     if (isShowingEffectNotification) return;
     if (!selectedHandCard) return;
@@ -561,7 +565,7 @@ export default function App() {
         lane,
         selectedHandCard,
         faceDown,
-        mode
+        mode,
       );
       if (success) {
         dispatch(setSelectedHandCard(null));
@@ -583,7 +587,7 @@ export default function App() {
         openPlayCreatureModal({
           lane,
           creatureName: card.name,
-        })
+        }),
       );
     }
   };
@@ -604,7 +608,7 @@ export default function App() {
       const success = playSupport(
         0, // Player 1 only
         slot,
-        selectedHandCard
+        selectedHandCard,
       );
       if (success) {
         dispatch(setSelectedHandCard(null));
@@ -632,7 +636,7 @@ export default function App() {
             onConfirm: () => {
               dispatch(closeModal());
             },
-          })
+          }),
         );
         return;
       }
@@ -660,7 +664,7 @@ export default function App() {
               onConfirm: () => {
                 dispatch(closeModal());
               },
-            })
+            }),
           );
           return;
         }
@@ -687,7 +691,7 @@ export default function App() {
                 refresh();
                 dispatch(closeModal());
               },
-            })
+            }),
           );
           return;
         }
@@ -705,7 +709,7 @@ export default function App() {
                 refresh();
                 dispatch(closeModal());
               },
-            })
+            }),
           );
           return;
         }
@@ -752,10 +756,10 @@ export default function App() {
                       refresh();
                     }
                   },
-                })
+                }),
               );
             },
-          })
+          }),
         );
         return;
       }
@@ -778,7 +782,7 @@ export default function App() {
             }
             dispatch(closeModal());
           },
-        })
+        }),
       );
     }
   };
@@ -822,7 +826,7 @@ export default function App() {
           // Get effective stats with momentum buffs
           const attackerStats = getEffectiveCreatureStats(
             attackerCard,
-            player1.momentum
+            player1.momentum,
           );
 
           // Calculate damage that will be dealt to defender
@@ -831,7 +835,7 @@ export default function App() {
           if (defenderCard) {
             const defenderStats = getEffectiveCreatureStats(
               defenderCard,
-              player2.momentum
+              player2.momentum,
             );
 
             // Combat damage calculation
@@ -844,7 +848,7 @@ export default function App() {
               // Counter damage is defender's ATK minus attacker's DEF
               damageToAttacker = Math.max(
                 0,
-                defenderStats.atk - attackerStats.def
+                defenderStats.atk - attackerStats.def,
               );
             } else if (
               attackerCard.mode === "ATTACK" &&
@@ -853,7 +857,7 @@ export default function App() {
               // ATTACK vs DEFENSE: only attacker deals damage (ATK - DEF)
               damageToDefender = Math.max(
                 0,
-                attackerStats.atk - defenderStats.def
+                attackerStats.atk - defenderStats.def,
               );
               damageToAttacker = 0;
             }
@@ -877,7 +881,7 @@ export default function App() {
             () => {
               attack(gameState.activePlayer, selectedAttacker, targetLane);
               dispatch(setSelectedAttacker(null));
-            }
+            },
           );
           return;
         }
@@ -909,7 +913,7 @@ export default function App() {
             // Don't activate trap, just proceed with attack
             executeAttack();
           },
-        })
+        }),
       );
       return;
     }
@@ -948,7 +952,7 @@ export default function App() {
           engine.flipCreatureFaceUp(gameState.activePlayer, lane);
           dispatch(closeModal());
         },
-      })
+      }),
     );
   };
 
@@ -959,14 +963,14 @@ export default function App() {
 
     // Get active effects that affect this card
     const cardEffects = gameState.activeEffects.filter((effect) =>
-      effect.affectedCardIds?.includes(card.id)
+      effect.affectedCardIds?.includes(card.id),
     );
 
     dispatch(
       openCardDetailModal({
         card,
         activeEffects: cardEffects,
-      })
+      }),
     );
   };
 
@@ -977,14 +981,14 @@ export default function App() {
 
     // Get active effects that affect this card
     const cardEffects = gameState.activeEffects.filter((effect) =>
-      effect.affectedCardIds?.includes(card.id)
+      effect.affectedCardIds?.includes(card.id),
     );
 
     dispatch(
       openCardDetailModal({
         card,
         activeEffects: cardEffects,
-      })
+      }),
     );
   };
 
@@ -994,7 +998,7 @@ export default function App() {
       openCardDetailModal({
         card,
         activeEffects: [],
-      })
+      }),
     );
   };
 
@@ -1108,7 +1112,7 @@ export default function App() {
             const dropZone = elements.find(
               (el) =>
                 el.hasAttribute("data-drop-lane") ||
-                el.hasAttribute("data-drop-support")
+                el.hasAttribute("data-drop-support"),
             );
 
             if (dropZone) {
@@ -1128,7 +1132,7 @@ export default function App() {
                 }
               } else if (dropZone.hasAttribute("data-drop-support")) {
                 const slot = parseInt(
-                  dropZone.getAttribute("data-drop-support")!
+                  dropZone.getAttribute("data-drop-support")!,
                 );
                 if (
                   card.type === CardType.Support ||

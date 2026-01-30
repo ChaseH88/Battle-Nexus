@@ -7,6 +7,17 @@ import { TrapCard } from "../cards/TrapCard";
 
 const DECK_STORAGE_KEY = "battle-nexus-deck";
 
+// Hardcoded AI deck configuration
+const AI_DECK_CONFIG = [
+  { cardId: "ember_cub", count: 3 },
+  { cardId: "riptide_pixie", count: 3 },
+  { cardId: "mossback_scarab", count: 3 },
+  { cardId: "lumen_sprite", count: 3 },
+  { cardId: "inferno_lion", count: 3 },
+  { cardId: "seismic_hart", count: 3 },
+  { cardId: "granite_colossus", count: 2 },
+];
+
 function cardFactory(raw: CardInterface): CardInterface {
   switch (raw.type) {
     case "CREATURE":
@@ -62,4 +73,24 @@ export function loadDeckFromLocalStorage(): CardInterface[] | null {
 
 export function hasSavedDeck(): boolean {
   return localStorage.getItem(DECK_STORAGE_KEY) !== null;
+}
+
+export function loadAIDeck(): CardInterface[] {
+  const deck: CardInterface[] = [];
+  const cardMap = new Map((cardData as any[]).map((card) => [card.id, card]));
+
+  for (const { cardId, count } of AI_DECK_CONFIG) {
+    const cardRaw = cardMap.get(cardId);
+    if (!cardRaw) {
+      console.warn(`AI deck card not found: ${cardId}`);
+      continue;
+    }
+
+    for (let i = 0; i < count; i++) {
+      deck.push(cardFactory(cardRaw));
+    }
+  }
+
+  // Shuffle the deck
+  return deck.sort(() => 0.5 - Math.random());
 }

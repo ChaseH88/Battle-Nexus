@@ -29,9 +29,8 @@ interface CardSlotProps {
 export const CardSlot = styled.div<CardSlotProps>`
   box-sizing: border-box;
   background: linear-gradient(145deg, #2d374869, #1a202c76);
-  border: 2px dashed #4a5568;
+  overflow: hidden;
   border-radius: 10px;
-  padding: 15px;
   width: ${CARD_DIMENSIONS.WIDTH}px;
   height: ${CARD_DIMENSIONS.HEIGHT}px;
   cursor: pointer;
@@ -55,7 +54,6 @@ export const CardSlot = styled.div<CardSlotProps>`
       &:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-        border-color: #63b3ed;
       }
     `}
 
@@ -73,7 +71,7 @@ export const CardSlot = styled.div<CardSlotProps>`
 
       &:hover {
         transform: none;
-        border-color: #4a5568;
+        border: 2px dashed #4a5568;
       }
     `}
 
@@ -81,7 +79,6 @@ export const CardSlot = styled.div<CardSlotProps>`
   ${(props) =>
     props.isSelected &&
     css`
-      border-color: #48bb78;
       box-shadow: 0 0 20px rgba(72, 187, 120, 0.5);
       transform: translateY(-5px);
     `}
@@ -90,29 +87,22 @@ export const CardSlot = styled.div<CardSlotProps>`
   ${(props) =>
     props.cardType === CardType.Creature &&
     css`
-      border-color: #ed8936;
-
       ${props.isFaceDown &&
       css`
         background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-        border: 2px solid #4a5568;
       `}
     `}
 
   ${(props) =>
     props.cardType === CardType.Support &&
     css`
-      border-color: #4299e1;
-
       ${props.isFaceDown &&
       css`
         background: linear-gradient(145deg, #4a5568, #2d3748);
-        border-color: #718096;
       `}
 
       ${props.isActive &&
       css`
-        border-color: #48bb78;
         box-shadow: 0 0 15px rgba(72, 187, 120, 0.5);
       `}
     `}
@@ -120,17 +110,13 @@ export const CardSlot = styled.div<CardSlotProps>`
   ${(props) =>
     props.cardType === CardType.Action &&
     css`
-      border-color: #9f7aea;
-
       ${props.isFaceDown &&
       css`
         background: linear-gradient(145deg, #553c9a, #44337a);
-        border-color: #805ad5;
       `}
 
       ${props.isActive &&
       css`
-        border-color: #d69e2e;
         box-shadow: 0 0 15px rgba(214, 158, 46, 0.5);
       `}
     `}
@@ -138,17 +124,13 @@ export const CardSlot = styled.div<CardSlotProps>`
   ${(props) =>
     props.cardType === CardType.Trap &&
     css`
-      border-color: #9f7aea;
-
       ${props.isFaceDown &&
       css`
         background: linear-gradient(145deg, #553c9a, #44337a);
-        border-color: #805ad5;
       `}
 
       ${props.isActive &&
       css`
-        border-color: #48bb78;
         box-shadow: 0 0 15px rgba(72, 187, 120, 0.5);
       `}
     `}
@@ -161,7 +143,6 @@ export const CardSlot = styled.div<CardSlotProps>`
       cursor: pointer;
 
       &:hover {
-        border-color: #93c5fd;
         box-shadow: 0 0 30px rgba(147, 197, 253, 1);
         transform: translateY(-8px);
       }
@@ -180,7 +161,6 @@ export const CardSlot = styled.div<CardSlotProps>`
     props.isExhausted &&
     css`
       opacity: 0.7;
-      border-color: #718096 !important;
 
       &:hover {
         transform: translateY(-2px);
@@ -192,7 +172,6 @@ export const CardSlot = styled.div<CardSlotProps>`
     props.isDefenseMode &&
     !props.isFaceDown &&
     css`
-      border-color: rgba(50, 150, 255, 0.6) !important;
       box-shadow: 0 0 10px rgba(50, 150, 255, 0.3);
       transform: rotate(90deg);
       margin: 30px 0;

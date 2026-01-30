@@ -14,11 +14,12 @@ import { Affinity } from "@cards";
 import { useCallback } from "react";
 import { Cost } from "./Common/Cost";
 import { CardImage } from "./CardImage";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Stats } from "./Common/Stats";
 import { DescriptionStatsBackground } from "./Common/DescriptionStatsBackground";
+import { theme } from "@/ui/theme";
 
-type CreatureProps = Pick<
+interface CreatureProps extends Pick<
   CreatureCard,
   | "id"
   | "mode"
@@ -37,7 +38,9 @@ type CreatureProps = Pick<
   | "type"
   | "cost"
   | "image"
->;
+> {
+  showCardMode?: boolean;
+}
 
 export const Creature = ({
   id,
@@ -54,9 +57,10 @@ export const Creature = ({
   description,
   affinity,
   name,
-  type,
+  // type,
   cost,
   image,
+  showCardMode = false,
 }: CreatureProps) => {
   const getAffinityIcon = useCallback((affinity: Affinity) => {
     switch (affinity) {
@@ -92,44 +96,102 @@ export const Creature = ({
       sx={{
         width: "100%",
         height: "100%",
-        fontSize: "11px",
-        padding: "8px",
         boxSizing: "border-box",
         position: "relative",
+        backgroundColor: theme.palette.common.black,
       }}
+      p={0}
     >
-      <Box>
-        <Cost cost={cost} affinity={affinity} />
-        <Box className="card-type" style={{ fontSize: "9px" }}>
-          {cost === 5 ? `MAX ${type.toUpperCase()}` : type}
+      <Box display="flex" alignItems="center">
+        <Box flex="0 0 40px">
+          <Cost
+            cost={cost}
+            affinity={affinity}
+            sx={{
+              position: "relative",
+              left: "6px",
+              bottom: "1px",
+            }}
+          />
         </Box>
         <Box
-          className="card-name"
-          style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "4px" }}
+          className="card-text-header"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          flexWrap="wrap"
         >
-          {name}
+          <Box
+            className="card-name"
+            style={{
+              fontSize: "12px",
+              fontWeight: "bold",
+            }}
+          >
+            <Typography variant="h6" noWrap fontSize={13} m={0}>
+              {name}
+            </Typography>
+          </Box>
+          <Box className="card-id" style={{ fontSize: "8px" }}>
+            <Typography variant="h6" noWrap fontSize={10} m={0}>
+              {`CREATURE - ${affinity.toUpperCase()}`}
+            </Typography>
+          </Box>
         </Box>
-        <Box className="card-affinity">
-          <img
-            src={getAffinityIcon(affinity)}
-            alt={affinity}
-            style={{ width: "16px", height: "16px", verticalAlign: "middle" }}
-            title={affinity}
-          />{" "}
+        <Box>
+          <Cost
+            affinity={affinity}
+            showInnerRing={false}
+            cost={
+              <img
+                src={getAffinityIcon(affinity)}
+                alt={affinity}
+                style={{
+                  width: "11px",
+                  height: "11px",
+                  verticalAlign: "middle",
+                }}
+                title={affinity}
+              />
+            }
+            size={16}
+            sx={{
+              position: "relative",
+              right: "4px",
+            }}
+          />
         </Box>
       </Box>
-      <Box
-        className="card-mode-badge"
-        style={{ fontSize: "10px", fontWeight: "bold" }}
-      >
-        {mode === "ATTACK" ? "⚔️ ATTACK" : "🛡️ DEFENSE"}
+      {showCardMode && (
+        <Box
+          className="card-mode-badge"
+          style={{ fontSize: "10px", fontWeight: "bold" }}
+        >
+          {mode === "ATTACK" ? "⚔️ ATTACK" : "🛡️ DEFENSE"}
+        </Box>
+      )}
+      <Box height="190px" marginBottom="4px">
+        <CardImage card={{ id, name, image }} width={175} height={162} />
       </Box>
-      <CardImage card={{ id, name, image }} width={80} height={80} />
       <Box
         className="card-description"
-        style={{ fontSize: "9px", marginBottom: "4px", lineHeight: "1.2" }}
+        style={{
+          fontSize: "9px",
+          marginBottom: "4px",
+          lineHeight: "1.2",
+          position: "relative",
+          bottom: 15,
+        }}
       >
-        {description}
+        <Typography
+          variant="body2"
+          mx={1.5}
+          color="#fff"
+          fontSize={9}
+          textAlign="left"
+        >
+          {description}
+        </Typography>
       </Box>
       <DescriptionStatsBackground
         affinity={affinity}

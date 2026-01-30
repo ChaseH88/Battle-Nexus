@@ -20,6 +20,7 @@ import { SupportCard } from "../../cards/SupportCard";
 import { ActionCard } from "../../cards/ActionCard";
 import { TrapCard } from "../../cards/TrapCard";
 import { Card } from "../Battle/Card/Card";
+import { FinalCard } from "../Battle/Card/FinalCard";
 
 const DECK_STORAGE_KEY = "battle-nexus-deck";
 
@@ -225,6 +226,8 @@ const DeckBuilder = () => {
               </Select>
             </FormControl>
           </Box>
+
+          <FinalCard />
 
           <Box display="flex" flexWrap="wrap" gap={5}>
             {filteredCards.map((card) => {

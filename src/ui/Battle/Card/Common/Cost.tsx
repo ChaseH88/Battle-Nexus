@@ -1,7 +1,8 @@
 import { CreatureCard } from "@cards/CreatureCard";
-import { useMemo, memo, useId } from "react";
+import { useMemo, memo, useId, ReactNode, isValidElement } from "react";
 import { darken, lighten, mix } from "polished";
 import { Affinity } from "@/cards";
+import { Box, SxProps } from "@mui/material";
 
 const AFFINITY_BASE: Record<Affinity, string> = {
   FIRE: "#FF7A00",
@@ -25,13 +26,23 @@ const deriveColors = (base: string) => ({
   text: undefined, // can override if needed
 });
 
-interface CostProps extends Pick<CreatureCard, "cost" | "affinity"> {
+interface CostProps extends Pick<CreatureCard, "affinity"> {
+  cost: number | string | ReactNode;
   size?: number;
   textColor?: string;
+  sx?: SxProps;
+  showInnerRing?: boolean;
 }
 
 export const Cost = memo(
-  ({ size = 35, cost = 1, affinity = Affinity.Fire, textColor }: CostProps) => {
+  ({
+    size = 25,
+    cost = 1,
+    affinity = Affinity.Fire,
+    textColor,
+    sx,
+    showInnerRing = true,
+  }: CostProps) => {
     const gradId = useId();
 
     // Pointy-top hex: flat sides LEFT/RIGHT, points TOP/BOTTOM
@@ -79,62 +90,85 @@ export const Cost = memo(
     const { w, h } = dimensions;
 
     return (
-      <svg
-        width={w}
-        height={h}
-        viewBox={`0 0 ${w} ${h}`}
-        style={{ display: "block" }}
-      >
-        <defs>
-          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor={colors.top} />
-            <stop offset="1" stopColor={colors.bottom} />
-          </linearGradient>
-        </defs>
+      <Box sx={sx}>
+        <Box position="relative">
+          <svg
+            width={w}
+            height={h}
+            viewBox={`0 0 ${w} ${h}`}
+            style={{ display: "block" }}
+          >
+            <defs>
+              <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor={colors.top} />
+                <stop offset="1" stopColor={colors.bottom} />
+              </linearGradient>
+            </defs>
 
-        {/* Soft halo */}
-        <polygon
-          points={points}
-          fill={colors.halo}
-          opacity={0.9}
-          transform={getTransform(S_HALO)}
-        />
+            {/* Soft halo */}
+            <polygon
+              points={points}
+              fill={colors.halo}
+              opacity={0.9}
+              transform={getTransform(S_HALO)}
+            />
 
-        {/* Thin colored ring */}
-        <polygon
-          points={points}
-          fill={colors.outerRing}
-          transform={getTransform(S_OUTER)}
-        />
+            {/* Thin colored ring */}
+            <polygon
+              points={points}
+              fill={colors.outerRing}
+              transform={getTransform(S_OUTER)}
+            />
 
-        {/* Thick white ring */}
-        <polygon
-          points={points}
-          fill={colors.whiteRing}
-          transform={getTransform(S_WHITE)}
-        />
+            {/* Thick white ring */}
+            {showInnerRing && (
+              <polygon
+                points={points}
+                fill={colors.whiteRing}
+                transform={getTransform(S_WHITE)}
+              />
+            )}
 
-        {/* Inner fill */}
-        <polygon
-          points={points}
-          fill={`url(#${gradId})`}
-          transform={getTransform(S_FILL)}
-        />
-
-        {/* Number */}
-        <text
-          x="50%"
-          y="54%"
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fontFamily="system-ui, -apple-system, Segoe UI, Roboto"
-          fontWeight="900"
-          fontSize={Math.round(size * 0.5)}
-          fill={textColor || colors.text || "#FFFFFF"}
-        >
-          {String(cost)}
-        </text>
-      </svg>
+            {/* Inner fill */}
+            <polygon
+              points={points}
+              fill={`url(#${gradId})`}
+              transform={getTransform(S_FILL)}
+            />
+            {!isValidElement(cost) && (
+              <text
+                x="50%"
+                y="54%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontFamily="system-ui, -apple-system, Segoe UI, Roboto"
+                fontWeight="900"
+                fontSize={Math.round(size * 0.5)}
+                fill={textColor || colors.text || "#FFFFFF"}
+              >
+                {String(cost)}
+              </text>
+            )}
+          </svg>
+        </Box>
+        {isValidElement(cost) && (
+          <Box
+            position="absolute"
+            style={{
+              width: size * 0.2,
+              height: size * 0.2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 1,
+              right: "5.5px",
+              top: "5.5px",
+            }}
+          >
+            {cost}
+          </Box>
+        )}
+      </Box>
     );
-  }
+  },
 );
