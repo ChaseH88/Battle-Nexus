@@ -159,7 +159,7 @@ export const Stats = memo(
         { x: vbW / 2 - 96.5, y: inset * 4.875 },
         { x: vbW / 2 + 96.5, y: inset * 4.875 },
       ],
-      []
+      [],
     );
 
     return (
@@ -347,9 +347,9 @@ export const Stats = memo(
                   y={cy + 4}
                   textAnchor="end"
                   fontFamily="system-ui, -apple-system, Segoe UI, Roboto"
-                  fontWeight="900"
+                  fontWeight="800"
                   fontSize={
-                    idx === 0 && typeof t.value === "string" ? "24" : "36"
+                    idx === 0 && typeof t.value === "string" ? "28" : "40"
                   }
                   fill={t.isModified ? "#7AF1FF" : colors.text}
                 >
@@ -383,5 +383,5 @@ export const Stats = memo(
         </svg>
       </Box>
     );
-  }
+  },
 );

@@ -16,7 +16,6 @@ import { Cost } from "./Common/Cost";
 import { CardImage } from "./CardImage";
 import { Box, Typography } from "@mui/material";
 import { Stats } from "./Common/Stats";
-import { DescriptionStatsBackground } from "./Common/DescriptionStatsBackground";
 import { theme } from "@/ui/theme";
 
 interface CreatureProps extends Pick<
@@ -180,7 +179,7 @@ export const Creature = ({
           marginBottom: "4px",
           lineHeight: "1.2",
           position: "relative",
-          bottom: 15,
+          bottom: 32,
         }}
       >
         <Typography
@@ -193,19 +192,6 @@ export const Creature = ({
           {description}
         </Typography>
       </Box>
-      <DescriptionStatsBackground
-        affinity={affinity}
-        width={189}
-        height={95}
-        sx={{
-          position: "absolute",
-          bottom: "0",
-          left: "50%",
-          transformOrigin: "top center",
-          transform: "translateX(-50%) translateY(14%)",
-          zIndex: -1,
-        }}
-      />
       <Stats
         affinity={affinity}
         atk={atk}
@@ -214,13 +200,14 @@ export const Creature = ({
         currentHp={currentHp}
         isAtkModified={isAtkModified}
         isDefModified={isDefModified}
-        width={183}
-        height={25}
+        width={187}
+        height={28}
         sx={{
           position: "absolute",
           bottom: "0px",
           left: "50%",
           transform: "translateX(-50%)",
+          zIndex: 3,
         }}
       />
       {hasAttackedThisTurn && (
