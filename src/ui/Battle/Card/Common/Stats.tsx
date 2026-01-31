@@ -1,4 +1,4 @@
-import { memo, useId, useMemo } from "react";
+import { memo, useCallback, useId, useMemo } from "react";
 import { darken, lighten, mix } from "polished";
 import { Affinity } from "@cards";
 import { Box, SxProps } from "@mui/material";
@@ -38,16 +38,14 @@ type StatBarProps = {
   width?: number; // px
   height?: number; // px
   affinity?: Affinity;
-
   atk?: number;
+  baseAtk?: number;
   def?: number;
+  baseDef?: number;
   hp?: number; // maxHp
   currentHp?: number; // if provided, displays "currentHp/maxHp"
-
   isAtkModified?: boolean;
   isDefModified?: boolean;
-  isHpModified?: boolean;
-
   className?: string;
   sx?: SxProps;
 };
@@ -63,7 +61,6 @@ export const Stats = memo(
     currentHp,
     isAtkModified = false,
     isDefModified = false,
-    isHpModified = false,
     className,
     sx,
   }: StatBarProps) => {
@@ -161,6 +158,19 @@ export const Stats = memo(
       ],
       [],
     );
+
+    const getHpColor = useCallback((hp: number) => {
+      switch (true) {
+        case hp >= 50:
+          return "#00ff51ff"; // green
+        case hp >= 30:
+          return "#fff200ff"; // yellow
+        case hp >= 0:
+          return "#ff3c00ff"; // red
+        default:
+          return "#888888ff"; // gray (dead)
+      }
+    }, []);
 
     return (
       <Box sx={sx}>
@@ -319,9 +329,9 @@ export const Stats = memo(
           {[
             {
               label: "HP",
-              value: currentHp !== undefined ? `${currentHp}/${hp}` : hp,
+              value: currentHp !== undefined ? currentHp : hp,
               slot: slots[0],
-              isModified: isHpModified,
+              isModified: currentHp !== undefined && currentHp !== hp,
             },
             {
               label: "ATK",
@@ -351,7 +361,13 @@ export const Stats = memo(
                   fontSize={
                     idx === 0 && typeof t.value === "string" ? "28" : "40"
                   }
-                  fill={t.isModified ? "#7AF1FF" : colors.text}
+                  fill={
+                    t.isModified
+                      ? t.label === "HP"
+                        ? getHpColor(t.value as number)
+                        : "#00ff51ff"
+                      : colors.text
+                  }
                 >
                   {t.value}
                 </text>

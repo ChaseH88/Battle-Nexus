@@ -6,13 +6,12 @@
  *
  * Momentum Scale:
  * 1-2:  No buffs
- * 3-5:  +10 HP / +10 ATK / +10 DEF
- * 6-9:  +20 HP / +20 ATK / +20 DEF
- * 10:   +30 HP / +30 ATK / +30 DEF
+ * 3-5:  +10 ATK / +10 DEF
+ * 6-9:  +20 ATK / +20 DEF
+ * 10:   +30 ATK / +30 DEF
  */
 
 export interface MomentumBuff {
-  hp: number;
   atk: number;
   def: number;
 }
@@ -26,13 +25,13 @@ export interface MomentumBuff {
  */
 export function getMomentumGlobalBuff(momentum: number): MomentumBuff {
   if (momentum >= 10) {
-    return { hp: 30, atk: 30, def: 30 };
+    return { atk: 30, def: 30 };
   } else if (momentum >= 6) {
-    return { hp: 20, atk: 20, def: 20 };
+    return { atk: 20, def: 20 };
   } else if (momentum >= 3) {
-    return { hp: 10, atk: 10, def: 10 };
+    return { atk: 10, def: 10 };
   } else {
-    return { hp: 0, atk: 0, def: 0 };
+    return { atk: 0, def: 0 };
   }
 }
 
@@ -52,7 +51,7 @@ export function applyMomentumPressure(
   baseDef: number,
   currentHp: number,
   maxHp: number,
-  momentum: number
+  momentum: number,
 ): { atk: number; def: number; currentHp: number; maxHp: number } {
   const buff = getMomentumGlobalBuff(momentum);
 
@@ -62,23 +61,9 @@ export function applyMomentumPressure(
   // DEF: Base + Momentum Buff (minimum 0)
   const effectiveDef = Math.max(0, baseDef + buff.def);
 
-  // Max HP: Base + Momentum Buff (no minimum - hp is always positive)
-  const effectiveMaxHp = maxHp + buff.hp;
-
-  // Current HP: Clamp to effective max HP, but NEVER below 10 due to Momentum Pressure
-  // If momentum drops and max HP decreases, current HP must not kill the creature
-  let effectiveCurrentHp = currentHp;
-
-  // If creature's current HP exceeds new max (momentum dropped), clamp it
-  if (effectiveCurrentHp > effectiveMaxHp) {
-    effectiveCurrentHp = effectiveMaxHp;
-  }
-
-  // CRITICAL RULE: Momentum Pressure alone cannot reduce HP below 10
-  // This prevents momentum loss from destroying creatures
-  if (effectiveCurrentHp < 10) {
-    effectiveCurrentHp = 10;
-  }
+  // HP: No momentum buff applied - HP remains unchanged
+  const effectiveMaxHp = maxHp;
+  const effectiveCurrentHp = currentHp;
 
   return {
     atk: effectiveAtk,
@@ -98,13 +83,13 @@ export function applyMomentumPressure(
  */
 export function getEffectiveCreatureStats(
   creature: { atk: number; def: number; currentHp: number; hp: number },
-  playerMomentum: number
+  playerMomentum: number,
 ): { atk: number; def: number; currentHp: number; maxHp: number } {
   return applyMomentumPressure(
     creature.atk,
     creature.def,
     creature.currentHp,
     creature.hp,
-    playerMomentum
+    playerMomentum,
   );
 }

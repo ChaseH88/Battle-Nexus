@@ -80,7 +80,7 @@
   },
   {
     "id": "draw_on_play",
-    "name": "Quick Thinking",
+    "name": "Draw on Play",
     "timing": "NORMAL",
     "trigger": "ON_PLAY",
     "actions": [
@@ -89,6 +89,34 @@
         "mode": "DRAW",
         "target": "PLAYER",
         "amount": 1
+      }
+    ]
+  },
+  {
+    "id": "draw_on_play_plus",
+    "name": "Draw on Play+",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "actions": [
+      {
+        "type": "HAND_SIZE_CHANGE",
+        "mode": "DRAW",
+        "target": "PLAYER",
+        "amount": 2
+      }
+    ]
+  },
+  {
+    "id": "draw_on_play_plus_plus",
+    "name": "Draw on Play++",
+    "timing": "NORMAL",
+    "trigger": "ON_PLAY",
+    "actions": [
+      {
+        "type": "HAND_SIZE_CHANGE",
+        "mode": "DRAW",
+        "target": "PLAYER",
+        "amount": 3
       }
     ]
   },

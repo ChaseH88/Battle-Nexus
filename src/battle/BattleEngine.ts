@@ -40,47 +40,8 @@ export class BattleEngine {
     const gained = player.momentum - oldMomentum;
     if (gained > 0) {
       this.log(
-        `${player.id} gained ${gained} Momentum! (${player.momentum}/10)`
+        `${player.id} gained ${gained} Momentum! (${player.momentum}/10)`,
       );
-      // Apply Momentum Pressure adjustments when momentum increases
-      this.applyMomentumPressureToPlayer(playerIndex);
-    }
-  }
-
-  /**
-   * Apply Momentum Pressure global buff adjustments to all creatures owned by a player.
-   * This is called whenever momentum changes or creatures enter/leave play.
-   *
-   * Momentum Pressure Rule:
-   * - Buffs creatures based on owner's momentum (1-2: none, 3-5: +10, 6-9: +20, 10: +30)
-   * - When momentum drops and buffs are removed:
-   *   - Current HP may NOT drop below 10 (Momentum Pressure cannot kill)
-   *   - ATK and DEF may NOT drop below 0
-   *   - If current HP exceeds new max HP, clamp it
-   */
-  private applyMomentumPressureToPlayer(playerIndex: number) {
-    const player = this.state.players[playerIndex];
-    const buff = getMomentumGlobalBuff(player.momentum);
-
-    // Iterate through all creature lanes
-    for (const creature of player.lanes) {
-      if (!creature) continue;
-
-      // IMPORTANT: Momentum Pressure adjusts current HP when max HP changes
-      // Calculate the new max HP with momentum buff
-      const newMaxHp = creature.hp + buff.hp;
-
-      // If current HP exceeds new max HP (momentum dropped), clamp it
-      // But NEVER let it drop below 10 due to Momentum Pressure alone
-      if (creature.currentHp > newMaxHp) {
-        creature.currentHp = Math.max(10, newMaxHp);
-      } else if (creature.currentHp < 10) {
-        // Edge case: ensure HP is never below 10 due to momentum changes
-        creature.currentHp = 10;
-      }
-
-      // NOTE: ATK and DEF buffs are applied dynamically during combat/display
-      // They don't need to be stored on the creature since they're derived from momentum
     }
   }
 
@@ -90,14 +51,7 @@ export class BattleEngine {
    */
   private spendMomentum(playerIndex: number, amount: number) {
     const player = this.state.players[playerIndex];
-    const oldMomentum = player.momentum;
     player.momentum = Math.max(0, player.momentum - amount);
-    const spent = oldMomentum - player.momentum;
-
-    if (spent > 0) {
-      // Apply Momentum Pressure adjustments when momentum decreases
-      this.applyMomentumPressureToPlayer(playerIndex);
-    }
   }
 
   /**
@@ -118,19 +72,6 @@ export class BattleEngine {
     const player = this.state.players[playerIndex];
     const buff = getMomentumGlobalBuff(player.momentum);
     return Math.max(0, creature.def + buff.def);
-  }
-
-  /**
-   * Get effective max HP for a creature with Momentum Pressure applied.
-   * This should be used for display purposes.
-   */
-  private getEffectiveMaxHp(
-    creature: CreatureCard,
-    playerIndex: number
-  ): number {
-    const player = this.state.players[playerIndex];
-    const buff = getMomentumGlobalBuff(player.momentum);
-    return creature.hp + buff.hp;
   }
 
   draw(playerIndex: number) {
@@ -166,7 +107,7 @@ export class BattleEngine {
       topCard.id,
       topCard.name,
       player.deck.length,
-      this.state // Pass state for snapshot
+      this.state, // Pass state for snapshot
     );
 
     // Mark that player has drawn this turn
@@ -179,7 +120,7 @@ export class BattleEngine {
         this.state.turn,
         "MAIN",
         "Main Phase begins",
-        this.state // Pass state for snapshot
+        this.state, // Pass state for snapshot
       );
     }
 
@@ -197,7 +138,7 @@ export class BattleEngine {
     lane: number,
     cardId: string,
     faceDown: boolean = false,
-    mode: "ATTACK" | "DEFENSE" = "ATTACK"
+    mode: "ATTACK" | "DEFENSE" = "ATTACK",
   ): boolean {
     // Must be in main phase to play cards
     if (this.state.phase !== "MAIN") {
@@ -223,7 +164,7 @@ export class BattleEngine {
     const cardCost = card.cost ?? 0;
     if (player.momentum < cardCost) {
       this.log(
-        `Not enough momentum to play ${card.name}. Need ${cardCost}, have ${player.momentum}.`
+        `Not enough momentum to play ${card.name}. Need ${cardCost}, have ${player.momentum}.`,
       );
       return false;
     }
@@ -233,7 +174,7 @@ export class BattleEngine {
       this.log(
         `${player.id} spent ${cardCost} Momentum to play ${card.name}! (${
           player.momentum - cardCost
-        }/10 remaining)`
+        }/10 remaining)`,
       );
       this.spendMomentum(playerIndex, cardCost);
     }
@@ -255,7 +196,7 @@ export class BattleEngine {
       playerIndex as 0 | 1,
       player.id,
       { id: card.id, name: card.name, type: "Creature" },
-      { lane, faceDown, mode }
+      { lane, faceDown, mode },
     );
 
     // Apply any persistent active effects (supports/global buffs) to this creature
@@ -313,13 +254,13 @@ export class BattleEngine {
       playerIndex,
       player.id,
       { id: cardId, name: card.name },
-      { slot, faceDown: true }
+      { slot, faceDown: true },
     );
 
     this.log(
       `${
         player.id
-      } set ${card.type.toLowerCase()} card face-down to support slot ${slot}`
+      } set ${card.type.toLowerCase()} card face-down to support slot ${slot}`,
     );
 
     return true;
@@ -351,7 +292,7 @@ export class BattleEngine {
     // Cannot sacrifice if creature attacked this turn
     if (creature.hasAttackedThisTurn) {
       this.log(
-        `${creature.name} cannot be sacrificed after attacking this turn!`
+        `${creature.name} cannot be sacrificed after attacking this turn!`,
       );
       return false;
     }
@@ -393,7 +334,7 @@ export class BattleEngine {
   activateCreatureEffect(
     playerIndex: 0 | 1,
     lane: number,
-    eventData?: { targetLane?: number; targetPlayer?: 0 | 1 }
+    eventData?: { targetLane?: number; targetPlayer?: 0 | 1 },
   ): boolean {
     if (this.state.winnerIndex !== null) return false;
 
@@ -419,7 +360,7 @@ export class BattleEngine {
     // Check if effect can be activated
     if (!creature.canActivateEffect) {
       this.log(
-        `${creature.name}'s effect has already been activated and can only be used once!`
+        `${creature.name}'s effect has already been activated and can only be used once!`,
       );
       return false;
     }
@@ -428,14 +369,14 @@ export class BattleEngine {
     const activationCheck = canActivateEffect(
       creature.effectId,
       this.state,
-      playerIndex
+      playerIndex,
     );
 
     if (!activationCheck.canActivate) {
       this.log(
         `${creature.name}'s effect cannot be activated - ${
           activationCheck.reason || "requirements not met"
-        }`
+        }`,
       );
       return false;
     }
@@ -467,13 +408,13 @@ export class BattleEngine {
       playerIndex,
       player.id,
       { id: creature.id, name: creature.name },
-      lane
+      lane,
     );
 
     this.log(
       `${player.id} activated ${creature.name}'s effect from lane ${lane}${
         effectTiming === "ONE_TIME" ? " (one-time effect)" : ""
-      }`
+      }`,
     );
 
     return true;
@@ -489,7 +430,7 @@ export class BattleEngine {
   activateSupport(
     playerIndex: 0 | 1,
     slot: number,
-    eventData?: { lane?: number; targetLane?: number; targetPlayer?: 0 | 1 }
+    eventData?: { lane?: number; targetLane?: number; targetPlayer?: 0 | 1 },
   ): boolean {
     if (this.state.winnerIndex !== null) return false;
 
@@ -529,7 +470,7 @@ export class BattleEngine {
     const cardCost = card.cost ?? 0;
     if (player.momentum < cardCost) {
       this.log(
-        `Not enough momentum to activate ${card.name}. Need ${cardCost}, have ${player.momentum}.`
+        `Not enough momentum to activate ${card.name}. Need ${cardCost}, have ${player.momentum}.`,
       );
       return false;
     }
@@ -551,7 +492,7 @@ export class BattleEngine {
         reactiveTriggers.includes(effect.trigger)
       ) {
         this.log(
-          `${card.name} can only be activated when its trigger condition is met (${effect.trigger})`
+          `${card.name} can only be activated when its trigger condition is met (${effect.trigger})`,
         );
         return false;
       }
@@ -562,7 +503,7 @@ export class BattleEngine {
       const activationCheck = canActivateEffect(
         card.effectId,
         this.state,
-        playerIndex
+        playerIndex,
       );
 
       if (!activationCheck.canActivate) {
@@ -572,7 +513,7 @@ export class BattleEngine {
         this.log(
           `${card.name} was activated but activation requirements not met - ${
             activationCheck.reason || "effect fails"
-          }`
+          }`,
         );
         moveCard(
           this.state,
@@ -582,7 +523,7 @@ export class BattleEngine {
           card.id,
           {
             fromLane: slot,
-          }
+          },
         );
         this.log(`${card.name} was moved to the discard pile`);
         return true; // Activation succeeded but effect failed
@@ -593,7 +534,7 @@ export class BattleEngine {
     this.spendMomentum(playerIndex, cardCost);
     if (cardCost > 0) {
       this.log(
-        `${player.id} spent ${cardCost} Momentum to activate ${card.name}! (${player.momentum}/10 remaining)`
+        `${player.id} spent ${cardCost} Momentum to activate ${card.name}! (${player.momentum}/10 remaining)`,
       );
     }
 
@@ -618,7 +559,7 @@ export class BattleEngine {
     this.log(
       `${player.id} flipped ${card.type.toLowerCase()} ${
         card.name
-      } face-up and activated it from slot ${slot}`
+      } face-up and activated it from slot ${slot}`,
     );
 
     resolveEffectsForCard({
@@ -642,10 +583,10 @@ export class BattleEngine {
         card.id,
         {
           fromLane: slot,
-        }
+        },
       );
       this.log(
-        `${card.name} (Action) resolved and was moved to the discard pile`
+        `${card.name} (Action) resolved and was moved to the discard pile`,
       );
     }
 
@@ -662,10 +603,10 @@ export class BattleEngine {
         card.id,
         {
           fromLane: slot,
-        }
+        },
       );
       this.log(
-        `${card.name} (Support - One Time) resolved and was moved to the discard pile`
+        `${card.name} (Support - One Time) resolved and was moved to the discard pile`,
       );
     }
 
@@ -685,7 +626,7 @@ export class BattleEngine {
   activateTrap(
     playerIndex: 0 | 1,
     slot: number,
-    eventData?: { lane?: number; targetLane?: number }
+    eventData?: { lane?: number; targetLane?: number },
   ): boolean {
     const player = this.state.players[playerIndex];
     const card = player.support[slot] as
@@ -717,7 +658,7 @@ export class BattleEngine {
 
       // Log the trigger type for clarity
       this.log(
-        `⚠️ ${player.id} activates ${effect.trigger} trap: ${card.name}!`
+        `⚠️ ${player.id} activates ${effect.trigger} trap: ${card.name}!`,
       );
     }
 
@@ -747,7 +688,7 @@ export class BattleEngine {
       Zone.Support0,
       Zone.DiscardPile,
       card.id,
-      { fromLane: slot }
+      { fromLane: slot },
     );
     this.log(`${card.name} was sent to the discard pile`);
 
@@ -763,7 +704,7 @@ export class BattleEngine {
   checkAndRemoveTargetedSupports(
     targetPlayerIndex: 0 | 1,
     targetLane: number,
-    removedCardId?: string
+    removedCardId?: string,
   ) {
     // Check both players' support zones
     for (let pIndex = 0; pIndex < 2; pIndex++) {
@@ -796,19 +737,19 @@ export class BattleEngine {
               supportCard.id,
               {
                 fromLane: slot,
-              }
+              },
             );
             this.log(
-              `${supportCard.name} was discarded because its target left the field`
+              `${supportCard.name} was discarded because its target left the field`,
             );
             // Also remove any active effects that were provided by this support card
             const effectsToRemove = this.state.activeEffects.filter(
-              (e) => e.sourceCardId === supportCard.id
+              (e) => e.sourceCardId === supportCard.id,
             );
             effectsToRemove.forEach((e) => {
               this.removeActiveEffect(e.id);
               this.log(
-                `Removed persistent effect ${e.name} from ${supportCard.name}`
+                `Removed persistent effect ${e.name} from ${supportCard.name}`,
               );
             });
           }
@@ -881,7 +822,7 @@ export class BattleEngine {
   attack(
     playerIndexOrAttackerLane: number,
     attackerLaneOrTarget?: number,
-    targetLaneMaybe?: number
+    targetLaneMaybe?: number,
   ) {
     if (this.state.winnerIndex !== null) return;
 
@@ -926,7 +867,7 @@ export class BattleEngine {
     // Cannot attack if creature is in defense mode
     if (attacker.mode === "DEFENSE") {
       this.log(
-        `${attacker.name} cannot attack while in defense mode! Switch to attack mode first.`
+        `${attacker.name} cannot attack while in defense mode! Switch to attack mode first.`,
       );
       return;
     }
@@ -960,7 +901,7 @@ export class BattleEngine {
     if (!defender) {
       // Check if opponent has ANY creatures on the field
       const hasAnyCreatures = opponent.lanes.some(
-        (creature) => creature !== null
+        (creature) => creature !== null,
       );
 
       if (!hasAnyCreatures) {
@@ -971,7 +912,7 @@ export class BattleEngine {
 
         this.log(`${attacker.name} attacked ${opponent.id} directly!`);
         this.log(
-          `${opponent.id} has no creatures to defend! Direct attack deals ${damage} damage!`
+          `${opponent.id} has no creatures to defend! Direct attack deals ${damage} damage!`,
         );
         this.log(`${opponent.id} Life Points: ${opponent.lifePoints}/2000`);
 
@@ -981,13 +922,13 @@ export class BattleEngine {
           this.log(
             `Player ${playerIndex + 1} wins! ${
               opponent.id
-            }'s Life Points reached 0!`
+            }'s Life Points reached 0!`,
           );
         }
       } else {
         // Opponent has creatures, but this lane is empty - no effect
         this.log(
-          `${attacker.name} attacked lane ${targetLane} but no creature was there.`
+          `${attacker.name} attacked lane ${targetLane} but no creature was there.`,
         );
       }
       return;
@@ -1009,34 +950,30 @@ export class BattleEngine {
       const attackerEffectiveAtk = this.getEffectiveAtk(attacker, playerIndex);
       const defenderEffectiveAtk = this.getEffectiveAtk(
         defender,
-        opponentIndex
+        opponentIndex,
       );
 
       const damageToDefender = attackerEffectiveAtk;
       const damageToAttacker = Math.max(
         0,
-        defenderEffectiveAtk - attackerEffectiveAtk
+        defenderEffectiveAtk - attackerEffectiveAtk,
       );
 
       this.log(
-        `⚔️ CLASH! ${attacker.name} (ATK: ${attackerEffectiveAtk}) vs ${defender.name} (ATK: ${defenderEffectiveAtk})`
+        `⚔️ CLASH! ${attacker.name} (ATK: ${attackerEffectiveAtk}) vs ${defender.name} (ATK: ${defenderEffectiveAtk})`,
       );
 
       // Attacker deals full damage
       defender.currentHp -= damageToDefender;
       this.log(
-        `  → ${attacker.name} strikes first! ${defender.name} takes ${damageToDefender} damage! HP: ${defender.currentHp}/${defender.hp}`
+        `  → ${attacker.name} strikes first! ${defender.name} takes ${damageToDefender} damage! HP: ${defender.currentHp}/${defender.hp}`,
       );
 
       // Defender counters only if they have higher ATK
       if (damageToAttacker > 0) {
         attacker.currentHp -= damageToAttacker;
         this.log(
-          `  → ${defender.name} counters for ${damageToAttacker} damage! ${attacker.name} HP: ${attacker.currentHp}/${attacker.hp}`
-        );
-      } else {
-        this.log(
-          `  → ${defender.name} couldn't counter effectively! ${attacker.name} HP: ${attacker.currentHp}/${attacker.hp}`
+          `  → ${defender.name} counters for ${damageToAttacker} damage! ${attacker.name} HP: ${attacker.currentHp}/${attacker.hp}`,
         );
       }
 
@@ -1050,7 +987,7 @@ export class BattleEngine {
         if (defender.isMax) {
           opponent.removedFromGame.push(defender);
           this.log(
-            `💀 ${defender.name} was destroyed and removed from the game! (MAX card)`
+            `💀 ${defender.name} was destroyed and removed from the game! (MAX card)`,
           );
         } else {
           opponent.discardPile.push(defender);
@@ -1061,7 +998,7 @@ export class BattleEngine {
         if (piercingDamage > 0) {
           opponent.lifePoints -= piercingDamage;
           this.log(
-            `⚡ PIERCING DAMAGE! ${piercingDamage} excess damage dealt to ${opponent.id}'s Life Points!`
+            `⚡ PIERCING DAMAGE! ${piercingDamage} excess damage dealt to ${opponent.id}'s Life Points!`,
           );
           this.log(`${opponent.id} Life Points: ${opponent.lifePoints}/200`);
 
@@ -1069,7 +1006,7 @@ export class BattleEngine {
           if (opponent.lifePoints <= 0 && this.state.winnerIndex === null) {
             this.state.winnerIndex = playerIndex;
             this.log(
-              `🏆 VICTORY! ${this.state.players[playerIndex].id} wins! ${opponent.id}'s Life Points reached 0!`
+              `🏆 VICTORY! ${this.state.players[playerIndex].id} wins! ${opponent.id}'s Life Points reached 0!`,
             );
           }
         }
@@ -1078,7 +1015,7 @@ export class BattleEngine {
         this.checkAndRemoveTargetedSupports(
           opponentIndex,
           targetLane,
-          defender.id
+          defender.id,
         );
         // Momentum: +2 for KO
         this.gainMomentum(playerIndex, 2);
@@ -1091,7 +1028,7 @@ export class BattleEngine {
         if (attacker.isMax) {
           this.state.players[playerIndex].removedFromGame.push(attacker);
           this.log(
-            `💀 ${attacker.name} was destroyed by the counter-attack and removed from the game! (MAX card)`
+            `💀 ${attacker.name} was destroyed by the counter-attack and removed from the game! (MAX card)`,
           );
         } else {
           this.state.players[playerIndex].discardPile.push(attacker);
@@ -1101,7 +1038,7 @@ export class BattleEngine {
         this.checkAndRemoveTargetedSupports(
           playerIndex,
           attackerLane,
-          attacker.id
+          attacker.id,
         );
         // Momentum: +2 for KO (defender's controller gets it)
         this.gainMomentum(opponentIndex, 2);
@@ -1114,7 +1051,7 @@ export class BattleEngine {
       const attackerEffectiveAtk = this.getEffectiveAtk(attacker, playerIndex);
       const defenderEffectiveDef = this.getEffectiveDef(
         defender,
-        opponentIndex
+        opponentIndex,
       );
 
       const rawDamage = attackerEffectiveAtk;
@@ -1122,13 +1059,13 @@ export class BattleEngine {
       const damageToDefender = Math.max(0, rawDamage - blockedDamage);
 
       this.log(
-        `🛡️ DEFENSE! ${attacker.name} (ATK: ${attackerEffectiveAtk}) attacks ${defender.name} (DEF: ${defenderEffectiveDef})`
+        `🛡️ DEFENSE! ${attacker.name} (ATK: ${attackerEffectiveAtk}) attacks ${defender.name} (DEF: ${defenderEffectiveDef})`,
       );
 
       if (damageToDefender > 0) {
         defender.currentHp -= damageToDefender;
         this.log(
-          `  → ${defender.name} blocked ${blockedDamage} damage, took ${damageToDefender} damage! HP: ${defender.currentHp}/${defender.hp}`
+          `  → ${defender.name} blocked ${blockedDamage} damage, took ${damageToDefender} damage! HP: ${defender.currentHp}/${defender.hp}`,
         );
 
         // Check if defender is defeated
@@ -1138,7 +1075,7 @@ export class BattleEngine {
           if (defender.isMax) {
             opponent.removedFromGame.push(defender);
             this.log(
-              `💀 ${defender.name} was destroyed and removed from the game! (MAX card)`
+              `💀 ${defender.name} was destroyed and removed from the game! (MAX card)`,
             );
           } else {
             opponent.discardPile.push(defender);
@@ -1148,7 +1085,7 @@ export class BattleEngine {
           this.checkAndRemoveTargetedSupports(
             opponentIndex,
             targetLane,
-            defender.id
+            defender.id,
           );
           // Momentum: +2 for KO
           this.gainMomentum(playerIndex, 2);
@@ -1157,10 +1094,10 @@ export class BattleEngine {
       } else {
         // Attacker failed to penetrate defense - NO DAMAGE AT ALL
         this.log(
-          `  → ${defender.name}'s defense completely blocked the attack! (blocked ${blockedDamage} damage)`
+          `  → ${defender.name}'s defense completely blocked the attack! (blocked ${blockedDamage} damage)`,
         );
         this.log(
-          `  → ${attacker.name} dealt no damage and took no counter-damage!`
+          `  → ${attacker.name} dealt no damage and took no counter-damage!`,
         );
         // No momentum awarded to defender in defense mode - trade-off for safety
       }
@@ -1168,7 +1105,7 @@ export class BattleEngine {
       // Key advantage: Attacker takes NO damage when attacking defense mode
       // Attacker always survives (no counter-attack damage)
       this.log(
-        `  → ${attacker.name} is safe from counter-attacks! HP: ${attacker.currentHp}/${attacker.hp}`
+        `  → ${attacker.name} is safe from counter-attacks! HP: ${attacker.currentHp}/${attacker.hp}`,
       );
     }
   }
@@ -1181,7 +1118,7 @@ export class BattleEngine {
     this.logger.turnEnd(
       this.state.turn,
       this.state.activePlayer,
-      currentPlayer.id
+      currentPlayer.id,
     );
 
     // Reset hasAttackedThisTurn, hasChangedModeThisTurn, and hasActivatedEffectThisTurn for all creatures on the current player's field
@@ -1205,12 +1142,12 @@ export class BattleEngine {
     this.logger.turnStart(
       this.state.turn,
       this.state.activePlayer,
-      newActivePlayer.id
+      newActivePlayer.id,
     );
     this.logger.phaseChange(
       this.state.turn,
       "DRAW",
-      "Draw Phase - Draw a card to begin"
+      "Draw Phase - Draw a card to begin",
     );
   }
 
@@ -1223,7 +1160,7 @@ export class BattleEngine {
     description?: string,
     affectedCardIds?: string[],
     statModifiers?: { atk?: number; def?: number },
-    isGlobal?: boolean
+    isGlobal?: boolean,
   ) {
     const effect: ActiveEffect = {
       id: effectId,
@@ -1340,7 +1277,7 @@ export class BattleEngine {
             }
           } catch (err) {
             this.log(
-              `Error applying effect to ${creature.name} in lane ${laneIndex}: ${err}`
+              `Error applying effect to ${creature.name} in lane ${laneIndex}: ${err}`,
             );
           }
         });
@@ -1357,7 +1294,7 @@ export class BattleEngine {
    */
   getActivatableTraps(
     playerIndex: 0 | 1,
-    trigger?: string
+    trigger?: string,
   ): Array<{ card: SupportCard | ActionCard | TrapCard; slot: number }> {
     const player = this.state.players[playerIndex];
     const traps: Array<{
@@ -1384,7 +1321,7 @@ export class BattleEngine {
 
   private applyActiveEffectsToCreature(
     playerIndex: 0 | 1,
-    creature: CreatureCard
+    creature: CreatureCard,
   ) {
     // Iterate all active effects and apply ones that match this creature
     this.state.activeEffects.forEach((effect) => {
@@ -1551,7 +1488,7 @@ export class BattleEngine {
       return createError(
         CommandErrorCode.CARD_NOT_IN_HAND,
         `Card ${cardId} not found in hand or MAX deck.`,
-        { cardId }
+        { cardId },
       );
     }
 
@@ -1560,7 +1497,7 @@ export class BattleEngine {
       player.momentum,
       cardCost,
       card.name,
-      card.id
+      card.id,
     );
 
     if (!validation.valid && validation.error) {

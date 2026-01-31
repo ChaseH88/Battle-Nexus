@@ -118,7 +118,7 @@
     "type": "CREATURE",
     "name": "Abyssal Bulwark",
     "description": "A towering shield of water that absorbs incoming blows.",
-    "cost": 3,
+    "cost": 2,
     "atk": 20,
     "def": 30,
     "hp": 100,
@@ -146,7 +146,7 @@
     "type": "CREATURE",
     "name": "Tempest Raptor",
     "description": "A swift wind predator. Support Effect: All Fire creatures gain +10 ATK while this remains in support.",
-    "cost": 3,
+    "cost": 2,
     "atk": 30,
     "def": 30,
     "hp": 90,
@@ -161,7 +161,7 @@
     "type": "CREATURE",
     "name": "Leviathan Coil",
     "description": "An ancient water serpent. Support Effect: When activated, remove one opponent support card.",
-    "cost": 3,
+    "cost": 2,
     "atk": 30,
     "def": 30,
     "hp": 90,
@@ -210,7 +210,32 @@
     "speed": "NORMAL",
     "effectId": "draw_on_play",
     "rarity": "C",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "card_draw_spell.png"
+  },
+  {
+    "id": "card_draw_spell_plus",
+    "type": "ACTION",
+    "name": "Card Draw Spell +",
+    "description": "Draw 2 cards.",
+    "cost": 2,
+    "speed": "NORMAL",
+    "effectId": "draw_on_play_plus",
+    "rarity": "C",
+    "set": "BN-CORE",
+    "image": "card_draw_spell_plus.png"
+  },
+  {
+    "id": "card_draw_spell_plus_plus",
+    "type": "ACTION",
+    "name": "Card Draw Spell ++",
+    "description": "Draw 3 cards.",
+    "cost": 3,
+    "speed": "NORMAL",
+    "effectId": "draw_on_play_plus_plus",
+    "rarity": "C",
+    "set": "BN-CORE",
+    "image": "card_draw_spell_plus_plus.png"
   },
   {
     "id": "blazing_strike",
@@ -434,15 +459,16 @@
     "set": "BN-CORE"
   },
   {
-    "id": "cataclysmic_wave",
+    "id": "cataclysmic_blast",
     "type": "ACTION",
-    "name": "Cataclysmic Wave",
+    "name": "Cataclysmic Blast",
     "description": "Deal 100 damage to enemy creatures.",
     "cost": 5,
     "speed": "NORMAL",
-    "effectId": "cataclysmic_wave",
+    "effectId": "cataclysmic_blast",
     "rarity": "UR",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "cataclysmic_blast.png"
   },
   {
     "id": "ethereal_rebirth",
@@ -453,18 +479,20 @@
     "speed": "NORMAL",
     "effectId": "ethereal_rebirth",
     "rarity": "UR",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "ethereal_rebirth.png"
   },
   {
     "id": "temporal_stasis",
     "type": "ACTION",
     "name": "Temporal Stasis",
-    "description": "Skip your opponent's next turn. You lose all momentum.",
+    "description": "Your opponent cannot attack next turn. You gain 3 momentum.",
     "cost": 5,
     "speed": "NORMAL",
     "effectId": "temporal_stasis",
     "rarity": "UR",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "temporal_stasis.png"
   },
   {
     "id": "ultimate_sacrifice",

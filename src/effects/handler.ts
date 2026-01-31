@@ -61,7 +61,7 @@ export interface EffectUtils {
   modifyCreatureStats: (
     creature: CreatureCard,
     atk?: number,
-    def?: number
+    def?: number,
   ) => void;
   modifyCreatureHP: (creature: CreatureCard, hpChange: number) => void;
 
@@ -72,7 +72,7 @@ export interface EffectUtils {
   // Filter creatures
   filterByAffinity: (
     creatures: CreatureCard[],
-    affinity: string
+    affinity: string,
   ) => CreatureCard[];
 
   // Logging
@@ -88,14 +88,14 @@ export interface EffectUtils {
     description?: string,
     affectedCardIds?: string[],
     statModifiers?: { atk?: number; def?: number },
-    isGlobal?: boolean
+    isGlobal?: boolean,
   ) => void;
 
   // Support card cleanup
   checkAndRemoveTargetedSupports: (
     targetPlayerIndex: 0 | 1,
     targetLane: number,
-    removedCardId?: string
+    removedCardId?: string,
   ) => void;
 }
 
@@ -104,19 +104,19 @@ export interface EffectUtils {
  */
 export function createEffectUtils(
   state: GameState,
-  engine: BattleEngine
+  engine: BattleEngine,
 ): EffectUtils {
   return {
     getAllyCreatures: (playerIndex: 0 | 1) => {
       return state.players[playerIndex].lanes.filter(
-        (c) => c !== null && c.type === CardType.Creature
+        (c) => c !== null && c.type === CardType.Creature,
       ) as unknown as CreatureCard[];
     },
 
     getEnemyCreatures: (playerIndex: 0 | 1) => {
       const opponentIndex = getOpponentIndex(playerIndex);
       return state.players[opponentIndex].lanes.filter(
-        (c) => c !== null && c.type === CardType.Creature
+        (c) => c !== null && c.type === CardType.Creature,
       ) as unknown as CreatureCard[];
     },
 
@@ -144,7 +144,7 @@ export function createEffectUtils(
       // Search both players' lanes for the creature
       for (const playerIndex of [0, 1] as const) {
         const creature = state.players[playerIndex].lanes.find(
-          (card) => card?.id === cardId && card.type === CardType.Creature
+          (card) => card?.id === cardId && card.type === CardType.Creature,
         );
         if (creature) {
           return creature as CreatureCard;
@@ -156,7 +156,7 @@ export function createEffectUtils(
     modifyCreatureStats: (
       creature: CreatureCard,
       atk?: number,
-      def?: number
+      def?: number,
     ) => {
       const c = creature as any;
       if (atk !== undefined) {
@@ -166,7 +166,7 @@ export function createEffectUtils(
           state.turn,
           state.phase,
           "Stat Change",
-          `${c.name}: ATK ${oldAtk} → ${c.atk}`
+          `${c.name}: ATK ${oldAtk} → ${c.atk}`,
         );
       }
       if (def !== undefined) {
@@ -176,7 +176,7 @@ export function createEffectUtils(
           state.turn,
           state.phase,
           "Stat Change",
-          `${c.name}: DEF ${oldDef} → ${c.def}`
+          `${c.name}: DEF ${oldDef} → ${c.def}`,
         );
       }
     },
@@ -190,7 +190,7 @@ export function createEffectUtils(
         state.turn,
         state.phase,
         "HP Change",
-        `${c.name}: HP ${oldHP} → ${c.currentHp}`
+        `${c.name}: HP ${oldHP} → ${c.currentHp}`,
       );
     },
 
@@ -205,7 +205,7 @@ export function createEffectUtils(
             state.turn,
             state.phase,
             "Card Draw",
-            `${player.id} drew ${card.name}`
+            `${player.id} drew ${card.name}`,
           );
           drawnCount++;
         }
@@ -219,7 +219,7 @@ export function createEffectUtils(
           "Card Draw",
           `${player.id} could not draw ${missed} card${
             missed > 1 ? "s" : ""
-          } (deck empty)`
+          } (deck empty)`,
         );
       }
     },
@@ -238,7 +238,7 @@ export function createEffectUtils(
           state.turn,
           state.phase,
           "Card Discard",
-          `${player.id} discarded ${card.name}`
+          `${player.id} discarded ${card.name}`,
         );
       }
     },
@@ -260,7 +260,7 @@ export function createEffectUtils(
       description?: string,
       affectedCardIds?: string[],
       statModifiers?: { atk?: number; def?: number },
-      isGlobal?: boolean
+      isGlobal?: boolean,
     ) => {
       engine.addActiveEffect(
         effectId,
@@ -271,19 +271,19 @@ export function createEffectUtils(
         description,
         affectedCardIds,
         statModifiers,
-        isGlobal
+        isGlobal,
       );
     },
 
     checkAndRemoveTargetedSupports: (
       targetPlayerIndex: 0 | 1,
       targetLane: number,
-      removedCardId?: string
+      removedCardId?: string,
     ) => {
       engine.checkAndRemoveTargetedSupports(
         targetPlayerIndex,
         targetLane,
-        removedCardId
+        removedCardId,
       );
     },
   };
@@ -301,19 +301,21 @@ export type EffectHandler = ((context: EffectContext) => void) & {
  * Each effect ID can have a custom handler function that executes custom logic
  */
 export const effectHandlers: Record<string, EffectHandler> = {
+  battle_rage,
+  boost_fire_atk,
+  call_home: callHomeHandler,
+  direct_burn_damage,
+  draw_on_play: (ctx: EffectContext) => draw_on_play(ctx, 1),
+  draw_on_play_plus: (ctx: EffectContext) => draw_on_play(ctx, 2),
+  draw_on_play_plus_plus: (ctx: EffectContext) => draw_on_play(ctx, 3),
   fire_atk_boost_aura,
   flame_aura_global,
-  draw_on_play,
-  boost_fire_atk,
-  void_wisp_boost,
-  purge_opponent_support,
-  mirror_force,
-  direct_burn_damage,
-  quick_assessment,
-  battle_rage,
-  call_home: callHomeHandler,
   fusion_drive,
   minor_reinforcement,
+  mirror_force,
+  purge_opponent_support,
+  quick_assessment,
+  void_wisp_boost,
 };
 
 /**
@@ -321,7 +323,7 @@ export const effectHandlers: Record<string, EffectHandler> = {
  */
 export function executeEffect(
   effectId: string,
-  context: EffectContext
+  context: EffectContext,
 ): boolean {
   const handler = effectHandlers[effectId];
 

@@ -11,12 +11,13 @@ import shadowAffinity from "@assets/affinity/shadow.png";
 import psychicAffinity from "@assets/affinity/psychic.png";
 
 import { Affinity } from "@cards";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Cost } from "./Common/Cost";
 import { CardImage } from "./CardImage";
 import { Box, Typography } from "@mui/material";
 import { Stats } from "./Common/Stats";
 import { theme } from "@/ui/theme";
+import { getMomentumGlobalBuff } from "@/battle/MomentumPressure";
 
 interface CreatureProps extends Pick<
   CreatureCard,
@@ -39,13 +40,14 @@ interface CreatureProps extends Pick<
   | "image"
 > {
   showCardMode?: boolean;
+  playerMomentum?: number; // Player's current momentum for Momentum Pressure buffs
 }
 
 export const Creature = ({
   id,
   mode,
-  isAtkModified,
-  isDefModified,
+  // isAtkModified,
+  // isDefModified,
   atk,
   def,
   // baseAtk,
@@ -60,6 +62,7 @@ export const Creature = ({
   cost,
   image,
   showCardMode = false,
+  playerMomentum,
 }: CreatureProps) => {
   const getAffinityIcon = useCallback((affinity: Affinity) => {
     switch (affinity) {
@@ -87,6 +90,18 @@ export const Creature = ({
         return "#";
     }
   }, []);
+
+  const stats = useMemo(() => {
+    const buff = getMomentumGlobalBuff(playerMomentum || 0);
+    return {
+      atk: Math.max(0, atk + buff.atk),
+      def: Math.max(0, def + buff.def),
+      maxHp: hp,
+      currentHp: currentHp,
+    };
+  }, [atk, def, hp, currentHp, playerMomentum]);
+
+  console.log("Creature Stats with Momentum Pressures:", stats);
 
   return (
     <Box
@@ -194,12 +209,12 @@ export const Creature = ({
       </Box>
       <Stats
         affinity={affinity}
-        atk={atk}
-        def={def}
-        hp={hp}
-        currentHp={currentHp}
-        isAtkModified={isAtkModified}
-        isDefModified={isDefModified}
+        atk={stats.atk}
+        def={stats.def}
+        hp={stats.maxHp}
+        currentHp={stats.currentHp}
+        isAtkModified={stats.atk !== atk}
+        isDefModified={stats.def !== def}
         width={187}
         height={28}
         sx={{
@@ -218,6 +233,25 @@ export const Creature = ({
           ATTACKED
         </Box>
       )}
+      <Box className="hp-bar">
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 28,
+            left: 0,
+            width: `${(stats.currentHp / stats.maxHp) * 100}%`,
+            height: "4px",
+            backgroundColor:
+              stats.currentHp / stats.maxHp > 0.5
+                ? "#00ff51ff"
+                : stats.currentHp / stats.maxHp > 0.2
+                  ? "#ffae00ff"
+                  : "#ff0000ff",
+            transition: "width 0.3s ease-in-out",
+            zIndex: 4,
+          }}
+        />
+      </Box>
     </Box>
   );
 };
