@@ -1,4 +1,5 @@
 import { PlayerState } from "../../../battle/PlayerState";
+import { GameState } from "../../../battle/GameState";
 import { SupportZone, SupportZoneProps } from "./SupportZone";
 import { CreatureZone, CreatureZoneProps } from "./CreatureZone";
 import { useMemo } from "react";
@@ -6,7 +7,8 @@ import { PlayerBoardContainer } from "./PlayerBoard.styled";
 import { Player } from "./Player";
 
 interface PlayerBoardProps
-  extends Pick<SupportZoneProps, "onActivateSupport" | "onPlaySupport">,
+  extends
+    Pick<SupportZoneProps, "onActivateSupport" | "onPlaySupport">,
     Pick<
       CreatureZoneProps,
       | "onPlayCreature"
@@ -19,6 +21,7 @@ interface PlayerBoardProps
       | "onSetAttackerRef"
     > {
   player: PlayerState;
+  gameState?: GameState; // For checking effect activation requirements
   currentPlayerState?: PlayerState; // Pass to CreatureZone for checking attacker mode
   lifePoints: number;
   isOpponent?: boolean;
@@ -32,6 +35,7 @@ interface PlayerBoardProps
 
 export const PlayerBoard = ({
   player,
+  gameState,
   currentPlayerState,
   lifePoints,
   isOpponent = false,
@@ -74,7 +78,7 @@ export const PlayerBoard = ({
       onSupportDoubleClick,
       draggedCardId,
       showPlayButtons,
-    ]
+    ],
   );
 
   return (
@@ -83,6 +87,7 @@ export const PlayerBoard = ({
       {isOpponent && SupportZoneComponent}
       <CreatureZone
         player={player}
+        gameState={gameState}
         currentPlayerState={currentPlayerState}
         selectedHandCard={selectedHandCard}
         selectedAttacker={selectedAttacker}

@@ -18,6 +18,7 @@ export type EffectTarget =
   | "SELF_CARD"
   | "ALLY_CREATURE"
   | "ENEMY_CREATURE"
+  | "ENEMY_SUPPORT"
   | "ALL_CREATURES"
   | "PLAYER"
   | "OPPONENT";
@@ -108,7 +109,7 @@ export interface ActivationRequirement {
 
   // For HAS_TARGET: what kind of target is needed
   targetType?:
-    | "OPPONENT_SUPPORT"
+    | "ENEMY_SUPPORT"
     | "ALLY_CREATURE"
     | "ENEMY_CREATURE"
     | "ALLY_FIRE_CREATURE";
@@ -123,7 +124,7 @@ export interface ActivationRequirement {
 export interface TargetingConfig {
   required: boolean; // Does this effect require targeting?
   targetType:
-    | "OPPONENT_SUPPORT"
+    | "ENEMY_SUPPORT"
     | "ALLY_CREATURE"
     | "ENEMY_CREATURE"
     | "ALLY_FIRE_CREATURE"

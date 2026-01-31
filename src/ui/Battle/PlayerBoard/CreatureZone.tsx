@@ -1,4 +1,5 @@
 import { PlayerState } from "../../../battle/PlayerState";
+import { GameState } from "../../../battle/GameState";
 import { CardType } from "../../../cards/types";
 import { CreatureCard } from "../../../cards/CreatureCard";
 import { Card } from "../Card";
@@ -14,9 +15,11 @@ import {
   FlipButton,
 } from "./Zone.styles";
 import { useRef } from "react";
+import { canActivateEffect } from "../../../effects/metadata";
 
 export interface CreatureZoneProps {
   player: PlayerState;
+  gameState?: GameState; // For checking effect activation requirements
   currentPlayerState?: PlayerState; // To check attacker mode when displaying opponent board
   selectedHandCard?: string | null;
   selectedAttacker?: number | null;
@@ -36,6 +39,7 @@ export interface CreatureZoneProps {
 
 export const CreatureZone = ({
   player,
+  gameState,
   currentPlayerState,
   selectedHandCard,
   selectedAttacker,
@@ -68,6 +72,25 @@ export const CreatureZone = ({
             !card &&
             draggedCard &&
             draggedCard.type === CardType.Creature;
+
+          // Determine player index for activation checks (0 for current player, 1 for opponent)
+          const playerIndex = isOpponent ? 1 : 0;
+
+          // Check if creature can activate its effect
+          const creatureCanActivate =
+            !isOpponent &&
+            card !== null &&
+            card.type === CardType.Creature &&
+            (card as CreatureCard).hasActivatableEffect &&
+            (card as CreatureCard).canActivateEffect &&
+            gameState &&
+            (card as CreatureCard).effectId
+              ? canActivateEffect(
+                  (card as CreatureCard).effectId!,
+                  gameState,
+                  playerIndex as 0 | 1,
+                ).canActivate
+              : false;
 
           return (
             <Lane
@@ -109,18 +132,9 @@ export const CreatureZone = ({
                   onClick={
                     !isOpponent && card
                       ? () => {
-                          // Check if creature has activatable effect
-                          const creature = card as CreatureCard;
-                          if (
-                            creature.hasActivatableEffect &&
-                            creature.canActivateEffect &&
-                            onActivateCreatureEffect
-                          ) {
-                            const element = cardRefs.current[i];
-                            if (element) {
-                              onActivateCreatureEffect(i, element);
-                            }
-                          } else if (!isFirstTurn && onSelectAttacker) {
+                          // Priority: Attack selection over effect activation
+                          // This prevents creatures with effects from blocking attack selection
+                          if (!isFirstTurn && onSelectAttacker) {
                             // Set the attacker ref when selecting
                             const element = cardRefs.current[i];
                             if (element && onSetAttackerRef) {
@@ -139,12 +153,7 @@ export const CreatureZone = ({
                   isSelected={!isOpponent && selectedAttacker === i}
                   showFaceDown={isOpponent}
                   selectedHandCard={selectedHandCard}
-                  canActivate={
-                    !isOpponent &&
-                    card !== null &&
-                    (card as CreatureCard).hasActivatableEffect &&
-                    (card as CreatureCard).canActivateEffect
-                  }
+                  canActivate={creatureCanActivate}
                 />
               </div>
 
@@ -165,7 +174,7 @@ export const CreatureZone = ({
 
                   // Check if opponent has any creatures
                   const opponentHasCreatures = player.lanes.some(
-                    (c) => c !== null
+                    (c) => c !== null,
                   );
 
                   // If this lane has a creature, always show attack button
@@ -226,6 +235,19 @@ export const CreatureZone = ({
                       {(card as CreatureCard).hasChangedModeThisTurn && " ✓"}
                     </ToggleModeButton>
                   )}
+                  {onActivateCreatureEffect && creatureCanActivate && (
+                    <ToggleModeButton
+                      onClick={() => {
+                        const element = cardRefs.current[i];
+                        if (element) {
+                          onActivateCreatureEffect(i, element);
+                        }
+                      }}
+                      title="Activate this creature's special effect"
+                    >
+                      Activate Effect
+                    </ToggleModeButton>
+                  )}
                   {onFlipFaceUp && (card as CreatureCard).isFaceDown && (
                     <FlipButton onClick={() => onFlipFaceUp(i)}>
                       Flip Face-Up
@@ -242,7 +264,7 @@ export const CreatureZone = ({
                 onPlayCreature &&
                 (() => {
                   const handCard = player.hand.find(
-                    (c) => c.id === selectedHandCard
+                    (c) => c.id === selectedHandCard,
                   );
                   return handCard?.type === CardType.Creature ? (
                     <PlayHereButton

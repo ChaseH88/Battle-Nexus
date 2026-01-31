@@ -9,7 +9,11 @@ export interface UseDeckBuilderReturn {
   saveDeckToLocalStorage: () => void;
   clearDeck: () => void;
   snackbarMessage: string;
+  setSnackbarMessage: React.Dispatch<React.SetStateAction<string>>;
   snackbarSeverity: "success" | "error";
+  setSnackbarSeverity: React.Dispatch<
+    React.SetStateAction<"success" | "error">
+  >;
   snackbarOpen: boolean;
   setSnackbarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -103,7 +107,9 @@ export const useDeckBuilder = (): UseDeckBuilderReturn => {
     saveDeckToLocalStorage,
     clearDeck,
     snackbarMessage,
+    setSnackbarMessage,
     snackbarSeverity,
+    setSnackbarSeverity,
     snackbarOpen,
     setSnackbarOpen,
   };

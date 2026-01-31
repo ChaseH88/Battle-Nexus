@@ -1,4 +1,11 @@
-import { Box, Typography, Grid, Snackbar, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Grid,
+  Snackbar,
+  Alert,
+  IconButton,
+} from "@mui/material";
 import cardData from "../../static/card-data/bn-core.json";
 import { CardType, Affinity, CardInterface } from "../../cards/types";
 import { CreatureCard } from "../../cards/CreatureCard";
@@ -10,6 +17,7 @@ import { useDeckBuilder } from "@/hooks/useDeckBuilder";
 import { DeckViewer } from "./components/DeckViewer";
 import { useCardFilters } from "@/hooks/useCardFilters";
 import { CardFilters } from "./components/CardFilters";
+import { useCallback, useState } from "react";
 
 function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
@@ -42,6 +50,7 @@ export interface CardData {
 }
 
 const DeckBuilder = () => {
+  const [isDeckFullScreen, setIsDeckFullScreen] = useState(false);
   const {
     searchTerm,
     setSearchTerm,
@@ -65,6 +74,8 @@ const DeckBuilder = () => {
     snackbarSeverity,
     snackbarOpen,
     setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarSeverity,
   } = useDeckBuilder();
   const availableCards = cardData as CardData[];
 
@@ -79,6 +90,49 @@ const DeckBuilder = () => {
     },
   );
 
+  const toggleDeckFullScreen = useCallback(() => {
+    setIsDeckFullScreen((prev) => !prev);
+  }, []);
+
+  const handleMaxDeckSizeLimit = useCallback(() => {
+    setSnackbarMessage("Deck is full! Maximum 20 cards allowed.");
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  }, [setSnackbarMessage, setSnackbarSeverity, setSnackbarOpen]);
+
+  const handleMaxCardCopies = useCallback(
+    (copies: number = 3) => {
+      setSnackbarMessage(
+        `Cannot add more than ${copies} ${copies === 1 ? "copy" : "copies"} of the same card.`,
+      );
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    },
+    [setSnackbarMessage, setSnackbarSeverity, setSnackbarOpen],
+  );
+
+  const handleAddToDeck = useCallback(
+    (cardId: string) => {
+      const currentCount = selectedCards.get(cardId) || 0;
+      if (totalCards >= 20) {
+        handleMaxDeckSizeLimit();
+        return;
+      }
+      if (currentCount >= 3) {
+        handleMaxCardCopies(3);
+        return;
+      }
+      addCardToDeck(cardId);
+    },
+    [
+      selectedCards,
+      totalCards,
+      handleMaxDeckSizeLimit,
+      handleMaxCardCopies,
+      addCardToDeck,
+    ],
+  );
+
   return (
     <Box sx={{ maxWidth: "1600px", margin: "0 auto", padding: "20px" }}>
       <Typography
@@ -90,7 +144,11 @@ const DeckBuilder = () => {
 
       <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "nowrap" }}>
         {/* Left Panel - Card Collection */}
-        <Box className="left-container" flex="0 0 73%">
+        <Box
+          className="left-container"
+          flex="0 0 73%"
+          display={isDeckFullScreen ? "none" : "block"}
+        >
           <CardFilters
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
@@ -113,7 +171,7 @@ const DeckBuilder = () => {
                   <Box
                     onClick={(e) => {
                       e.stopPropagation();
-                      addCardToDeck(card.id);
+                      handleAddToDeck(card.id);
                     }}
                     sx={{
                       cursor: "pointer",
@@ -165,13 +223,35 @@ const DeckBuilder = () => {
         </Box>
 
         {/* Right Panel - Current Deck */}
-        <Box className="right-container" flex="0 0 27%">
+        <Box className="right-container" flex="1 1 27%" position="relative">
           <DeckViewer
             deckList={deckList}
             totalCards={totalCards}
             saveDeckToLocalStorage={saveDeckToLocalStorage}
             clearDeck={clearDeck}
             removeCardFromDeck={removeCardFromDeck}
+            isFullScreen={isDeckFullScreen}
+            HeaderComponent={
+              <IconButton
+                size="small"
+                onClick={toggleDeckFullScreen}
+                sx={{
+                  backgroundColor: "rgba(26,32,44,0.8)",
+                  width: 25,
+                  height: 25,
+                  lineHeight: 0,
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "rgba(26,32,44,1)",
+                  },
+                  position: "relative",
+                  top: "-20px",
+                  left: 50,
+                }}
+              >
+                {isDeckFullScreen ? "X" : "+"}
+              </IconButton>
+            }
           />
         </Box>
       </Box>

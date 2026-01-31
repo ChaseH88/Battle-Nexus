@@ -731,9 +731,7 @@ export default function App() {
                     // Determine what the target value represents based on effect type
                     const eventData: any = {};
 
-                    if (
-                      metadata?.targeting?.targetType === "OPPONENT_SUPPORT"
-                    ) {
+                    if (metadata?.targeting?.targetType === "ENEMY_SUPPORT") {
                       eventData.targetPlayer = 1;
                       eventData.targetLane = targetValue;
                     } else if (
@@ -1035,6 +1033,7 @@ export default function App() {
         />
         <PlayerBoard
           player={player2}
+          gameState={gameState}
           currentPlayerState={player1}
           lifePoints={player2.lifePoints}
           isOpponent={true}
@@ -1061,6 +1060,7 @@ export default function App() {
         />
         <PlayerBoard
           player={player1}
+          gameState={gameState}
           lifePoints={player1.lifePoints}
           isOpponent={false}
           isFirstTurn={gameState.turn === 1 && gameState.activePlayer === 0}

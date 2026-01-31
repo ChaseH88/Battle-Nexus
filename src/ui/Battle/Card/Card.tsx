@@ -96,8 +96,8 @@ export const Card = ({
   const isDefenseMode = creature ? creature.mode === "DEFENSE" : false;
   const isActiveCard = Boolean(
     (support && support.isActive) ||
-      (action && action.isActive) ||
-      (trap && trap.isActive)
+    (action && action.isActive) ||
+    (trap && trap.isActive),
   );
 
   const handleDoubleClick = (e: React.MouseEvent) => {
@@ -116,7 +116,7 @@ export const Card = ({
           width: rect.width,
           height: rect.height,
         },
-      })
+      }),
     );
   };
 
@@ -134,6 +134,7 @@ export const Card = ({
       disableHover={disableHover}
       onClick={onClick}
       onDoubleClick={handleDoubleClick}
+      className={"card-slot"}
     >
       {creature && effectiveStats && (
         <Creature

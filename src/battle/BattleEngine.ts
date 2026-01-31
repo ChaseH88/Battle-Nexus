@@ -914,7 +914,9 @@ export class BattleEngine {
         this.log(
           `${opponent.id} has no creatures to defend! Direct attack deals ${damage} damage!`,
         );
-        this.log(`${opponent.id} Life Points: ${opponent.lifePoints}/2000`);
+        this.log(
+          `${opponent.id} Life Points: ${opponent.lifePoints < 0 ? 0 : opponent.lifePoints}/2000`,
+        );
 
         // Check for victory by reducing life points to 0
         if (opponent.lifePoints <= 0 && this.state.winnerIndex === null) {

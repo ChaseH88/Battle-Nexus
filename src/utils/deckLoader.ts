@@ -14,7 +14,7 @@ const AI_DECK_CONFIG = [
   { cardId: "mossback_scarab", count: 3 },
   { cardId: "lumen_sprite", count: 3 },
   { cardId: "inferno_lion", count: 3 },
-  { cardId: "seismic_hart", count: 3 },
+  { cardId: "card_draw_spell", count: 3 },
   { cardId: "granite_colossus", count: 2 },
 ];
 

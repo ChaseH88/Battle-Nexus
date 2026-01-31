@@ -50,7 +50,7 @@ export const purge_opponent_support = (ctx: EffectContext) => {
 
   // Remove any active effects from this support card before discarding
   const effectsToRemove = ctx.state.activeEffects.filter(
-    (e) => e.sourceCardId === card.id
+    (e) => e.sourceCardId === card.id,
   );
   effectsToRemove.forEach((e) => {
     ctx.engine.removeActiveEffect(e.id);
@@ -60,7 +60,7 @@ export const purge_opponent_support = (ctx: EffectContext) => {
   opponent.support[slotToRemove] = null;
   opponent.discardPile.push(card);
   ctx.utils.log(
-    `  ${card.name} was removed from opponent's support slot ${slotToRemove}`
+    `  ${card.name} was removed from opponent's support slot ${slotToRemove}`,
   );
 };
 
@@ -85,7 +85,7 @@ purge_opponent_support.metadata = {
 
   targeting: {
     required: true,
-    targetType: "OPPONENT_SUPPORT" as const,
+    targetType: "ENEMY_SUPPORT" as const,
     description: "Select opponent support card to remove",
     allowMultiple: false,
   },
