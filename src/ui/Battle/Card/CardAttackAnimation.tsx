@@ -24,7 +24,9 @@ const DamageNumber = styled(motion.div)`
   font-size: 48px;
   font-weight: bold;
   color: #ff0000;
-  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.6),
+  text-shadow:
+    0 0 10px rgba(255, 0, 0, 0.8),
+    0 0 20px rgba(255, 0, 0, 0.6),
     2px 2px 4px rgba(0, 0, 0, 0.8);
   pointer-events: none;
   z-index: 1002;
@@ -35,7 +37,6 @@ const DamageNumber = styled(motion.div)`
 
 interface CardAttackAnimationProps {
   card: CardInterface | null;
-  isAttacking: boolean;
   attackerBounds?: DOMRect;
   defenderBounds?: DOMRect;
   damage?: number;
@@ -45,7 +46,6 @@ interface CardAttackAnimationProps {
 
 export const CardAttackAnimation = ({
   card,
-  isAttacking,
   attackerBounds,
   defenderBounds,
   damage,
@@ -66,116 +66,114 @@ export const CardAttackAnimation = ({
 
   return createPortal(
     <AnimatePresence mode="wait">
-      {isAttacking && (
-        <Overlay
-          key="card-attack-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.1 }}
+      <Overlay
+        key="card-attack-overlay"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.1 }}
+      >
+        <AnimatedCardContainer
+          key="card-attack-card"
+          initial={{
+            x: attackerX - window.innerWidth / 2,
+            y: attackerY - window.innerHeight / 2,
+            scale: 1,
+          }}
+          animate={{
+            x: [
+              attackerX - window.innerWidth / 2,
+              attackerX - window.innerWidth / 2 + deltaX * 0.7,
+              attackerX - window.innerWidth / 2,
+            ],
+            y: [
+              attackerY - window.innerHeight / 2,
+              attackerY - window.innerHeight / 2 + deltaY * 0.7,
+              attackerY - window.innerHeight / 2,
+            ],
+            scale: [1, 1.2, 1],
+            filter: [
+              "brightness(1) drop-shadow(0 0 0px rgba(255, 0, 0, 0))",
+              "brightness(1.3) drop-shadow(0 0 30px rgba(255, 0, 0, 1))",
+              "brightness(1) drop-shadow(0 0 0px rgba(255, 0, 0, 0))",
+            ],
+          }}
+          exit={{
+            opacity: 0,
+            scale: 0.8,
+          }}
+          transition={{
+            duration: 0.8,
+            times: [0, 0.5, 1],
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          onAnimationComplete={() => {
+            if (onComplete) {
+              onComplete();
+            }
+          }}
+          style={{
+            transformStyle: "preserve-3d",
+          }}
         >
-          <AnimatedCardContainer
-            key="card-attack-card"
+          <Card card={card} disableHover />
+        </AnimatedCardContainer>
+
+        {/* Damage number overlay at defender position */}
+        {typeof damage === "number" && (
+          <DamageNumber
+            key="damage-number"
             initial={{
-              x: attackerX - window.innerWidth / 2,
-              y: attackerY - window.innerHeight / 2,
-              scale: 1,
+              x: defenderX,
+              y: defenderY,
+              opacity: 0,
+              scale: 0.5,
             }}
             animate={{
-              x: [
-                attackerX - window.innerWidth / 2,
-                attackerX - window.innerWidth / 2 + deltaX * 0.7,
-                attackerX - window.innerWidth / 2,
-              ],
-              y: [
-                attackerY - window.innerHeight / 2,
-                attackerY - window.innerHeight / 2 + deltaY * 0.7,
-                attackerY - window.innerHeight / 2,
-              ],
-              scale: [1, 1.2, 1],
-              filter: [
-                "brightness(1) drop-shadow(0 0 0px rgba(255, 0, 0, 0))",
-                "brightness(1.3) drop-shadow(0 0 30px rgba(255, 0, 0, 1))",
-                "brightness(1) drop-shadow(0 0 0px rgba(255, 0, 0, 0))",
-              ],
-            }}
-            exit={{
-              opacity: 0,
-              scale: 0.8,
+              x: defenderX,
+              y: defenderY - 50,
+              opacity: [0, 1, 1, 0],
+              scale: [0.5, 1.5, 1.5, 1],
             }}
             transition={{
-              duration: 0.8,
-              times: [0, 0.5, 1],
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            onAnimationComplete={() => {
-              if (onComplete) {
-                onComplete();
-              }
-            }}
-            style={{
-              transformStyle: "preserve-3d",
+              duration: 0.6,
+              delay: 0.4, // Start at 0.4s to sync with attack midpoint
+              times: [0, 0.2, 0.8, 1],
+              ease: "easeOut",
             }}
           >
-            <Card card={card} disableHover />
-          </AnimatedCardContainer>
+            -{damage}
+          </DamageNumber>
+        )}
 
-          {/* Damage number overlay at defender position */}
-          {typeof damage === "number" && (
-            <DamageNumber
-              key="damage-number"
-              initial={{
-                x: defenderX,
-                y: defenderY,
-                opacity: 0,
-                scale: 0.5,
-              }}
-              animate={{
-                x: defenderX,
-                y: defenderY - 50,
-                opacity: [0, 1, 1, 0],
-                scale: [0.5, 1.5, 1.5, 1],
-              }}
-              transition={{
-                duration: 0.6,
-                delay: 0.4, // Start at 0.4s to sync with attack midpoint
-                times: [0, 0.2, 0.8, 1],
-                ease: "easeOut",
-              }}
-            >
-              -{damage}
-            </DamageNumber>
-          )}
-
-          {/* Counter damage number overlay at attacker position */}
-          {typeof counterDamage === "number" && counterDamage > 0 && (
-            <DamageNumber
-              key="counter-damage-number"
-              initial={{
-                x: attackerX,
-                y: attackerY,
-                opacity: 0,
-                scale: 0.5,
-              }}
-              animate={{
-                x: attackerX,
-                y: attackerY - 50,
-                opacity: [0, 1, 1, 0],
-                scale: [0.5, 1.5, 1.5, 1],
-              }}
-              transition={{
-                duration: 0.6,
-                delay: 0.4, // Start at 0.4s to sync with attack midpoint
-                times: [0, 0.2, 0.8, 1],
-                ease: "easeOut",
-              }}
-            >
-              -{counterDamage}
-            </DamageNumber>
-          )}
-        </Overlay>
-      )}
+        {/* Counter damage number overlay at attacker position */}
+        {typeof counterDamage === "number" && counterDamage > 0 && (
+          <DamageNumber
+            key="counter-damage-number"
+            initial={{
+              x: attackerX,
+              y: attackerY,
+              opacity: 0,
+              scale: 0.5,
+            }}
+            animate={{
+              x: attackerX,
+              y: attackerY - 50,
+              opacity: [0, 1, 1, 0],
+              scale: [0.5, 1.5, 1.5, 1],
+            }}
+            transition={{
+              duration: 0.6,
+              delay: 0.4, // Start at 0.4s to sync with attack midpoint
+              times: [0, 0.2, 0.8, 1],
+              ease: "easeOut",
+            }}
+          >
+            -{counterDamage}
+          </DamageNumber>
+        )}
+      </Overlay>
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 };

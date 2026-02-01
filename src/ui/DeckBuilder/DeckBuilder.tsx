@@ -17,7 +17,9 @@ import { useDeckBuilder } from "@/hooks/useDeckBuilder";
 import { DeckViewer } from "./components/DeckViewer";
 import { useCardFilters } from "@/hooks/useCardFilters";
 import { CardFilters } from "./components/CardFilters";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
+import { useAppDispatch } from "@/store/hooks";
+import { closeCardDetailModal } from "@/store/uiSlice";
 
 function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
@@ -50,6 +52,7 @@ export interface CardData {
 }
 
 const DeckBuilder = () => {
+  const dispatch = useAppDispatch();
   const [isDeckFullScreen, setIsDeckFullScreen] = useState(false);
   const {
     searchTerm,
@@ -93,6 +96,13 @@ const DeckBuilder = () => {
   const toggleDeckFullScreen = useCallback(() => {
     setIsDeckFullScreen((prev) => !prev);
   }, []);
+
+  // Close card detail modal when component unmounts (e.g., navigating away)
+  useEffect(() => {
+    return () => {
+      dispatch(closeCardDetailModal());
+    };
+  }, [dispatch]);
 
   const handleMaxDeckSizeLimit = useCallback(() => {
     setSnackbarMessage("Deck is full! Maximum 20 cards allowed.");
@@ -169,10 +179,6 @@ const DeckBuilder = () => {
               return (
                 <Grid key={card.id}>
                   <Box
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToDeck(card.id);
-                    }}
                     sx={{
                       cursor: "pointer",
                       transition: "all 0.3s ease",
@@ -214,7 +220,14 @@ const DeckBuilder = () => {
                     >
                       {countInDeck}/3
                     </Box>
-                    <Card card={cardInstance} disableHover={false} readonly />
+                    <Card
+                      card={cardInstance}
+                      disableHover={false}
+                      readonly
+                      onClick={() => {
+                        handleAddToDeck(card.id);
+                      }}
+                    />
                   </Box>
                 </Grid>
               );

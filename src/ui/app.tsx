@@ -24,6 +24,7 @@ import {
   setSelectedAttacker,
   openTargetSelectModal,
   openCardDetailModal,
+  closeCardDetailModal,
   queueEffectNotification,
 } from "../store/uiSlice";
 import backgroundImage from "../assets/background.png";
@@ -185,6 +186,13 @@ export default function App() {
   useEffect(() => {
     trapActivationCallbackRef.current = trapActivationCallback;
   }, [trapActivationCallback]);
+
+  // Close card detail modal when component unmounts (e.g., navigating away)
+  useEffect(() => {
+    return () => {
+      dispatch(closeCardDetailModal());
+    };
+  }, [dispatch]);
 
   // Create stable AI attack animation callback
   const aiAttackAnimationCallback = useCallback(
@@ -1206,7 +1214,6 @@ export default function App() {
         {currentAnimation?.type === "attack" && (
           <CardAttackAnimation
             card={currentAnimation.data.card}
-            isAttacking={true}
             attackerBounds={currentAnimation.data.attackerBounds}
             defenderBounds={currentAnimation.data.defenderBounds}
             damage={currentAnimation.data.damage}
