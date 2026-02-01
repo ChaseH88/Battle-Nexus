@@ -1,10 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { CardInterface, CardType } from "../cards/types";
-import { CreatureCard } from "../cards/CreatureCard";
-import { ActionCard } from "../cards/ActionCard";
-import { SupportCard } from "../cards/SupportCard";
-import { TrapCard } from "../cards/TrapCard";
-import cardsData from "../static/card-data/bn-core.json";
+import { CardInterface } from "../cards/types";
 import "./styles.css";
 import { GameLog } from "./Battle/GameLog";
 import { Controls } from "./Battle/Controls";
@@ -29,36 +24,14 @@ import {
 } from "../store/uiSlice";
 import backgroundImage from "../assets/background.png";
 import { useBattleEngine } from "../hooks/useBattleEngine";
+import { useGameInitialization } from "../hooks/useGameInitialization";
 import { getEffectMetadata } from "../effects/metadata";
 import { effectsRegistry } from "../effects/registry";
-import {
-  loadDeckFromLocalStorage,
-  hasSavedDeck,
-  loadAIDeck,
-} from "../utils/deckLoader";
 import { getEffectiveCreatureStats } from "../battle/MomentumPressure";
 import { CardActivationEffect } from "./Battle/Card/CardActivationEffect";
 import { CardAttackAnimation } from "./Battle/Card/CardAttackAnimation";
 import { useAnimationQueue } from "./Battle/Card/useAnimationQueue";
-
-function cardFactory(raw: any): CardInterface {
-  switch (raw.type) {
-    case CardType.Creature:
-      return new CreatureCard(raw);
-    case CardType.Action:
-      return new ActionCard(raw);
-    case CardType.Support:
-      return new SupportCard(raw);
-    case CardType.Trap:
-      return new TrapCard(raw);
-    default:
-      throw new Error(`Unknown card type: ${raw.type}`);
-  }
-}
-
-const allCards = (cardsData as any[])
-  .map(cardFactory)
-  .sort(() => 0.5 - Math.random());
+import { CardType } from "../cards/types";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -71,8 +44,6 @@ export default function App() {
   } = useAppSelector((state) => state.ui);
 
   const [aiSkillLevel] = useState(5);
-  const [showDeckLoadPrompt, setShowDeckLoadPrompt] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
   const [draggedCardId, setDraggedCardId] = useState<string | null>(null);
 
   // Animation queue - handles both activation and attack animations sequentially
@@ -121,6 +92,7 @@ export default function App() {
     endTurn,
     refresh,
     ai,
+    setEffectCallback,
   } = useBattleEngine();
 
   // Create stable trap activation callback for ON_DEFEND triggers (combat)
@@ -318,7 +290,7 @@ export default function App() {
   useEffect(() => {
     if (!engine) return;
 
-    engine.onEffectActivated = (card, effectName) => {
+    setEffectCallback((card, effectName) => {
       dispatch(
         queueEffectNotification({
           card,
@@ -326,116 +298,25 @@ export default function App() {
           activeEffects: gameState ? gameState.activeEffects : [],
         }),
       );
-    };
+    });
 
     return () => {
-      if (engine) engine.onEffectActivated = undefined;
+      if (engine) setEffectCallback(() => {});
     };
-  }, [engine, dispatch, gameState]);
+  }, [engine, dispatch, gameState, setEffectCallback]);
 
-  const startNewGame = useCallback(() => {
-    const deck1 = allCards.map(cardFactory).sort(() => 0.5 - Math.random());
-    const deck2 = loadAIDeck();
-
-    // Wrap trap callback in a function that uses the ref
-    const trapCallback = async (
-      defenderIndex: 0 | 1,
-      attackerLane: number,
-      targetLane: number,
-    ): Promise<boolean> => {
-      if (trapActivationCallbackRef.current) {
-        return trapActivationCallbackRef.current(
-          defenderIndex,
-          attackerLane,
-          targetLane,
-        );
-      }
-      return false;
-    };
-
-    // Wrap AI attack animation callback in a function that uses the ref
-    const aiAttackCallback = async (
-      attackerLane: number,
-      targetLane: number | null,
-    ): Promise<void> => {
-      if (aiAttackAnimationCallbackRef.current) {
-        return aiAttackAnimationCallbackRef.current(attackerLane, targetLane);
-      }
-    };
-
-    initializeGame(deck1, deck2, aiSkillLevel, trapCallback, aiAttackCallback);
-    dispatch(setSelectedHandCard(null));
-    dispatch(setSelectedAttacker(null));
-  }, [initializeGame, aiSkillLevel, dispatch]);
-
-  const startNewGameWithCustomDeck = useCallback(() => {
-    const customDeck = loadDeckFromLocalStorage();
-
-    if (customDeck && customDeck.length < 20) {
-      alert(
-        `Your saved deck has ${customDeck.length} cards. You need exactly 20 cards to use it. Please update your deck in the Deck Builder.`,
-      );
-      startNewGame();
-      return;
-    }
-
-    const deck1 =
-      customDeck && customDeck.length >= 20
-        ? [...customDeck].sort(() => 0.5 - Math.random())
-        : allCards.map(cardFactory).sort(() => 0.5 - Math.random());
-    const deck2 = loadAIDeck();
-
-    // Wrap trap callback in a function that uses the ref
-    const trapCallback = async (
-      defenderIndex: 0 | 1,
-      attackerLane: number,
-      targetLane: number,
-    ): Promise<boolean> => {
-      if (trapActivationCallbackRef.current) {
-        return trapActivationCallbackRef.current(
-          defenderIndex,
-          attackerLane,
-          targetLane,
-        );
-      }
-      return false;
-    };
-
-    // Wrap AI attack animation callback in a function that uses the ref
-    const aiAttackCallback = async (
-      attackerLane: number,
-      targetLane: number | null,
-    ): Promise<void> => {
-      if (aiAttackAnimationCallbackRef.current) {
-        return aiAttackAnimationCallbackRef.current(attackerLane, targetLane);
-      }
-    };
-
-    initializeGame(deck1, deck2, aiSkillLevel, trapCallback, aiAttackCallback);
-    dispatch(setSelectedHandCard(null));
-    dispatch(setSelectedAttacker(null));
-  }, [initializeGame, aiSkillLevel, dispatch, startNewGame]);
-
-  const handleNewGame = useCallback(() => {
-    if (hasSavedDeck()) {
-      setShowDeckLoadPrompt(true);
-    } else {
-      startNewGame();
-    }
-  }, [startNewGame]);
-
-  useEffect(() => {
-    // Check if user has a saved deck and offer to load it on initial mount
-    if (!isInitialized) {
-      if (hasSavedDeck()) {
-        setShowDeckLoadPrompt(true);
-      } else {
-        startNewGame();
-      }
-      setIsInitialized(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Game initialization hook
+  const { showDeckLoadPrompt, handleNewGame, handleDeckLoadResponse } =
+    useGameInitialization({
+      initializeGame,
+      aiSkillLevel,
+      trapActivationCallbackRef,
+      aiAttackAnimationCallbackRef,
+      onClearUIState: useCallback(() => {
+        dispatch(setSelectedHandCard(null));
+        dispatch(setSelectedAttacker(null));
+      }, [dispatch]),
+    });
 
   const checkNeedsToDraw = (): boolean => {
     if (!gameState) return false;
@@ -497,10 +378,7 @@ export default function App() {
             style={{ display: "flex", gap: "10px", justifyContent: "center" }}
           >
             <button
-              onClick={() => {
-                setShowDeckLoadPrompt(false);
-                startNewGameWithCustomDeck();
-              }}
+              onClick={() => handleDeckLoadResponse(true)}
               style={{
                 padding: "10px 20px",
                 background: "linear-gradient(145deg, #48bb78, #38a169)",
@@ -514,10 +392,7 @@ export default function App() {
               Yes, Use My Deck
             </button>
             <button
-              onClick={() => {
-                setShowDeckLoadPrompt(false);
-                startNewGame();
-              }}
+              onClick={() => handleDeckLoadResponse(false)}
               style={{
                 padding: "10px 20px",
                 background: "linear-gradient(145deg, #718096, #4a5568)",
@@ -546,17 +421,8 @@ export default function App() {
 
   const handleDraw = () => {
     if (isShowingEffectNotification) return;
-    // Check if deck is empty before attempting draw
-    if (player1.deck.length === 0) {
-      // Auto-advance to main phase
-      if (gameState.phase === "DRAW") {
-        gameState.hasDrawnThisTurn = true;
-        gameState.phase = "MAIN";
-        engine.log(`${player1.id} has no cards to draw - Main Phase begins`);
-      }
-    } else {
-      draw(gameState.activePlayer);
-    }
+    // The engine handles empty deck case automatically
+    draw(gameState.activePlayer);
   };
 
   const handlePlayCreature = (

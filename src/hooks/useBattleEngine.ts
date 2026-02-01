@@ -31,12 +31,12 @@ export interface BattleEngineHookReturn {
     trapCallback?: (
       defenderIndex: 0 | 1,
       attackerLane: number,
-      targetLane: number
+      targetLane: number,
     ) => Promise<boolean>,
     attackAnimationCallback?: (
       attackerLane: number,
-      targetLane: number | null
-    ) => Promise<void>
+      targetLane: number | null,
+    ) => Promise<void>,
   ) => void;
   draw: (playerIndex: number) => void;
   playCreature: (
@@ -44,23 +44,26 @@ export interface BattleEngineHookReturn {
     lane: number,
     cardId: string,
     faceDown?: boolean,
-    mode?: "ATTACK" | "DEFENSE"
+    mode?: "ATTACK" | "DEFENSE",
   ) => boolean;
   playSupport: (playerIndex: number, slot: number, cardId: string) => boolean;
   activateSupport: (playerIndex: number, slot: number) => boolean;
   activateTrap: (
     playerIndex: number,
     slot: number,
-    eventData?: { lane?: number; targetLane?: number }
+    eventData?: { lane?: number; targetLane?: number },
   ) => boolean;
   activateCreatureEffect: (playerIndex: number, lane: number) => boolean;
   attack: (
     playerIndex: number,
     attackerLane: number,
-    targetLane: number
+    targetLane: number,
   ) => void;
   toggleCreatureMode: (playerIndex: number, lane: number) => boolean;
   endTurn: () => void;
+  setEffectCallback: (
+    callback: (card: CardInterface, effectName: string) => void,
+  ) => void;
 
   // Utility
   refresh: () => void;
@@ -103,12 +106,12 @@ export function useBattleEngine(): BattleEngineHookReturn {
       trapCallback?: (
         defenderIndex: 0 | 1,
         attackerLane: number,
-        targetLane: number
+        targetLane: number,
       ) => Promise<boolean>,
       attackAnimationCallback?: (
         attackerLane: number,
-        targetLane: number | null
-      ) => Promise<void>
+        targetLane: number | null,
+      ) => Promise<void>,
     ) => {
       const p1 = createPlayerState("Player 1", [...player1Deck]);
       const p2 = createPlayerState("AI Opponent", [...player2Deck]);
@@ -130,7 +133,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
         1,
         "DRAW",
         "Draw Phase - Draw a card to begin",
-        gameState
+        gameState,
       );
 
       setEngine(newEngine);
@@ -141,14 +144,14 @@ export function useBattleEngine(): BattleEngineHookReturn {
         newEngine,
         () => refreshRef.current(),
         trapCallback,
-        attackAnimationCallback
+        attackAnimationCallback,
       );
       setAI(newAI);
 
       // Trigger initial render
       setVersion(0);
     },
-    []
+    [],
   );
 
   // Wrapper methods that call engine + refresh
@@ -158,7 +161,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
       engine.draw(playerIndex);
       refresh();
     },
-    [engine, refresh]
+    [engine, refresh],
   );
 
   const playCreature = useCallback(
@@ -167,7 +170,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
       lane: number,
       cardId: string,
       faceDown: boolean = false,
-      mode: "ATTACK" | "DEFENSE" = "ATTACK"
+      mode: "ATTACK" | "DEFENSE" = "ATTACK",
     ): boolean => {
       if (!engine) return false;
       const success = engine.playCreature(
@@ -175,12 +178,12 @@ export function useBattleEngine(): BattleEngineHookReturn {
         lane,
         cardId,
         faceDown,
-        mode
+        mode,
       );
       if (success) refresh();
       return success;
     },
-    [engine, refresh]
+    [engine, refresh],
   );
 
   const playSupport = useCallback(
@@ -190,7 +193,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
       if (success) refresh();
       return success;
     },
-    [engine, refresh]
+    [engine, refresh],
   );
 
   const activateSupport = useCallback(
@@ -200,25 +203,25 @@ export function useBattleEngine(): BattleEngineHookReturn {
       if (success) refresh();
       return success;
     },
-    [engine, refresh]
+    [engine, refresh],
   );
 
   const activateTrap = useCallback(
     (
       playerIndex: number,
       slot: number,
-      eventData?: { lane?: number; targetLane?: number }
+      eventData?: { lane?: number; targetLane?: number },
     ): boolean => {
       if (!engine) return false;
       const success = engine.activateTrap(
         playerIndex as 0 | 1,
         slot,
-        eventData
+        eventData,
       );
       if (success) refresh();
       return success;
     },
-    [engine, refresh]
+    [engine, refresh],
   );
 
   const activateCreatureEffect = useCallback(
@@ -228,7 +231,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
       if (success) refresh();
       return success;
     },
-    [engine, refresh]
+    [engine, refresh],
   );
 
   const attack = useCallback(
@@ -237,7 +240,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
       engine.attack(playerIndex, attackerLane, targetLane);
       refresh();
     },
-    [engine, refresh]
+    [engine, refresh],
   );
 
   const toggleCreatureMode = useCallback(
@@ -247,7 +250,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
       if (success) refresh();
       return success;
     },
-    [engine, refresh]
+    [engine, refresh],
   );
 
   const endTurn = useCallback(() => {
@@ -277,6 +280,15 @@ export function useBattleEngine(): BattleEngineHookReturn {
     const timer = setTimeout(executeAITurn, 1000);
     return () => clearTimeout(timer);
   }, [engine, ai, version, refresh]);
+
+  const setEffectCallback = useCallback(
+    (callback: (card: CardInterface, effectName: string) => void) => {
+      if (engine) {
+        engine.onEffectActivated = callback;
+      }
+    },
+    [engine],
+  );
 
   // Derive state from engine (always current because it depends on version)
   const gameState = engine?.state || null;
@@ -319,6 +331,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
     attack,
     toggleCreatureMode,
     endTurn,
+    setEffectCallback,
 
     // Utility
     refresh,
