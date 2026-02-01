@@ -2,3 +2,7 @@ node_modules/
 playwright-report/
 dist/
 test-results/
+
+# Mobile build folders
+android/
+ios/
