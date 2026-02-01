@@ -68,11 +68,6 @@ export const CardSlot = styled.div<CardSlotProps>`
       justify-content: center;
       color: #718096;
       cursor: default;
-
-      &:hover {
-        transform: none;
-        border: 2px dashed #4a5568;
-      }
     `}
 
   /* Selected styles */

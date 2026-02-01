@@ -8,10 +8,6 @@ interface BackContainerProps {
 
 export const BackContainer = styled.div<BackContainerProps>`
   box-sizing: border-box;
-  background: linear-gradient(145deg, #2d3748, #1a202c);
-  border: 2px solid #4a5568;
-  border-radius: 10px;
-  padding: 15px;
   min-height: 140px;
   min-width: ${CARD_DIMENSIONS.WIDTH}px;
   width: ${CARD_DIMENSIONS.WIDTH}px;
@@ -24,34 +20,6 @@ export const BackContainer = styled.div<BackContainerProps>`
   justify-content: center;
   gap: 8px;
   position: relative;
-
-  ${(props) =>
-    props.$type === "creature" &&
-    css`
-      border-color: #4a5568;
-      background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-    `}
-
-  ${(props) =>
-    props.$type === "support" &&
-    css`
-      border-color: #718096;
-      background: linear-gradient(145deg, #4a5568, #2d3748);
-    `}
-
-  ${(props) =>
-    props.$type === "action" &&
-    css`
-      border-color: #805ad5;
-      background: linear-gradient(145deg, #553c9a, #44337a);
-    `}
-
-  ${(props) =>
-    props.$type === "trap" &&
-    css`
-      border-color: #805ad5;
-      background: linear-gradient(145deg, #553c9a, #44337a);
-    `}
 
   ${(props) =>
     props.$isCreature &&
@@ -74,8 +42,8 @@ export const BackContainer = styled.div<BackContainerProps>`
 
 export const BackImage = styled.img`
   max-width: 100%;
-  width: 140px;
-  height: auto;
+  width: 100%;
+  height: 100%;
 `;
 
 export const BackModeBadge = styled.div`

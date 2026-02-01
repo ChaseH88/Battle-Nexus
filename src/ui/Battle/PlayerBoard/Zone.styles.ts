@@ -1,13 +1,16 @@
 import styled from "styled-components";
+import { CARD_DIMENSIONS } from "../Card/cardDimensions";
 
 export const ZoneContainer = styled.div`
-  margin-bottom: 1.15em;
+  &:not(:last-child) {
+    margin-bottom: 2.5em;
+  }
 `;
 
-export const Lanes = styled.div`
+export const Lanes = styled.div<{ isCreature?: boolean }>`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 5em;
+  gap: ${(props) => (props.isCreature ? 5 : 2)}em;
   justify-content: center;
   max-width: 520px;
   margin: 0 auto;
@@ -18,10 +21,7 @@ export const Lanes = styled.div`
 `;
 
 export const Lane = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 160px;
+  min-width: ${CARD_DIMENSIONS.WIDTH}px;
 `;
 
 export const PlayHereButton = styled.button`
@@ -59,12 +59,14 @@ export const AttackButton = styled.button`
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-top: 10px;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4),
+  box-shadow:
+    0 4px 12px rgba(239, 68, 68, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
   &:hover:not(:disabled) {
     background: linear-gradient(145deg, #dc2626 0%, #b91c1c 100%);
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.6),
+    box-shadow:
+      0 6px 16px rgba(239, 68, 68, 0.6),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
   }
@@ -77,12 +79,14 @@ export const AttackButton = styled.button`
 
 export const AttackDirectButton = styled(AttackButton)`
   background: linear-gradient(145deg, #f59e0b 0%, #d97706 100%);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4),
+  box-shadow:
+    0 4px 12px rgba(245, 158, 11, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
   &:hover:not(:disabled) {
     background: linear-gradient(145deg, #d97706 0%, #b45309 100%);
-    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.6),
+    box-shadow:
+      0 6px 16px rgba(245, 158, 11, 0.6),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 `;

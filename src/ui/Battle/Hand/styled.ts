@@ -10,15 +10,19 @@ export const pulseGlow = keyframes`
   }
 `;
 
-export const HandZone = styled(Box)(() => ({
-  background: "rgba(0, 0, 0, 0.3)",
-  borderRadius: "15px",
-  padding: "20px",
-  marginBottom: "20px",
-  position: "relative",
-  zIndex: 200,
-  overflow: "visible",
-}));
+export const HandZone = styled(Box)(
+  ({ isHovering }: { isHovering?: boolean }) => ({
+    position: "fixed",
+    zIndex: 200,
+    overflow: "visible",
+    bottom: "10px",
+    left: "50%",
+    transform: `translate(-50%, ${isHovering ? "-25px" : "200px"})`,
+    opacity: isHovering ? 1 : 0.5,
+    transition: "transform 0.3s ease, opacity 0.3s ease",
+    maxWidth: "100vw",
+  }),
+);
 
 export const HandTitle = styled(Typography)(() => ({
   marginBottom: "15px",

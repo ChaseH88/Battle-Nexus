@@ -25,30 +25,26 @@ export const Controls = ({
   <ControlsContainer>
     {isPlayerTurn && (
       <>
-        <ControlButton
-          data-testid="draw-button"
-          onClick={handleDraw}
-          disabled={
-            isGameOver ||
-            phase !== "DRAW" ||
-            deckSize === 0 ||
-            isShowingEffectNotification
-          }
-          highlight={phase === "DRAW" && deckSize > 0}
-        >
-          {phase === "DRAW" && deckSize === 0
-            ? "Deck Empty"
-            : `Draw (${deckSize})`}
-        </ControlButton>
-        <ControlButton
-          data-testid="end-turn-button"
-          onClick={handleEndTurn}
-          disabled={
-            isGameOver || phase === "DRAW" || isShowingEffectNotification
-          }
-        >
-          End Turn
-        </ControlButton>
+        {phase === "DRAW" ? (
+          <ControlButton
+            data-testid="draw-button"
+            onClick={handleDraw}
+            disabled={
+              isGameOver || deckSize === 0 || isShowingEffectNotification
+            }
+            highlight={deckSize > 0}
+          >
+            {deckSize === 0 ? "Deck Empty" : `Draw (${deckSize})`}
+          </ControlButton>
+        ) : (
+          <ControlButton
+            data-testid="end-turn-button"
+            onClick={handleEndTurn}
+            disabled={isGameOver || isShowingEffectNotification}
+          >
+            End Turn
+          </ControlButton>
+        )}
       </>
     )}
     <ControlButton

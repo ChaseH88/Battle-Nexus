@@ -61,7 +61,7 @@ export const CreatureZone = ({
 
   return (
     <ZoneContainer>
-      <Lanes>
+      <Lanes isCreature>
         {player.lanes.map((card, i) => {
           const draggedCard = draggedCardId
             ? player.hand.find((c) => c.id === draggedCardId)

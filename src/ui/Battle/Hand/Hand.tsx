@@ -24,7 +24,9 @@ export const Hand = ({
   onCardDropped,
   playerMomentum = 0,
 }: HandProps) => {
+  const [isHovering, setIsHovering] = useState(false);
   const [hoveredCardIndex, setHoveredCardIndex] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const totalCards = hand.length;
   const midPoint = (totalCards - 1) / 2;
@@ -75,7 +77,14 @@ export const Hand = ({
   };
 
   return (
-    <HandZone>
+    <HandZone
+      isHovering={isHovering}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => {
+        if (isDragging) return;
+        setIsHovering(false);
+      }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -142,6 +151,7 @@ export const Hand = ({
                   onDragStart={() => {
                     if (onDragStart) {
                       onDragStart(card.id);
+                      setIsDragging(true);
                     }
                   }}
                   onDragEnd={(event) => {
@@ -155,6 +165,8 @@ export const Hand = ({
 
                     if (onDragEnd) {
                       onDragEnd();
+                      setIsDragging(false);
+                      setIsHovering(false);
                     }
                   }}
                   style={{
