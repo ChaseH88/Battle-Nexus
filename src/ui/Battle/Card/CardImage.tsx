@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CardInterface } from "@cards/types";
 import { Box, SxProps } from "@mui/material";
+import { CARD_IMAGE_DIMENSIONS } from "./cardDimensions";
 
 // Use Vite's import.meta.glob to dynamically import all images in the cards folder
 const imageModules = import.meta.glob<{ default: string }>(
@@ -19,8 +20,6 @@ Object.keys(imageModules).forEach((path) => {
 
 interface CardImageProps {
   card: Pick<CardInterface, "id" | "name" | "image">;
-  width?: number;
-  height?: number;
   alt?: string;
   sx?: SxProps;
 }
@@ -29,13 +28,7 @@ interface CardImageProps {
  * CardImage component - Displays card images from assets/cards
  * Falls back to placeholder if image not found or not specified
  */
-export const CardImage = ({
-  card,
-  width = 80,
-  height = 80,
-  alt,
-  sx,
-}: CardImageProps) => {
+export const CardImage = ({ card, alt, sx }: CardImageProps) => {
   const [imageError, setImageError] = useState(false);
   const styles: SxProps = {
     position: "absolute",
@@ -52,8 +45,8 @@ export const CardImage = ({
     return (
       <Box
         sx={{
-          width,
-          height,
+          width: CARD_IMAGE_DIMENSIONS.WIDTH - 2,
+          height: "auto",
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           display: "flex",
           alignItems: "center",
@@ -79,8 +72,8 @@ export const CardImage = ({
         alt={alt || card.name}
         onError={() => setImageError(true)}
         style={{
-          width,
-          height,
+          width: CARD_IMAGE_DIMENSIONS.WIDTH - 2,
+          height: "auto",
           objectFit: "cover",
           objectPosition: "center center",
           userSelect: "none",

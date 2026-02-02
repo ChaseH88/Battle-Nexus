@@ -1,18 +1,20 @@
 import { SupportCard } from "@cards/SupportCard";
 import { CardImage } from "./CardImage";
+import { Box } from "@mui/material";
+import { CARD_IMAGE_DIMENSIONS } from "./cardDimensions";
+import { Cost } from "./Common/Cost";
 
-interface SupportProps
-  extends Pick<
-    SupportCard,
-    | "id"
-    | "name"
-    | "type"
-    | "description"
-    | "cost"
-    | "isActive"
-    | "isFaceDown"
-    | "image"
-  > {
+interface SupportProps extends Pick<
+  SupportCard,
+  | "id"
+  | "name"
+  | "type"
+  | "description"
+  | "cost"
+  | "isActive"
+  | "isFaceDown"
+  | "image"
+> {
   targetPlayerIndex?: 0 | 1;
 }
 
@@ -84,6 +86,16 @@ export const Support = ({
       }}
     >
       <div>
+        <Box>
+          <Cost
+            cost={cost}
+            size={16}
+            sx={{
+              position: "relative",
+              right: "4px",
+            }}
+          />
+        </Box>
         <div className="card-type" style={{ fontSize: "9px" }}>
           {type}
         </div>
@@ -93,13 +105,10 @@ export const Support = ({
         >
           {name}
         </div>
-        {cost !== undefined && (
-          <div className="card-cost" style={{ fontSize: "10px" }}>
-            Cost: {cost}
-          </div>
-        )}
       </div>
-      <CardImage card={{ id, name, image }} width={80} height={80} />
+      <Box height={CARD_IMAGE_DIMENSIONS.HEIGHT} marginBottom="4px">
+        <CardImage card={{ id, name, image }} />
+      </Box>
       <div
         className="card-description"
         style={{ fontSize: "9px", marginBottom: "4px", lineHeight: "1.2" }}

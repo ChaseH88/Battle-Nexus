@@ -14,7 +14,7 @@ interface CardDetailModalState {
   isOpen: boolean;
   card: CardInterface | null;
   activeEffects: ActiveEffect[];
-  playerMomentum?: number;
+  playerIndex?: 0 | 1;
   originRect?: {
     left: number;
     top: number;
@@ -103,7 +103,7 @@ export const uiSlice = createSlice({
     },
     openPlayCreatureModal: (
       state,
-      action: PayloadAction<{ lane: number; creatureName: string }>
+      action: PayloadAction<{ lane: number; creatureName: string }>,
     ) => {
       state.playCreatureModal = {
         isOpen: true,
@@ -115,7 +115,7 @@ export const uiSlice = createSlice({
     },
     openTargetSelectModal: (
       state,
-      action: PayloadAction<Omit<TargetSelectModalState, "isOpen">>
+      action: PayloadAction<Omit<TargetSelectModalState, "isOpen">>,
     ) => {
       state.targetSelectModal = { ...action.payload, isOpen: true };
     },
@@ -133,20 +133,20 @@ export const uiSlice = createSlice({
       action: PayloadAction<{
         card: CardInterface;
         activeEffects: ActiveEffect[];
-        playerMomentum?: number;
+        playerIndex?: 0 | 1;
         originRect?: {
           left: number;
           top: number;
           width: number;
           height: number;
         };
-      }>
+      }>,
     ) => {
       state.cardDetailModal = {
         isOpen: true,
         card: action.payload.card,
         activeEffects: action.payload.activeEffects,
-        playerMomentum: action.payload.playerMomentum,
+        playerIndex: action.payload.playerIndex,
         originRect: action.payload.originRect,
       };
     },
@@ -155,7 +155,7 @@ export const uiSlice = createSlice({
     },
     queueEffectNotification: (
       state,
-      action: PayloadAction<EffectNotification>
+      action: PayloadAction<EffectNotification>,
     ) => {
       state.effectNotificationQueue.push(action.payload);
       // Cap at 10 notifications to prevent memory leak

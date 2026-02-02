@@ -1,4 +1,3 @@
-import { CreatureCard } from "@cards/CreatureCard";
 import fireAffinity from "@assets/affinity/fire.png";
 import waterAffinity from "@assets/affinity/water.png";
 import grassAffinity from "@assets/affinity/grass.png";
@@ -17,52 +16,42 @@ import { CardImage } from "./CardImage";
 import { Box, Typography } from "@mui/material";
 import { Stats } from "./Common/Stats";
 import { theme } from "@/ui/theme";
-import { getMomentumGlobalBuff } from "@/battle/MomentumPressure";
+import { CARD_DIMENSIONS } from "./cardDimensions";
 
-interface CreatureProps extends Pick<
-  CreatureCard,
-  | "id"
-  | "mode"
-  | "isAtkModified"
-  | "isDefModified"
-  | "atk"
-  | "def"
-  | "baseAtk"
-  | "baseDef"
-  | "hp"
-  | "currentHp"
-  | "hasAttackedThisTurn"
-  | "description"
-  | "affinity"
-  | "name"
-  | "type"
-  | "cost"
-  | "image"
-> {
+interface CreatureProps {
+  id: string;
+  mode: "ATTACK" | "DEFENSE";
+  hp: number;
+  currentHp?: number;
+  hasAttackedThisTurn: boolean;
+  description: string;
+  affinity: Affinity;
+  name: string;
+  cost: number;
+  image?: string;
   showCardMode?: boolean;
-  playerMomentum?: number; // Player's current momentum for Momentum Pressure buffs
+  effectiveAtk: number; // Effective ATK after all buffs
+  effectiveDef: number; // Effective DEF after all buffs
+  baseAtk: number; // Base ATK for comparison
+  baseDef: number; // Base DEF for comparison
 }
 
 export const Creature = ({
   id,
   mode,
-  // isAtkModified,
-  // isDefModified,
-  atk,
-  def,
-  // baseAtk,
-  // baseDef,
   hp,
   currentHp,
   hasAttackedThisTurn,
   description,
   affinity,
   name,
-  // type,
   cost,
   image,
   showCardMode = false,
-  playerMomentum,
+  effectiveAtk,
+  effectiveDef,
+  baseAtk,
+  baseDef,
 }: CreatureProps) => {
   const getAffinityIcon = useCallback((affinity: Affinity) => {
     switch (affinity) {
@@ -92,16 +81,26 @@ export const Creature = ({
   }, []);
 
   const stats = useMemo(() => {
-    const buff = getMomentumGlobalBuff(playerMomentum || 0);
-    return {
-      atk: Math.max(0, atk + buff.atk),
-      def: Math.max(0, def + buff.def),
-      maxHp: hp,
-      currentHp: currentHp,
-    };
-  }, [atk, def, hp, currentHp, playerMomentum]);
+    console.log("Creature Stats Calculation:", {
+      id,
+      name,
+      baseAtk,
+      baseDef,
+      effectiveAtk,
+      effectiveDef,
+      atkBuff: effectiveAtk - baseAtk,
+      defBuff: effectiveDef - baseDef,
+    });
 
-  console.log("Creature Stats with Momentum Pressures:", stats);
+    return {
+      atk: effectiveAtk,
+      def: effectiveDef,
+      baseAtk,
+      baseDef,
+      maxHp: hp,
+      currentHp: currentHp ?? hp,
+    };
+  }, [baseAtk, baseDef, hp, currentHp, effectiveAtk, effectiveDef, id, name]);
 
   return (
     <Box
@@ -142,12 +141,18 @@ export const Creature = ({
               fontWeight: "bold",
             }}
           >
-            <Typography variant="h6" noWrap fontSize={13} m={0}>
+            <Typography
+              variant="h6"
+              noWrap
+              fontSize={10}
+              m={0}
+              lineHeight={0.8}
+            >
               {name}
             </Typography>
           </Box>
-          <Box className="card-id" style={{ fontSize: "8px" }}>
-            <Typography variant="h6" noWrap fontSize={10} m={0}>
+          <Box className="card-id">
+            <Typography variant="h6" noWrap fontSize={7} m={0}>
               {`CREATURE - ${affinity.toUpperCase()}`}
             </Typography>
           </Box>
@@ -184,8 +189,8 @@ export const Creature = ({
           {mode === "ATTACK" ? "⚔️ ATTACK" : "🛡️ DEFENSE"}
         </Box>
       )}
-      <Box height="190px" marginBottom="4px">
-        <CardImage card={{ id, name, image }} width={175} height={162} />
+      <Box height={CARD_DIMENSIONS.HEIGHT} marginBottom="4px">
+        <CardImage card={{ id, name, image }} />
       </Box>
       <Box
         className="card-description"
@@ -210,13 +215,15 @@ export const Creature = ({
       <Stats
         affinity={affinity}
         atk={stats.atk}
+        baseAtk={stats.baseAtk}
         def={stats.def}
+        baseDef={stats.baseDef}
         hp={stats.maxHp}
         currentHp={stats.currentHp}
-        isAtkModified={stats.atk !== atk}
-        isDefModified={stats.def !== def}
-        width={187}
-        height={28}
+        isAtkModified={stats.atk !== stats.baseAtk}
+        isDefModified={stats.def !== stats.baseDef}
+        width={CARD_DIMENSIONS.WIDTH - 2}
+        height={30}
         sx={{
           position: "absolute",
           bottom: "0px",

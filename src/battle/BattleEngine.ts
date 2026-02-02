@@ -15,7 +15,10 @@ import {
   createSuccess,
   validateMomentumCost,
 } from "./CommandTypes";
-import { getMomentumGlobalBuff } from "./MomentumPressure";
+import {
+  createMomentumPressureEffect,
+  getEffectiveStatsFromActiveEffects,
+} from "./MomentumPressure";
 
 export class BattleEngine {
   public onEffectActivated?: (card: CardInterface, effectName: string) => void;
@@ -43,6 +46,8 @@ export class BattleEngine {
         `${player.id} gained ${gained} Momentum! (${player.momentum}/10)`,
       );
     }
+    // Update momentum pressure effect
+    this.syncMomentumEffects(playerIndex);
   }
 
   /**
@@ -52,6 +57,32 @@ export class BattleEngine {
   private spendMomentum(playerIndex: number, amount: number) {
     const player = this.state.players[playerIndex];
     player.momentum = Math.max(0, player.momentum - amount);
+    // Update momentum pressure effect
+    this.syncMomentumEffects(playerIndex);
+  }
+
+  /**
+   * Synchronizes the momentum pressure effect for a player.
+   * Removes old momentum effect and creates a new one based on current momentum.
+   * Only creates an effect if momentum >= 3 (i.e., there's an actual buff to apply).
+   */
+  private syncMomentumEffects(playerIndex: number) {
+    const player = this.state.players[playerIndex];
+    const scope = playerIndex === 0 ? "player1" : "player2";
+
+    // Remove existing momentum effect for this player
+    this.state.activeEffects = this.state.activeEffects.filter(
+      (effect) => !(effect.isMomentumEffect && effect.scope === scope),
+    );
+
+    // Only create effect if there's an actual buff (momentum >= 3)
+    if (player.momentum >= 3) {
+      const newEffect = createMomentumPressureEffect(
+        playerIndex as 0 | 1,
+        player.momentum,
+      );
+      this.state.activeEffects.push(newEffect);
+    }
   }
 
   /**
@@ -59,9 +90,12 @@ export class BattleEngine {
    * This should be used for all combat calculations.
    */
   private getEffectiveAtk(creature: CreatureCard, playerIndex: number): number {
-    const player = this.state.players[playerIndex];
-    const buff = getMomentumGlobalBuff(player.momentum);
-    return Math.max(0, creature.atk + buff.atk);
+    const stats = getEffectiveStatsFromActiveEffects(
+      creature,
+      this.state.activeEffects,
+      playerIndex as 0 | 1,
+    );
+    return stats.atk;
   }
 
   /**
@@ -69,9 +103,12 @@ export class BattleEngine {
    * This should be used for all combat calculations.
    */
   private getEffectiveDef(creature: CreatureCard, playerIndex: number): number {
-    const player = this.state.players[playerIndex];
-    const buff = getMomentumGlobalBuff(player.momentum);
-    return Math.max(0, creature.def + buff.def);
+    const stats = getEffectiveStatsFromActiveEffects(
+      creature,
+      this.state.activeEffects,
+      playerIndex as 0 | 1,
+    );
+    return stats.def;
   }
 
   draw(playerIndex: number) {
@@ -1176,6 +1213,7 @@ export class BattleEngine {
       statModifiers,
       isGlobal,
       effectDefinitionId: sourceCard.effectId, // Store for global effects
+      scope: playerIndex === 0 ? "player1" : "player2", // Default scope to owner player
     };
 
     this.state.activeEffects.push(effect);

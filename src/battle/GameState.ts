@@ -8,6 +8,7 @@ export interface ActiveEffect {
   sourceCardId: string;
   sourceCardName: string;
   playerIndex: 0 | 1;
+  scope: "player1" | "player2" | "global"; // Which player(s) this effect applies to
   turnsRemaining?: number;
   description: string;
   affectedCardIds?: string[]; // Track which cards are affected
@@ -17,6 +18,7 @@ export interface ActiveEffect {
   };
   isGlobal?: boolean; // Global effects persist even after source card is removed
   effectDefinitionId?: string; // Store the effectId from the source card for global effects
+  isMomentumEffect?: boolean; // Special flag for momentum pressure effects
 }
 
 export interface GameState {

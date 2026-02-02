@@ -11,7 +11,8 @@ import { CardSlot } from "./Card.styles";
 import { useDispatch } from "react-redux";
 import { openCardDetailModal } from "../../../store/uiSlice";
 import { useRef, useMemo } from "react";
-import { getEffectiveCreatureStats } from "../../../battle/MomentumPressure";
+import { getEffectiveStatsFromActiveEffects } from "../../../battle/MomentumPressure";
+import { ActiveEffect } from "../../../battle/GameState";
 
 interface CardProps {
   card: CardInterface | null;
@@ -22,7 +23,8 @@ interface CardProps {
   selectedHandCard?: string | null;
   canActivate?: boolean; // New prop to show pulsing border
   disableHover?: boolean; // Disable hover animations (for modal display)
-  playerMomentum?: number; // Player's current momentum for Momentum Pressure buffs
+  activeEffects?: ActiveEffect[]; // Active effects for stat calculations
+  playerIndex?: 0 | 1; // Player index for scoped effects
   readonly?: boolean; // If true, the card is in a read-only state
 }
 
@@ -35,23 +37,39 @@ export const Card = ({
   selectedHandCard,
   canActivate = false,
   disableHover = false,
-  playerMomentum = 0,
+  activeEffects = [],
+  playerIndex,
   readonly = false,
 }: CardProps) => {
   const dispatch = useDispatch();
   const cardSlotRef = useRef<HTMLDivElement>(null);
 
-  // Calculate effective stats with Momentum Pressure buffs (must be before early returns)
+  // Calculate effective stats with active effects (must be before early returns)
   const effectiveStats = useMemo(() => {
     if (!card || card.type !== CardType.Creature) return null;
     const creature = card as CreatureCard;
+
+    // If playerIndex is undefined, just use base stats (no active effects applied)
+    if (playerIndex === undefined) {
+      return {
+        atk: creature.atk,
+        def: creature.def,
+        currentHp: readonly ? undefined : creature.currentHp,
+        maxHp: creature.hp,
+      };
+    }
+
     return {
-      ...getEffectiveCreatureStats(creature, playerMomentum),
+      ...getEffectiveStatsFromActiveEffects(
+        creature,
+        activeEffects,
+        playerIndex,
+      ),
       ...(readonly && {
         currentHp: undefined,
       }),
     };
-  }, [card, playerMomentum, readonly]);
+  }, [card, activeEffects, playerIndex, readonly]);
 
   if (!card) {
     return <CardSlot isEmpty onClick={onClick} />;
@@ -108,8 +126,8 @@ export const Card = ({
     dispatch(
       openCardDetailModal({
         card,
-        activeEffects: [],
-        playerMomentum,
+        activeEffects,
+        playerIndex,
         originRect: {
           left: rect.left,
           top: rect.top,
@@ -140,19 +158,16 @@ export const Card = ({
         <Creature
           id={creature.id}
           mode={creature.mode}
-          isAtkModified={creature.isAtkModified}
-          isDefModified={creature.isDefModified}
-          atk={effectiveStats.atk}
-          def={effectiveStats.def}
-          baseAtk={creature.baseAtk}
-          baseDef={creature.baseDef}
+          baseAtk={creature.atk}
+          baseDef={creature.def}
+          effectiveAtk={effectiveStats.atk}
+          effectiveDef={effectiveStats.def}
           hp={effectiveStats.maxHp}
           currentHp={effectiveStats.currentHp}
           hasAttackedThisTurn={creature.hasAttackedThisTurn}
           description={creature.description}
           affinity={creature.affinity}
           name={creature.name}
-          type={creature.type}
           cost={creature.cost}
           image={creature.image}
         />

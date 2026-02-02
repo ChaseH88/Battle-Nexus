@@ -11,7 +11,8 @@ export const CardDetailModal = () => {
     isOpen,
     card,
     originRect,
-    playerMomentum = 0,
+    activeEffects = [],
+    playerIndex,
   } = useSelector((state: RootState) => state.ui.cardDetailModal);
 
   if (!isOpen || !card) return null;
@@ -77,7 +78,8 @@ export const CardDetailModal = () => {
           >
             <Card
               card={card}
-              playerMomentum={playerMomentum}
+              activeEffects={activeEffects}
+              playerIndex={playerIndex}
               disableHover={true}
             />
           </div>

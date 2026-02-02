@@ -26,7 +26,7 @@ const deriveColors = (base: string) => ({
   text: undefined, // can override if needed
 });
 
-interface CostProps extends Pick<CreatureCard, "affinity"> {
+interface CostProps extends Partial<Pick<CreatureCard, "affinity">> {
   cost: number | string | ReactNode;
   size?: number;
   textColor?: string;
@@ -36,9 +36,9 @@ interface CostProps extends Pick<CreatureCard, "affinity"> {
 
 export const Cost = memo(
   ({
-    size = 25,
+    size = 18,
     cost = 1,
-    affinity = Affinity.Fire,
+    affinity,
     textColor,
     sx,
     showInnerRing = true,
@@ -70,6 +70,10 @@ export const Cost = memo(
 
     // Memoize colors to prevent polished recalculations
     const colors = useMemo(() => {
+      if (!affinity) {
+        return deriveColors("#888888");
+      }
+
       const base = AFFINITY_BASE[affinity] ?? AFFINITY_BASE.FIRE;
       return deriveColors(base);
     }, [affinity]);

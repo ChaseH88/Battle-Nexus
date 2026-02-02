@@ -93,6 +93,7 @@ export const PlayerBoard = ({
         selectedAttacker={selectedAttacker}
         isOpponent={isOpponent}
         isFirstTurn={isFirstTurn}
+        playerIndex={isOpponent ? 1 : 0}
         onPlayCreature={onPlayCreature}
         onSelectAttacker={onSelectAttacker}
         onAttack={onAttack}

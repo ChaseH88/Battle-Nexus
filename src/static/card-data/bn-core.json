@@ -199,7 +199,8 @@
     "cost": 3,
     "effectId": "flame_aura_global",
     "rarity": "R",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "flame_aura.png"
   },
   {
     "id": "card_draw_spell",
@@ -246,7 +247,8 @@
     "speed": "NORMAL",
     "effectId": "direct_burn_damage",
     "rarity": "R",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "blazing_strike.png"
   },
   {
     "id": "mirror_force",
@@ -267,7 +269,8 @@
     "speed": "NORMAL",
     "effectId": "quick_assessment",
     "rarity": "C",
-    "set": "BN-CORE"
+    "set": "BN-CORE",
+    "image": "quick_assessment.png"
   },
   {
     "id": "minor_reinforcement",

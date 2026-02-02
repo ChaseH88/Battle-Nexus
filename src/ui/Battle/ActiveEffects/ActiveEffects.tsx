@@ -31,7 +31,9 @@ export const ActiveEffects = ({
         {activeEffects.map((effect, i) => (
           <EffectItem key={i}>
             <EffectName>{effect.name}</EffectName>
-            <EffectSource>from {effect.sourceCardName}</EffectSource>
+            {!!effect.sourceCardName?.length && (
+              <EffectSource>from {effect.sourceCardName}</EffectSource>
+            )}
             {effect.statModifiers && (
               <EffectStats>
                 {effect.statModifiers.atk && (

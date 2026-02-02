@@ -35,6 +35,7 @@ export interface CreatureZoneProps {
   draggedCardId?: string | null; // Track what card is being dragged
   showPlayButtons?: boolean; // Show "Play Here" buttons for accessibility
   onSetAttackerRef?: (element: HTMLElement | null) => void; // For attack animation
+  playerIndex?: 0 | 1; // Player index for active effects
 }
 
 export const CreatureZone = ({
@@ -55,9 +56,14 @@ export const CreatureZone = ({
   onActivateCreatureEffect,
   draggedCardId,
   onSetAttackerRef,
+  playerIndex,
 }: CreatureZoneProps) => {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const defenderRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Determine player index: use prop if provided, otherwise derive from isOpponent
+  const effectivePlayerIndex =
+    playerIndex !== undefined ? playerIndex : ((isOpponent ? 1 : 0) as 0 | 1);
 
   return (
     <ZoneContainer>
@@ -128,7 +134,8 @@ export const CreatureZone = ({
               >
                 <Card
                   card={card}
-                  playerMomentum={player.momentum}
+                  activeEffects={gameState?.activeEffects || []}
+                  playerIndex={effectivePlayerIndex}
                   onClick={
                     !isOpponent && card
                       ? () => {

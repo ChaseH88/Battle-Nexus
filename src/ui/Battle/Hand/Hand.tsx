@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { CardInterface } from "../../../cards/types";
+import { CardInterface, CardType } from "../../../cards/types";
 import { Card } from "../Card";
 import { HandZone, HandCards } from "./styled";
 import { motion, AnimatePresence } from "framer-motion";
 import { CARD_DIMENSIONS } from "../Card/cardDimensions";
+import { ActiveEffect } from "../../../battle/GameState";
 
 interface HandProps {
   hand: CardInterface[];
@@ -12,6 +13,8 @@ interface HandProps {
   onDragStart?: (cardId: string) => void;
   onDragEnd?: () => void;
   onCardDropped?: (cardId: string, x: number, y: number) => void;
+  activeEffects?: ActiveEffect[];
+  playerIndex?: 0 | 1;
   playerMomentum?: number;
 }
 
@@ -22,6 +25,8 @@ export const Hand = ({
   onDragStart,
   onDragEnd,
   onCardDropped,
+  activeEffects = [],
+  playerIndex,
   playerMomentum = 0,
 }: HandProps) => {
   const [isHovering, setIsHovering] = useState(false);
@@ -94,8 +99,10 @@ export const Hand = ({
           <AnimatePresence mode="popLayout">
             {hand.map((card, index) => {
               const isHoveringThis = hoveredCardIndex === index;
-              const canAfford = playerMomentum >= card.cost;
-
+              const canPlayOnToField =
+                (playerMomentum >= card.cost &&
+                  card.type === CardType.Creature) ||
+                card.type !== CardType.Creature;
               return (
                 <motion.div
                   key={`${card.id}-${index}`}
@@ -121,7 +128,7 @@ export const Hand = ({
                     y: { type: "spring", stiffness: 300, damping: 20 },
                     x: { type: "spring", stiffness: 300, damping: 20 },
                   }}
-                  drag={canAfford}
+                  drag={canPlayOnToField}
                   dragSnapToOrigin={true}
                   dragElastic={0}
                   dragMomentum={false}
@@ -170,10 +177,10 @@ export const Hand = ({
                     }
                   }}
                   style={{
-                    cursor: canAfford ? "grab" : "not-allowed",
+                    cursor: canPlayOnToField ? "grab" : "not-allowed",
                     position: "relative",
                     zIndex: isHoveringThis ? 1000 : 1,
-                    opacity: canAfford ? 1 : 0.6,
+                    opacity: canPlayOnToField ? 1 : 0.6,
                     height: CARD_DIMENSIONS.HEIGHT,
                     width: CARD_DIMENSIONS.WIDTH,
                   }}
@@ -181,7 +188,7 @@ export const Hand = ({
                 >
                   <motion.div
                     animate={{
-                      boxShadow: canAfford
+                      boxShadow: canPlayOnToField
                         ? [
                             "0 0 5px rgba(34, 211, 238, 0.4), 0 0 10px rgba(34, 211, 238, 0.3)",
                             "0 0 15px rgba(34, 211, 238, 0.8), 0 0 25px rgba(34, 211, 238, 0.5)",
@@ -204,7 +211,8 @@ export const Hand = ({
                   >
                     <Card
                       card={card}
-                      playerMomentum={playerMomentum}
+                      activeEffects={activeEffects}
+                      playerIndex={playerIndex}
                       onClick={() => onSelectCard(card.id)}
                       onDoubleClick={
                         onCardDoubleClick
