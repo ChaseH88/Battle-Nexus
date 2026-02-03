@@ -17,7 +17,7 @@ import { useDeckBuilder } from "@/hooks/useDeckBuilder";
 import { DeckViewer } from "./components/DeckViewer";
 import { useCardFilters } from "@/hooks/useCardFilters";
 import { CardFilters } from "./components/CardFilters";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { closeCardDetailModal } from "@/store/uiSlice";
 
@@ -80,17 +80,20 @@ const DeckBuilder = () => {
     setSnackbarMessage,
     setSnackbarSeverity,
   } = useDeckBuilder();
-  const availableCards = cardData as CardData[];
+  const availableCards = useMemo(() => cardData as CardData[], []);
 
-  const totalCards = Array.from(selectedCards.values()).reduce(
-    (sum, count) => sum + count,
-    0,
+  const totalCards = useMemo(
+    () =>
+      Array.from(selectedCards.values()).reduce((sum, count) => sum + count, 0),
+    [selectedCards],
   );
-  const deckList = Array.from(selectedCards.entries()).map(
-    ([cardId, count]) => {
-      const card = availableCards.find((c) => c.id === cardId);
-      return { card, count };
-    },
+  const deckList = useMemo(
+    () =>
+      Array.from(selectedCards.entries()).map(([cardId, count]) => {
+        const card = availableCards.find((c) => c.id === cardId);
+        return { card, count };
+      }),
+    [selectedCards, availableCards],
   );
 
   const toggleDeckFullScreen = useCallback(() => {
@@ -172,66 +175,68 @@ const DeckBuilder = () => {
             hasFilterApplied={hasFilterApplied}
           />
           <Box display="flex" flexWrap="wrap" gap={5}>
-            {filteredCards.map((card) => {
-              const countInDeck = selectedCards.get(card.id) || 0;
-              const cardInstance = cardFactory(card);
+            {filteredCards
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((card) => {
+                const countInDeck = selectedCards.get(card.id) || 0;
+                const cardInstance = cardFactory(card);
 
-              return (
-                <Grid key={card.id}>
-                  <Box
-                    sx={{
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      position: "relative",
-                      "&:hover": {
-                        transform: "translateY(-5px)",
-                        filter: "brightness(1.2)",
-                      },
-                    }}
-                  >
-                    {/* Count badge */}
+                return (
+                  <Grid key={card.id}>
                     <Box
                       sx={{
-                        position: "absolute",
-                        top: -8,
-                        right: -8,
-                        zIndex: 10,
-                        background:
-                          countInDeck === 3
-                            ? "#48bb78"
-                            : countInDeck > 0
-                              ? "#4299e1"
-                              : "rgba(255,255,255,0.2)",
-                        borderRadius: "50%",
-                        width: "32px",
-                        height: "32px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px solid #1a202c",
-                        fontWeight: "bold",
-                        color: "#fff",
-                        fontSize: "0.875rem",
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeCardFromDeck(card.id);
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                        position: "relative",
+                        "&:hover": {
+                          transform: "translateY(-5px)",
+                          filter: "brightness(1.2)",
+                        },
                       }}
                     >
-                      {countInDeck}/3
+                      {/* Count badge */}
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: -8,
+                          right: -8,
+                          zIndex: 10,
+                          background:
+                            countInDeck === 3
+                              ? "#48bb78"
+                              : countInDeck > 0
+                                ? "#4299e1"
+                                : "rgba(255,255,255,0.2)",
+                          borderRadius: "50%",
+                          width: "32px",
+                          height: "32px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          border: "2px solid #1a202c",
+                          fontWeight: "bold",
+                          color: "#fff",
+                          fontSize: "0.875rem",
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCardFromDeck(card.id);
+                        }}
+                      >
+                        {countInDeck}/3
+                      </Box>
+                      <Card
+                        card={cardInstance}
+                        disableHover={false}
+                        readonly
+                        onClick={() => {
+                          handleAddToDeck(card.id);
+                        }}
+                      />
                     </Box>
-                    <Card
-                      card={cardInstance}
-                      disableHover={false}
-                      readonly
-                      onClick={() => {
-                        handleAddToDeck(card.id);
-                      }}
-                    />
-                  </Box>
-                </Grid>
-              );
-            })}
+                  </Grid>
+                );
+              })}
           </Box>
         </Box>
 

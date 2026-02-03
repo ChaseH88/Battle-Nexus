@@ -14,6 +14,7 @@ import { battle_rage } from "./effect/battle_rage";
 import { callHomeHandler } from "./effect/call_home";
 import { fusion_drive } from "./effect/fusion_drive";
 import { minor_reinforcement } from "./effect/minor_reinforcement";
+import { maximum_output } from "./effect/maximum_output";
 
 /**
  * Effect Context - provides access to all game state and utility functions
@@ -311,6 +312,7 @@ export const effectHandlers: Record<string, EffectHandler> = {
   fire_atk_boost_aura,
   flame_aura_global,
   fusion_drive,
+  maximum_output,
   minor_reinforcement,
   mirror_force,
   purge_opponent_support,

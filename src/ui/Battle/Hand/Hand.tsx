@@ -103,6 +103,11 @@ export const Hand = ({
                 (playerMomentum >= card.cost &&
                   card.type === CardType.Creature) ||
                 card.type !== CardType.Creature;
+
+              if (hoveredCardIndex !== index && isDragging) {
+                return null;
+              }
+
               return (
                 <motion.div
                   key={`${card.id}-${index}`}
@@ -119,6 +124,8 @@ export const Hand = ({
                   exit={{
                     opacity: 0,
                     scale: 0.8,
+                    y: 50,
+                    x: 0,
                     transition: { duration: 0.2 },
                   }}
                   transition={{

@@ -79,6 +79,8 @@ export function getEffectiveStatsFromActiveEffects(
   creature: {
     atk: number;
     def: number;
+    baseAtk?: number;
+    baseDef?: number;
     currentHp: number;
     hp: number;
     id: string;
@@ -87,27 +89,41 @@ export function getEffectiveStatsFromActiveEffects(
   activeEffects: ActiveEffect[],
   playerIndex: 0 | 1,
 ): { atk: number; def: number; currentHp: number; maxHp: number } {
-  let atk = creature.atk;
-  let def = creature.def;
+  // Start from base stats if available, otherwise use current stats
+  // This prevents double-counting when effects modify creature.atk directly
+  let atk = creature.baseAtk ?? creature.atk;
+  let def = creature.baseDef ?? creature.def;
 
   // Apply all relevant active effects
   const scope = playerIndex === 0 ? "player1" : "player2";
 
   activeEffects.forEach((effect) => {
-    // Apply if effect is global OR matches this player's scope OR specifically targets this card
-    const appliesToThisPlayer =
-      effect.scope === "global" || effect.scope === scope;
-    const appliesToThisCard = effect.affectedCardIds?.includes(
-      creature.instanceId,
-    );
-
-    if (appliesToThisPlayer || appliesToThisCard) {
-      if (effect.statModifiers) {
-        if (effect.statModifiers.atk !== undefined) {
-          atk += effect.statModifiers.atk;
+    // If effect has specific affected cards, ONLY apply to those cards
+    if (effect.affectedCardIds && effect.affectedCardIds.length > 0) {
+      // Targeted effect - only apply if this creature's instanceId is in the list
+      if (effect.affectedCardIds.includes(creature.instanceId)) {
+        if (effect.statModifiers) {
+          if (effect.statModifiers.atk !== undefined) {
+            atk += effect.statModifiers.atk;
+          }
+          if (effect.statModifiers.def !== undefined) {
+            def += effect.statModifiers.def;
+          }
         }
-        if (effect.statModifiers.def !== undefined) {
-          def += effect.statModifiers.def;
+      }
+    } else {
+      // Global/area effect - apply if scope matches this player
+      const appliesToThisPlayer =
+        effect.scope === "global" || effect.scope === scope;
+
+      if (appliesToThisPlayer) {
+        if (effect.statModifiers) {
+          if (effect.statModifiers.atk !== undefined) {
+            atk += effect.statModifiers.atk;
+          }
+          if (effect.statModifiers.def !== undefined) {
+            def += effect.statModifiers.def;
+          }
         }
       }
     }

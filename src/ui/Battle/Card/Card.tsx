@@ -11,7 +11,7 @@ import { CardSlot } from "./Card.styles";
 import { useDispatch } from "react-redux";
 import { openCardDetailModal } from "../../../store/uiSlice";
 import { useRef, useMemo } from "react";
-import { getEffectiveStatsFromActiveEffects } from "../../../battle/MomentumPressure";
+import { getEffectiveStatsFromActiveEffects } from "../../../battle/MomentumBuff";
 import { ActiveEffect } from "../../../battle/GameState";
 
 interface CardProps {

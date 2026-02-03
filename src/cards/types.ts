@@ -1,6 +1,7 @@
 export type CardId = string;
 export interface CardInterface {
   id: string;
+  instanceId?: string; // Unique ID for this specific instance of the card
   name: string;
   type: CardType;
   description: string;

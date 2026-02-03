@@ -521,5 +521,17 @@
     "effectId": "ultimate_sacrifice",
     "rarity": "UR",
     "set": "BN-CORE"
+  },
+  {
+    "id": "maximum_output",
+    "type": "ACTION",
+    "name": "Maximum Output",
+    "description": "Consume all momentum. A target creature gains +10 ATK for each momentum consumed.",
+    "cost": 3,
+    "speed": "NORMAL",
+    "effectId": "maximum_output",
+    "rarity": "UR",
+    "set": "BN-CORE",
+    "image": "maximum_output.png"
   }
 ]

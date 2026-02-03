@@ -4,6 +4,7 @@ import { purge_opponent_support } from "./effect/purge_opponent_support";
 import { boost_fire_atk } from "./effect/boost_fire_atk";
 import { callHomeHandler } from "./effect/call_home";
 import { minor_reinforcement } from "./effect/minor_reinforcement";
+import { maximum_output } from "./effect/maximum_output";
 
 /**
  * Centralized Effect Metadata
@@ -28,7 +29,7 @@ export interface EffectMetadata {
   // Validation function - returns true if effect can be activated
   canActivate?: (
     state: GameState,
-    ownerIndex: 0 | 1
+    ownerIndex: 0 | 1,
   ) => {
     canActivate: boolean;
     reason?: string;
@@ -37,7 +38,7 @@ export interface EffectMetadata {
   // Get valid targets for selection - returns options for UI dropdown
   getValidTargets?: (
     state: GameState,
-    ownerIndex: 0 | 1
+    ownerIndex: 0 | 1,
   ) => Array<{
     label: string;
     value: number;
@@ -59,6 +60,7 @@ export const effectMetadata: Record<string, EffectMetadata> = {
   boost_fire_atk: boost_fire_atk.metadata!,
   call_home: callHomeHandler.metadata!,
   minor_reinforcement: minor_reinforcement.metadata!,
+  maximum_output: maximum_output.metadata!,
 
   // Add new effects here
 };
@@ -67,7 +69,7 @@ export const effectMetadata: Record<string, EffectMetadata> = {
  * Get metadata for an effect
  */
 export function getEffectMetadata(
-  effectId: string
+  effectId: string,
 ): EffectMetadata | undefined {
   return effectMetadata[effectId];
 }
@@ -78,7 +80,7 @@ export function getEffectMetadata(
 export function canActivateEffect(
   effectId: string,
   state: GameState,
-  ownerIndex: 0 | 1
+  ownerIndex: 0 | 1,
 ): { canActivate: boolean; reason?: string } {
   const metadata = getEffectMetadata(effectId);
 
@@ -107,7 +109,7 @@ export function effectRequiresTargeting(effectId: string): boolean {
 export function getEffectTargets(
   effectId: string,
   state: GameState,
-  ownerIndex: 0 | 1
+  ownerIndex: 0 | 1,
 ): Array<{ label: string; value: number; metadata?: any }> {
   const metadata = getEffectMetadata(effectId);
 

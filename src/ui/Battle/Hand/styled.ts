@@ -17,10 +17,11 @@ export const HandZone = styled(Box)(
     overflow: "visible",
     bottom: "10px",
     left: "50%",
-    transform: `translate(-50%, ${isHovering ? "-25px" : "200px"})`,
-    opacity: isHovering ? 1 : 0.5,
+    transform: `translate(-50%, -40px)`,
+    opacity: isHovering ? 1 : 0.95,
     transition: "transform 0.3s ease, opacity 0.3s ease",
     maxWidth: "100vw",
+    height: 200,
   }),
 );
 

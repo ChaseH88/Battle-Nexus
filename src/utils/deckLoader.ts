@@ -1,37 +1,61 @@
 import { CardInterface } from "../cards/types";
 import cardData from "../static/card-data/bn-core.json";
-import { CreatureCard } from "../cards/CreatureCard";
-import { ActionCard } from "../cards/ActionCard";
-import { SupportCard } from "../cards/SupportCard";
-import { TrapCard } from "../cards/TrapCard";
+import { cardFactory } from "./cardFactory";
 
 const DECK_STORAGE_KEY = "battle-nexus-deck";
 
 // Hardcoded AI deck configuration
-const AI_DECK_CONFIG = [
-  { cardId: "ember_cub", count: 3 },
-  { cardId: "riptide_pixie", count: 3 },
-  { cardId: "mossback_scarab", count: 3 },
-  { cardId: "lumen_sprite", count: 3 },
-  { cardId: "inferno_lion", count: 3 },
-  { cardId: "card_draw_spell", count: 3 },
-  { cardId: "granite_colossus", count: 2 },
-];
+const AI_DECK_CONFIG = {
+  deck1: [
+    { cardId: "ember_cub", count: 3 },
+    { cardId: "riptide_pixie", count: 3 },
+    { cardId: "mossback_scarab", count: 3 },
+    { cardId: "lumen_sprite", count: 3 },
+    { cardId: "inferno_lion", count: 3 },
+    { cardId: "card_draw_spell", count: 3 },
+    { cardId: "granite_colossus", count: 2 },
+  ],
+  deck2: [
+    { cardId: "ember_cub", count: 3 },
+    { cardId: "riptide_pixie", count: 3 },
+    { cardId: "mossback_scarab", count: 3 },
+    { cardId: "lumen_sprite", count: 3 },
+    { cardId: "inferno_lion", count: 3 },
+    { cardId: "card_draw_spell", count: 3 },
+    { cardId: "granite_colossus", count: 2 },
+  ],
+} as const;
 
-function cardFactory(raw: CardInterface): CardInterface {
-  switch (raw.type) {
-    case "CREATURE":
-      return new CreatureCard(raw as any);
-    case "ACTION":
-      return new ActionCard(raw as any);
-    case "SUPPORT":
-      return new SupportCard(raw as any);
-    case "TRAP":
-      return new TrapCard(raw as any);
-    default:
-      throw new Error(`Unknown card type: ${raw.type}`);
+const getAiDeck = (): CardInterface[] => {
+  const deckNames = Object.keys(AI_DECK_CONFIG);
+  if (deckNames.length === 0) return [];
+
+  const randomName = deckNames[Math.floor(Math.random() * deckNames.length)];
+  const chosenList = AI_DECK_CONFIG[randomName as keyof typeof AI_DECK_CONFIG];
+
+  const cardMap = new Map((cardData as any[]).map((c) => [c.id, c]));
+  const deck: CardInterface[] = [];
+
+  for (const { cardId, count } of chosenList) {
+    const cardRaw = cardMap.get(cardId);
+    if (!cardRaw) {
+      console.warn(`AI deck card not found: ${cardId} (deck: ${randomName})`);
+      continue;
+    }
+
+    for (let i = 0; i < count; i++) {
+      deck.push(cardFactory(cardRaw));
+    }
   }
-}
+
+  return ((arr: CardInterface[]): CardInterface[] => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  })(deck);
+};
 
 export function loadDeckFromLocalStorage(): CardInterface[] | null {
   const savedDeck = localStorage.getItem(DECK_STORAGE_KEY);
@@ -76,21 +100,5 @@ export function hasSavedDeck(): boolean {
 }
 
 export function loadAIDeck(): CardInterface[] {
-  const deck: CardInterface[] = [];
-  const cardMap = new Map((cardData as any[]).map((card) => [card.id, card]));
-
-  for (const { cardId, count } of AI_DECK_CONFIG) {
-    const cardRaw = cardMap.get(cardId);
-    if (!cardRaw) {
-      console.warn(`AI deck card not found: ${cardId}`);
-      continue;
-    }
-
-    for (let i = 0; i < count; i++) {
-      deck.push(cardFactory(cardRaw));
-    }
-  }
-
-  // Shuffle the deck
-  return deck.sort(() => 0.5 - Math.random());
+  return getAiDeck();
 }

@@ -27,7 +27,7 @@ import { useBattleEngine } from "../hooks/useBattleEngine";
 import { useGameInitialization } from "../hooks/useGameInitialization";
 import { getEffectMetadata } from "../effects/metadata";
 import { effectsRegistry } from "../effects/registry";
-import { getEffectiveStatsFromActiveEffects } from "../battle/MomentumPressure";
+import { getEffectiveStatsFromActiveEffects } from "../battle/MomentumBuff";
 import { CardActivationEffect } from "./Battle/Card/CardActivationEffect";
 import { CardAttackAnimation } from "./Battle/Card/CardAttackAnimation";
 import { useAnimationQueue } from "./Battle/Card/useAnimationQueue";

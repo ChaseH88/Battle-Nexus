@@ -194,22 +194,6 @@
     ]
   },
   {
-    "id": "minor_reinforcement",
-    "name": "Minor Reinforcement",
-    "timing": "NORMAL",
-    "trigger": "ON_PLAY",
-    "requiresTarget": true,
-    "targetType": "ALLY_CREATURE",
-    "description": "Target creature gains +20 HP.",
-    "actions": [
-      {
-        "type": "HP_CHANGE",
-        "target": "ALLY_CREATURE",
-        "amount": 20
-      }
-    ]
-  },
-  {
     "id": "call_home",
     "name": "Call Home",
     "timing": "NORMAL",
@@ -542,6 +526,31 @@
         "type": "MOMENTUM_CHANGE",
         "target": "PLAYER",
         "amount": 10
+      }
+    ]
+  },
+  {
+    "id": "maximum_output",
+    "name": "Maximum Output",
+    "timing": "QUICK",
+    "trigger": "MANUAL",
+    "stackable": false,
+    "requiresTarget": true,
+    "targetType": "ALLY_CREATURE",
+    "description": "Consume all momentum. Target creature gains +10 ATK for each momentum consumed.",
+    "actions": [
+      {
+        "type": "STAT_MOD",
+        "mode": "BOOST",
+        "target": "TARGETED_CREATURE",
+        "atk": 0,
+        "momentumScaling": 10,
+        "duration": { "kind": "PERMANENT" }
+      },
+      {
+        "type": "MOMENTUM_CHANGE",
+        "target": "PLAYER",
+        "amount": "CONSUME_ALL"
       }
     ]
   }

@@ -66,7 +66,7 @@ export class BattleEngine {
    * Removes old momentum effect and creates a new one based on current momentum.
    * Only creates an effect if momentum >= 3 (i.e., there's an actual buff to apply).
    */
-  private syncMomentumEffects(playerIndex: number) {
+  public syncMomentumEffects(playerIndex: number) {
     const player = this.state.players[playerIndex];
     const scope = playerIndex === 0 ? "player1" : "player2";
 
