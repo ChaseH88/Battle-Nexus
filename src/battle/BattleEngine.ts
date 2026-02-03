@@ -16,9 +16,9 @@ import {
   validateMomentumCost,
 } from "./CommandTypes";
 import {
-  createMomentumPressureEffect,
+  createMomentumBuffEffect,
   getEffectiveStatsFromActiveEffects,
-} from "./MomentumPressure";
+} from "./MomentumBuff";
 
 export class BattleEngine {
   public onEffectActivated?: (card: CardInterface, effectName: string) => void;
@@ -77,7 +77,7 @@ export class BattleEngine {
 
     // Only create effect if there's an actual buff (momentum >= 3)
     if (player.momentum >= 3) {
-      const newEffect = createMomentumPressureEffect(
+      const newEffect = createMomentumBuffEffect(
         playerIndex as 0 | 1,
         player.momentum,
       );

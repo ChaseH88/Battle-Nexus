@@ -80,27 +80,17 @@ export const Creature = ({
     }
   }, []);
 
-  const stats = useMemo(() => {
-    console.log("Creature Stats Calculation:", {
-      id,
-      name,
-      baseAtk,
-      baseDef,
-      effectiveAtk,
-      effectiveDef,
-      atkBuff: effectiveAtk - baseAtk,
-      defBuff: effectiveDef - baseDef,
-    });
-
-    return {
+  const stats = useMemo(
+    () => ({
       atk: effectiveAtk,
       def: effectiveDef,
       baseAtk,
       baseDef,
       maxHp: hp,
       currentHp: currentHp ?? hp,
-    };
-  }, [baseAtk, baseDef, hp, currentHp, effectiveAtk, effectiveDef, id, name]);
+    }),
+    [baseAtk, baseDef, hp, currentHp, effectiveAtk, effectiveDef],
+  );
 
   return (
     <Box

@@ -55,9 +55,9 @@ export const Stats = ({
   height = 86,
   affinity = Affinity.Fire,
   atk = 20,
-  baseAtk,
+  // baseAtk,
   def: d = 10,
-  baseDef,
+  // baseDef,
   hp = 60,
   currentHp,
   isAtkModified = false,
@@ -66,22 +66,6 @@ export const Stats = ({
   sx,
 }: StatBarProps) => {
   const id = useId();
-
-  // Log stat changes for debugging
-  if (baseAtk !== undefined && atk !== baseAtk) {
-    console.log("ATK Buff Applied:", {
-      baseAtk,
-      effectiveAtk: atk,
-      difference: atk - baseAtk,
-    });
-  }
-  if (baseDef !== undefined && d !== baseDef) {
-    console.log("DEF Buff Applied:", {
-      baseDef,
-      effectiveDef: d,
-      difference: d - baseDef,
-    });
-  }
 
   // This aspect ratio matches your reference much closer than the previous 520x70.
   const vbW = 620;

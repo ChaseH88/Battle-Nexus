@@ -39,7 +39,6 @@ export function createTestDeck2(): CardInterface[] {
   return (cards as any[]).map(cardFactory);
 }
 
-// Deprecated: Use createTestDeck1() instead to avoid shared state
 export const testDeck1 = createTestDeck1();
 export const testDeck2 = createTestDeck2();
 
@@ -49,7 +48,7 @@ export const testDeck2 = createTestDeck2();
 export function drawMany(
   engine: BattleEngine,
   playerIndex: number,
-  count: number
+  count: number,
 ): void {
   for (let i = 0; i < count; i++) {
     engine.draw(playerIndex);
@@ -117,7 +116,7 @@ export function createTestAction(overrides: Partial<any> = {}): ActionCard {
 export function addCardToHand(
   engine: BattleEngine,
   playerIndex: 0 | 1,
-  card: CardInterface
+  card: CardInterface,
 ): void {
   engine.state.players[playerIndex].hand.push(card);
 }
@@ -131,7 +130,7 @@ export function playCreatureInLane(
   lane: number,
   creature?: CreatureCard,
   faceDown: boolean = false,
-  mode: "ATTACK" | "DEFENSE" = "ATTACK"
+  mode: "ATTACK" | "DEFENSE" = "ATTACK",
 ): CreatureCard {
   const card = creature || createTestCreature({ id: `creature_${Date.now()}` });
   addCardToHand(engine, playerIndex, card);
@@ -146,7 +145,7 @@ export function playSupportInSlot(
   engine: BattleEngine,
   playerIndex: 0 | 1,
   slot: number,
-  support?: SupportCard | ActionCard
+  support?: SupportCard | ActionCard,
 ): SupportCard | ActionCard {
   const card = support || createTestSupport({ id: `support_${Date.now()}` });
   addCardToHand(engine, playerIndex, card);
@@ -160,7 +159,7 @@ export function playSupportInSlot(
  */
 export function createTestGame(
   deck1 = createTestDeck1(),
-  deck2 = createTestDeck2()
+  deck2 = createTestDeck2(),
 ): {
   p1: ReturnType<typeof createPlayerState>;
   p2: ReturnType<typeof createPlayerState>;
@@ -182,7 +181,7 @@ export function createTestGame(
 export function createTestGameWithAI(
   skillLevel: number = 5,
   deck1 = createTestDeck1(),
-  deck2 = createTestDeck2()
+  deck2 = createTestDeck2(),
 ): {
   p1: ReturnType<typeof createPlayerState>;
   p2: ReturnType<typeof createPlayerState>;
