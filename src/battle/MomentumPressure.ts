@@ -145,6 +145,7 @@ export function getEffectiveStatsFromActiveEffects(
     currentHp: number;
     hp: number;
     id: string;
+    instanceId: string;
   },
   activeEffects: ActiveEffect[],
   playerIndex: 0 | 1,
@@ -176,7 +177,9 @@ export function getEffectiveStatsFromActiveEffects(
     // Apply if effect is global OR matches this player's scope OR specifically targets this card
     const appliesToThisPlayer =
       effect.scope === "global" || effect.scope === scope;
-    const appliesToThisCard = effect.affectedCardIds?.includes(creature.id);
+    const appliesToThisCard = effect.affectedCardIds?.includes(
+      creature.instanceId,
+    );
 
     console.log("Effect evaluation:", {
       effectName: effect.name,

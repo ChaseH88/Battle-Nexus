@@ -9,7 +9,7 @@ import {
 import { CreatureCard } from "../../cards/CreatureCard";
 import { SupportCard } from "../../cards/SupportCard";
 import { ActionCard } from "../../cards/ActionCard";
-import { CardType, Affinity } from "../../cards/types";
+import { CardType, Affinity, Rarity } from "../../cards/types";
 
 function createCreatureCard(id: string, cost: number) {
   return new CreatureCard({
@@ -22,7 +22,7 @@ function createCreatureCard(id: string, cost: number) {
     def: 50,
     hp: 200,
     affinity: Affinity.Fire,
-    rarity: "C",
+    rarity: Rarity.Common,
     set: "Base",
   });
 }
@@ -35,7 +35,7 @@ function createSupportCard(id: string, cost: number) {
     description: "Test support",
     cost,
     affinity: Affinity.Water,
-    rarity: "C",
+    rarity: Rarity.Common,
     set: "Base",
     effectId: "test_effect",
   });
@@ -49,7 +49,7 @@ function createActionCard(id: string, cost: number) {
     description: "Test action",
     cost,
     affinity: Affinity.Grass,
-    rarity: "C",
+    rarity: Rarity.Common,
     set: "Base",
     effectId: "test_effect",
     speed: "NORMAL",
@@ -81,7 +81,7 @@ describe("DeckValidator Integration Tests", () => {
 
     it("validates a valid 20-card deck", () => {
       const deck = Array.from({ length: 20 }, (_, i) =>
-        createCreatureCard(`card-${i}`, 2)
+        createCreatureCard(`card-${i}`, 2),
       );
 
       const result = validateDeck(deck);
@@ -94,7 +94,7 @@ describe("DeckValidator Integration Tests", () => {
     it("allows adding cards up to deck size limit", () => {
       const card = createCreatureCard("card-1", 2);
       const fullDeck = Array.from({ length: 20 }, (_, i) =>
-        createCreatureCard(`card-${i}`, 2)
+        createCreatureCard(`card-${i}`, 2),
       );
 
       const canAdd = canAddCardToDeck(fullDeck, card);
@@ -115,7 +115,7 @@ describe("DeckValidator Integration Tests", () => {
     it("prevents exceeding cost limit", () => {
       // Deck with 50 cost
       const deck = Array.from({ length: 10 }, (_, i) =>
-        createCreatureCard(`card-${i}`, 5)
+        createCreatureCard(`card-${i}`, 5),
       );
 
       const expensiveCard = createCreatureCard("expensive", 5);
@@ -150,7 +150,7 @@ describe("DeckValidator Integration Tests", () => {
   describe("Deck Validation Rules", () => {
     it("rejects deck with too few cards", () => {
       const deck = Array.from({ length: 15 }, (_, i) =>
-        createCreatureCard(`card-${i}`, 2)
+        createCreatureCard(`card-${i}`, 2),
       );
 
       const result = validateDeck(deck);
@@ -161,7 +161,7 @@ describe("DeckValidator Integration Tests", () => {
 
     it("accepts valid deck with exactly 20 cards", () => {
       const deck = Array.from({ length: 20 }, (_, i) =>
-        createCreatureCard(`card-${i}`, 2)
+        createCreatureCard(`card-${i}`, 2),
       );
 
       const result = validateDeck(deck);
@@ -172,7 +172,7 @@ describe("DeckValidator Integration Tests", () => {
 
     it("rejects deck when cost exceeds limit", () => {
       const deck = Array.from({ length: 20 }, (_, i) =>
-        createCreatureCard(`card-${i}`, 3)
+        createCreatureCard(`card-${i}`, 3),
       );
 
       const result = validateDeck(deck);
@@ -180,13 +180,13 @@ describe("DeckValidator Integration Tests", () => {
       expect(result.stats.totalCost).toBe(60);
       expect(result.isValid).toBe(false);
       expect(
-        result.errors.some((e: string) => e.includes("exceeds limit"))
+        result.errors.some((e: string) => e.includes("exceeds limit")),
       ).toBe(true);
     });
 
     it("provides accurate validation statistics", () => {
       const deck = Array.from({ length: 20 }, (_, i) =>
-        createCreatureCard(`card-${i}`, 2)
+        createCreatureCard(`card-${i}`, 2),
       );
 
       const result = validateDeck(deck);
@@ -217,10 +217,10 @@ describe("DeckValidator Integration Tests", () => {
     it("calculates remaining budget correctly at different levels", () => {
       const emptyDeck: any[] = [];
       const halfDeck = Array.from({ length: 10 }, (_, i) =>
-        createCreatureCard(`card-${i}`, 2.5)
+        createCreatureCard(`card-${i}`, 2.5),
       );
       const fullDeck = Array.from({ length: 10 }, (_, i) =>
-        createCreatureCard(`card-${i}`, 5)
+        createCreatureCard(`card-${i}`, 5),
       );
 
       expect(getRemainingCostBudget(emptyDeck)).toBe(50);

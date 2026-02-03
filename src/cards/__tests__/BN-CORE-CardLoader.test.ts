@@ -26,7 +26,7 @@ describe("cards.json loader", () => {
   const instances = (bnCoreCardData as RawCard[]).map(createCardFromJson);
 
   it("loads all cards without error", () => {
-    expect(instances).toHaveLength(42); // Updated count: 10 creatures + 6 support cards + 25 action cards + 1 trap card
+    expect(instances).toHaveLength(43); // Updated count: includes all creatures, support cards, action cards, and trap cards
   });
 
   it("creates correct class types", () => {

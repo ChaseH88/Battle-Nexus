@@ -8,12 +8,21 @@ export interface CardInterface {
   atk?: number;
   def?: number;
   affinity?: Affinity;
-  rarity: "C" | "R" | "SR" | "UR";
+  rarity: Rarity;
   set: "Base";
   effectId?: string;
   effectType?: "ONE_TIME" | "CONTINUOUS";
   isMax?: boolean; // MAX cards are stored in separate MAX deck
   image?: string; // Optional image filename (e.g., "riptide_pixie.jpg")
+}
+
+export enum Rarity {
+  Common = "C",
+  Rare = "R",
+  SuperRare = "SR",
+  SecretRare = "SECRET",
+  UltraRare = "UR",
+  PrismaticRare = "PR",
 }
 
 export interface EffectInterface {

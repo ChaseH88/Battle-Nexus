@@ -11,6 +11,7 @@ import {
   getMomentumBoxAnimation,
 } from "./Player.styled";
 import { Box } from "@mui/material";
+import { useCallback, useMemo } from "react";
 
 interface PlayerProps {
   player: PlayerState;
@@ -36,32 +37,40 @@ const EMPTY_BOX_COLOR = "#1f2937";
 const FULL_MOMENTUM_COLOR = "#26ffea";
 const MAX_LIFE_POINTS = 2000;
 
-const getMomentumBoxColor = (
-  index: number,
-  currentMomentum: number
-): string => {
-  if (index >= currentMomentum) return EMPTY_BOX_COLOR;
-  return MOMENTUM_COLORS[index] || EMPTY_BOX_COLOR;
-};
-
-const getLifePointsColor = (lifePoints: number): string => {
-  if (lifePoints >= MAX_LIFE_POINTS) return "#00ff00"; // Lime green at full health
-  if (lifePoints >= 1500) return "#32cd32"; // Darker bright green
-  if (lifePoints >= 1000) return "#ffd700"; // Yellow
-  return "#ff0000"; // Red
-};
-
 export const Player = ({
   player,
   lifePoints,
   isOpponent = false,
 }: PlayerProps) => {
-  const momentum = player.momentum;
-  const isFull = momentum >= MAX_MOMENTUM;
-  const lifePointsColor = getLifePointsColor(lifePoints);
+  const momentum = useMemo(() => player.momentum, [player.momentum]);
+  const isFull = useMemo(() => momentum >= MAX_MOMENTUM, [momentum]);
 
-  const boxes = Array.from({ length: MAX_MOMENTUM }, (_, i) =>
-    getMomentumBoxColor(i, momentum)
+  const getLifePointsColor = useCallback((lifePoints: number): string => {
+    if (lifePoints >= MAX_LIFE_POINTS) return "#00ff00"; // Lime green at full health
+    if (lifePoints >= 150) return "#32cd32"; // Darker bright green
+    if (lifePoints >= 75) return "#ffd700"; // Yellow
+    return "#ff0000"; // Red
+  }, []);
+
+  const getMomentumBoxColor = useCallback(
+    (index: number, currentMomentum: number): string => {
+      if (index >= currentMomentum) return EMPTY_BOX_COLOR;
+      return MOMENTUM_COLORS[index] || EMPTY_BOX_COLOR;
+    },
+    [],
+  );
+
+  const lifePointsColor = useMemo(
+    () => getLifePointsColor(lifePoints),
+    [lifePoints, getLifePointsColor],
+  );
+
+  const boxes = useMemo(
+    () =>
+      Array.from({ length: MAX_MOMENTUM }, (_, i) =>
+        getMomentumBoxColor(i, momentum),
+      ),
+    [momentum, getMomentumBoxColor],
   );
 
   return (

@@ -82,7 +82,9 @@ export const PlayerBoard = ({
   );
 
   return (
-    <PlayerBoardContainer isopponent={isOpponent ? "true" : "false"}>
+    <PlayerBoardContainer
+      isTurn={gameState?.activePlayer === (isOpponent ? 1 : 0)}
+    >
       <Player player={player} lifePoints={lifePoints} isOpponent={isOpponent} />
       {isOpponent && SupportZoneComponent}
       <CreatureZone

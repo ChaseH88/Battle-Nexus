@@ -7,7 +7,7 @@ import {
   IconButton,
 } from "@mui/material";
 import cardData from "../../static/card-data/bn-core.json";
-import { CardType, Affinity, CardInterface } from "../../cards/types";
+import { CardType, Affinity, CardInterface, Rarity } from "../../cards/types";
 import { CreatureCard } from "../../cards/CreatureCard";
 import { SupportCard } from "../../cards/SupportCard";
 import { ActionCard } from "../../cards/ActionCard";
@@ -46,7 +46,7 @@ export interface CardData {
   def?: number;
   hp?: number;
   affinity: Affinity;
-  rarity: string;
+  rarity: Rarity;
   set: string;
   effectId?: string;
 }

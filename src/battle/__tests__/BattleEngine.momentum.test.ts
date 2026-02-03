@@ -2,7 +2,7 @@ import { BattleEngine } from "../BattleEngine";
 import { GameState } from "../GameState";
 import { createPlayerState } from "../PlayerState";
 import { CreatureCard } from "../../cards/CreatureCard";
-import { Affinity, CardType } from "../../cards/types";
+import { Affinity, CardType, Rarity } from "../../cards/types";
 
 describe("BattleEngine – Momentum System", () => {
   let engine: BattleEngine;
@@ -15,14 +15,14 @@ describe("BattleEngine – Momentum System", () => {
     atk: number,
     def: number,
     hp: number,
-    isMax: boolean = false
+    isMax: boolean = false,
   ): CreatureCard => {
     return new CreatureCard({
       id,
       name,
       type: CardType.Creature,
       cost,
-      rarity: "C",
+      rarity: Rarity.Common,
       set: "Base",
       description: "Test creature",
       atk,
@@ -82,7 +82,7 @@ describe("BattleEngine – Momentum System", () => {
       1,
       100,
       50,
-      500
+      500,
     );
     state.players[1].lanes[0] = createTestCreature(
       "c4",
@@ -90,7 +90,7 @@ describe("BattleEngine – Momentum System", () => {
       1,
       80,
       40,
-      400
+      400,
     );
   });
 
@@ -121,7 +121,7 @@ describe("BattleEngine – Momentum System", () => {
         5,
         500,
         200,
-        1000
+        1000,
       );
       state.players[1].lanes[0] = createTestCreature(
         "weak",
@@ -129,7 +129,7 @@ describe("BattleEngine – Momentum System", () => {
         1,
         50,
         20,
-        100
+        100,
       );
 
       state.players[0].momentum = 0;
@@ -146,7 +146,7 @@ describe("BattleEngine – Momentum System", () => {
         5,
         100,
         200,
-        2000
+        2000,
       );
       state.players[1].lanes[0] = createTestCreature(
         "s2",
@@ -154,7 +154,7 @@ describe("BattleEngine – Momentum System", () => {
         5,
         100,
         200,
-        2000
+        2000,
       );
 
       state.players[0].momentum = 0;
@@ -177,7 +177,7 @@ describe("BattleEngine – Momentum System", () => {
         3,
         200,
         100,
-        800
+        800,
       );
       state.players[0].momentum = 0;
 
@@ -202,7 +202,7 @@ describe("BattleEngine – Momentum System", () => {
         3,
         200,
         100,
-        800
+        800,
       );
       state.players[0].momentum = 0;
       engine.sacrifice(0, 1);
@@ -216,7 +216,7 @@ describe("BattleEngine – Momentum System", () => {
         5,
         300,
         150,
-        1200
+        1200,
       );
       state.players[0].momentum = 0;
       engine.sacrifice(0, 1);
@@ -238,7 +238,7 @@ describe("BattleEngine – Momentum System", () => {
         500,
         250,
         2000,
-        true
+        true,
       );
       state.players[0].lanes[1] = maxCreature;
 
@@ -258,7 +258,7 @@ describe("BattleEngine – Momentum System", () => {
         500,
         250,
         2000,
-        true
+        true,
       );
       state.players[0].hand.push(maxCard);
       state.players[0].momentum = 3; // Not enough
@@ -277,7 +277,7 @@ describe("BattleEngine – Momentum System", () => {
         500,
         250,
         2000,
-        true
+        true,
       );
       state.players[0].maxDeck.push(maxCard);
       state.players[0].momentum = 5;
@@ -297,7 +297,7 @@ describe("BattleEngine – Momentum System", () => {
         100,
         50,
         100,
-        true
+        true,
       );
       state.players[0].lanes[1] = maxCreature;
       state.players[1].lanes[1] = createTestCreature(
@@ -306,17 +306,17 @@ describe("BattleEngine – Momentum System", () => {
         3,
         500,
         200,
-        1000
+        1000,
       );
 
       engine.attack(1, 1, 1);
 
       expect(state.players[0].lanes[1]).toBeNull();
       expect(state.players[0].removedFromGame).toContainEqual(
-        expect.objectContaining({ id: "max1", isMax: true })
+        expect.objectContaining({ id: "max1", isMax: true }),
       );
       expect(state.players[0].discardPile).not.toContainEqual(
-        expect.objectContaining({ id: "max1" })
+        expect.objectContaining({ id: "max1" }),
       );
     });
   });
@@ -351,7 +351,7 @@ describe("BattleEngine – Momentum System", () => {
         4,
         300,
         150,
-        1000
+        1000,
       );
       state.players[0].hand.push(expensiveCreature);
       state.players[0].momentum = 2; // Not enough
@@ -372,7 +372,7 @@ describe("BattleEngine – Momentum System", () => {
         3,
         200,
         100,
-        800
+        800,
       );
       state.players[0].hand.push(expensiveCreature);
       state.players[0].momentum = 1;
@@ -461,7 +461,7 @@ describe("BattleEngine – Momentum System", () => {
         3,
         200,
         100,
-        800
+        800,
       );
       state.players[0].hand.push(creature);
       state.players[0].momentum = 5;
@@ -478,7 +478,7 @@ describe("BattleEngine – Momentum System", () => {
         5,
         300,
         150,
-        1200
+        1200,
       );
       state.players[0].hand.push(creature);
       state.players[0].momentum = 2;
@@ -510,7 +510,7 @@ describe("BattleEngine – Momentum System", () => {
         createTestCreature("cheap1", "Cheap1", 1, 100, 50, 500),
         createTestCreature("cheap2", "Cheap2", 2, 150, 75, 600),
         createTestCreature("expensive1", "Expensive1", 4, 250, 125, 900),
-        createTestCreature("expensive2", "Expensive2", 5, 300, 150, 1200)
+        createTestCreature("expensive2", "Expensive2", 5, 300, 150, 1200),
       );
       state.players[0].momentum = 3;
 
@@ -524,7 +524,7 @@ describe("BattleEngine – Momentum System", () => {
 
     it("hasAffordableCard returns true when player can afford something", () => {
       state.players[0].hand.push(
-        createTestCreature("free", "Free", 0, 100, 50, 500)
+        createTestCreature("free", "Free", 0, 100, 50, 500),
       );
       state.players[0].momentum = 0;
 

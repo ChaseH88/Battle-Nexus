@@ -231,11 +231,16 @@ export const CreatureZone = ({
                   {onToggleMode && (
                     <ToggleModeButton
                       onClick={() => onToggleMode(i)}
-                      disabled={(card as CreatureCard).hasChangedModeThisTurn}
+                      disabled={
+                        (card as CreatureCard).hasChangedModeThisTurn ||
+                        (card as CreatureCard).hasAttackedThisTurn
+                      }
                       title={
-                        (card as CreatureCard).hasChangedModeThisTurn
-                          ? "Already changed mode this turn"
-                          : "Switch between Attack and Defense mode"
+                        (card as CreatureCard).hasAttackedThisTurn
+                          ? "Cannot change mode after attacking"
+                          : (card as CreatureCard).hasChangedModeThisTurn
+                            ? "Already changed mode this turn"
+                            : "Switch between Attack and Defense mode"
                       }
                     >
                       Switch Mode

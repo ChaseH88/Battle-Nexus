@@ -22,7 +22,8 @@ export class SupportCard extends Card {
   // Target tracking for support cards that target specific creatures
   targetPlayerIndex?: 0 | 1;
   targetLane?: number; // Lane index (0-2) for creature targets
-  targetCardId?: string; // ID of the targeted card
+  targetCardId?: string; // ID of the targeted card (card definition ID)
+  targetCardInstanceId?: string; // Instance ID of the targeted card (unique per instance)
 
   constructor(args: SupportCardArgs) {
     super({ ...args, type: CardType.Support });

@@ -1,4 +1,4 @@
-import { CardInterface, CardId, CardType } from "./types";
+import { CardInterface, CardId, CardType, Rarity } from "./types";
 
 export abstract class Card {
   readonly id: CardId;
@@ -6,11 +6,12 @@ export abstract class Card {
   readonly description: string;
   readonly type: CardType;
   readonly cost: number;
-  readonly rarity: "C" | "R" | "SR" | "UR";
+  readonly rarity: Rarity;
   readonly set: "Base";
   readonly effectId?: string;
   readonly effectType?: "ONE_TIME" | "CONTINUOUS";
   readonly image?: string;
+  instanceId: string; // Unique ID for this specific instance of the card
 
   protected constructor(args: CardInterface) {
     this.id = args.id;
@@ -23,5 +24,7 @@ export abstract class Card {
     this.effectId = args.effectId;
     this.effectType = args.effectType;
     this.image = args.image;
+    // Generate unique instance ID: cardId + timestamp + random
+    this.instanceId = `${args.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 }

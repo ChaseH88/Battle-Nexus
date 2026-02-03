@@ -3,7 +3,7 @@ import { createGameState } from "../GameState";
 import { BattleEngine } from "../BattleEngine";
 
 import { CreatureCard } from "../../cards/CreatureCard";
-import { CardInterface, CardType, Affinity } from "../../cards/types";
+import { CardInterface, CardType, Affinity, Rarity } from "../../cards/types";
 import {
   drawMany,
   createTestDeck1,
@@ -35,7 +35,7 @@ describe("BattleEngine – Effect System", () => {
       const newEvents = game.log.getEvents().slice(initialEventCount);
       const newMessages = newEvents.map((e) => e.message);
       const hasPlayLog = newMessages.some(
-        (log: string) => log.includes("played") || log.includes("summoned")
+        (log: string) => log.includes("played") || log.includes("summoned"),
       );
       expect(hasPlayLog).toBe(true);
     }
@@ -73,7 +73,7 @@ describe("BattleEngine – Effect System", () => {
       hp: 80,
       affinity: Affinity.Fire,
       onAttackEffectId: "battle_rage", // ON_ATTACK effect that draws a card
-      rarity: "C",
+      rarity: Rarity.Common,
       set: "Base",
     });
 
@@ -103,7 +103,7 @@ describe("BattleEngine – Effect System", () => {
       (log: string) =>
         log.includes("CLASH") ||
         log.includes("attack") ||
-        log.includes("strikes")
+        log.includes("strikes"),
     );
     expect(hasAttackLog).toBe(true);
 
@@ -112,7 +112,7 @@ describe("BattleEngine – Effect System", () => {
       (log: string) =>
         log.includes("Battle Rage") ||
         log.includes("Effect fired") ||
-        log.includes("Effect activated")
+        log.includes("Effect activated"),
     );
     expect(hasEffectLog).toBe(true);
 
@@ -167,7 +167,7 @@ describe("BattleEngine – Effect System", () => {
     drawMany(engine, 0, 10);
 
     const supportCard = p1.hand.find(
-      (c) => c.type === CardType.Support
+      (c) => c.type === CardType.Support,
     ) as CardInterface;
 
     if (supportCard) {
@@ -244,7 +244,7 @@ describe("BattleEngine – Effect System", () => {
     drawMany(engine, 0, 5);
 
     const creature = p1.hand.find(
-      (c) => c.type === CardType.Creature
+      (c) => c.type === CardType.Creature,
     ) as CardInterface;
 
     if (creature && creature.effectId) {

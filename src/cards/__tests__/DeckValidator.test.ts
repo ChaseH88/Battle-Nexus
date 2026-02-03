@@ -6,7 +6,7 @@ import {
   getRemainingCostBudget,
   DECK_RULES,
 } from "@cards/DeckValidator";
-import { CardInterface, CardType, Affinity } from "@cards/types";
+import { CardInterface, CardType, Affinity, Rarity } from "@cards/types";
 import { CreatureCard } from "@cards/CreatureCard";
 
 function createMockCard(id: string, name: string, cost: number): CardInterface {
@@ -20,7 +20,7 @@ function createMockCard(id: string, name: string, cost: number): CardInterface {
     def: 10,
     hp: 50,
     affinity: Affinity.Fire,
-    rarity: "C",
+    rarity: Rarity.Common,
     set: "Base",
   });
 }
@@ -29,7 +29,7 @@ describe("Deck Validation System", () => {
   describe("validateDeck", () => {
     it("accepts a valid deck with 20 cards and cost <= 50", () => {
       const deck: CardInterface[] = Array.from({ length: 20 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 2)
+        createMockCard(`card_${i}`, `Card ${i}`, 2),
       ); // Total cost: 40
 
       const result = validateDeck(deck);
@@ -43,7 +43,7 @@ describe("Deck Validation System", () => {
 
     it("rejects deck with fewer than 20 cards", () => {
       const deck: CardInterface[] = Array.from({ length: 15 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 2)
+        createMockCard(`card_${i}`, `Card ${i}`, 2),
       );
 
       const result = validateDeck(deck);
@@ -54,7 +54,7 @@ describe("Deck Validation System", () => {
 
     it("rejects deck with more than 20 cards", () => {
       const deck: CardInterface[] = Array.from({ length: 25 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 2)
+        createMockCard(`card_${i}`, `Card ${i}`, 2),
       );
 
       const result = validateDeck(deck);
@@ -65,7 +65,7 @@ describe("Deck Validation System", () => {
 
     it("rejects deck with total cost exceeding 50", () => {
       const deck: CardInterface[] = Array.from({ length: 20 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 3)
+        createMockCard(`card_${i}`, `Card ${i}`, 3),
       ); // Total cost: 60
 
       const result = validateDeck(deck);
@@ -79,10 +79,10 @@ describe("Deck Validation System", () => {
       // Mix of costs that add up to exactly 50
       const deck: CardInterface[] = [
         ...Array.from({ length: 10 }, (_, i) =>
-          createMockCard(`card_${i}`, `Card ${i}`, 3)
+          createMockCard(`card_${i}`, `Card ${i}`, 3),
         ), // 30
         ...Array.from({ length: 10 }, (_, i) =>
-          createMockCard(`card_${i + 10}`, `Card ${i + 10}`, 2)
+          createMockCard(`card_${i + 10}`, `Card ${i + 10}`, 2),
         ), // 20
       ]; // Total: 50
 
@@ -94,7 +94,7 @@ describe("Deck Validation System", () => {
 
     it("warns when deck cost is very low", () => {
       const deck: CardInterface[] = Array.from({ length: 20 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 1)
+        createMockCard(`card_${i}`, `Card ${i}`, 1),
       ); // Total cost: 20
 
       const result = validateDeck(deck);
@@ -102,7 +102,7 @@ describe("Deck Validation System", () => {
       expect(result.isValid).toBe(true);
       expect(result.warnings.length).toBeGreaterThan(0);
       expect(result.warnings.some((w) => w.includes("cost is quite low"))).toBe(
-        true
+        true,
       );
     });
 
@@ -110,10 +110,10 @@ describe("Deck Validation System", () => {
     it("calculates average cost correctly", () => {
       const deck: CardInterface[] = [
         ...Array.from({ length: 10 }, (_, i) =>
-          createMockCard(`card_${i}`, `Card ${i}`, 1)
+          createMockCard(`card_${i}`, `Card ${i}`, 1),
         ), // 10
         ...Array.from({ length: 10 }, (_, i) =>
-          createMockCard(`card_${i + 10}`, `Card ${i + 10}`, 3)
+          createMockCard(`card_${i + 10}`, `Card ${i + 10}`, 3),
         ), // 30
       ]; // Total: 40, Average: 2
 
@@ -146,7 +146,7 @@ describe("Deck Validation System", () => {
   describe("canAddCardToDeck", () => {
     it("allows adding card when under cost limit", () => {
       const deck: CardInterface[] = Array.from({ length: 19 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 2)
+        createMockCard(`card_${i}`, `Card ${i}`, 2),
       ); // Total: 38
 
       const cardToAdd = createMockCard("new", "New Card", 5);
@@ -158,7 +158,7 @@ describe("Deck Validation System", () => {
 
     it("prevents adding card when it would exceed cost limit", () => {
       const deck: CardInterface[] = Array.from({ length: 19 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 2)
+        createMockCard(`card_${i}`, `Card ${i}`, 2),
       ); // Total: 38
 
       const cardToAdd = createMockCard("new", "New Card", 15); // Would make 53
@@ -170,7 +170,7 @@ describe("Deck Validation System", () => {
 
     it("prevents adding card when deck is full", () => {
       const deck: CardInterface[] = Array.from({ length: 20 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 1)
+        createMockCard(`card_${i}`, `Card ${i}`, 1),
       );
 
       const cardToAdd = createMockCard("new", "New Card", 1);
@@ -182,7 +182,7 @@ describe("Deck Validation System", () => {
 
     it("allows adding card at exact cost limit", () => {
       const deck: CardInterface[] = Array.from({ length: 19 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 2)
+        createMockCard(`card_${i}`, `Card ${i}`, 2),
       ); // Total: 38
 
       const cardToAdd = createMockCard("new", "New Card", 12); // Makes exactly 50
@@ -195,7 +195,7 @@ describe("Deck Validation System", () => {
   describe("getRemainingCostBudget", () => {
     it("calculates remaining budget correctly", () => {
       const deck: CardInterface[] = Array.from({ length: 10 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 3)
+        createMockCard(`card_${i}`, `Card ${i}`, 3),
       ); // Total: 30
 
       const remaining = getRemainingCostBudget(deck);
@@ -205,7 +205,7 @@ describe("Deck Validation System", () => {
 
     it("returns 0 when at cost limit", () => {
       const deck: CardInterface[] = Array.from({ length: 20 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 2.5)
+        createMockCard(`card_${i}`, `Card ${i}`, 2.5),
       ); // Total: 50
 
       const remaining = getRemainingCostBudget(deck);
@@ -215,7 +215,7 @@ describe("Deck Validation System", () => {
 
     it("returns 0 when over cost limit", () => {
       const deck: CardInterface[] = Array.from({ length: 20 }, (_, i) =>
-        createMockCard(`card_${i}`, `Card ${i}`, 3)
+        createMockCard(`card_${i}`, `Card ${i}`, 3),
       ); // Total: 60
 
       const remaining = getRemainingCostBudget(deck);

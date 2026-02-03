@@ -27,7 +27,7 @@ import { useBattleEngine } from "../hooks/useBattleEngine";
 import { useGameInitialization } from "../hooks/useGameInitialization";
 import { getEffectMetadata } from "../effects/metadata";
 import { effectsRegistry } from "../effects/registry";
-import { getEffectiveCreatureStats } from "../battle/MomentumPressure";
+import { getEffectiveStatsFromActiveEffects } from "../battle/MomentumPressure";
 import { CardActivationEffect } from "./Battle/Card/CardActivationEffect";
 import { CardAttackAnimation } from "./Battle/Card/CardAttackAnimation";
 import { useAnimationQueue } from "./Battle/Card/useAnimationQueue";
@@ -204,20 +204,22 @@ export default function App() {
         return;
       }
 
-      // Calculate damage using effective stats with momentum buffs
+      // Calculate damage using effective stats with all active buffs
       let damageToDefender = 0;
       let damageToAttacker = 0;
 
-      // Get effective stats with momentum buffs
-      const attackerStats = getEffectiveCreatureStats(
+      // Get effective stats with all active buffs (momentum + other effects)
+      const attackerStats = getEffectiveStatsFromActiveEffects(
         attackerCard,
-        player2.momentum,
+        gameState.activeEffects,
+        1,
       );
 
       if (defenderCard && defenderElement) {
-        const defenderStats = getEffectiveCreatureStats(
+        const defenderStats = getEffectiveStatsFromActiveEffects(
           defenderCard,
-          player1.momentum,
+          gameState.activeEffects,
+          0,
         );
 
         // Combat damage calculation
@@ -695,19 +697,21 @@ export default function App() {
           targetLane !== null ? player2.lanes[targetLane] : null;
 
         if (attackerCard) {
-          // Get effective stats with momentum buffs
-          const attackerStats = getEffectiveCreatureStats(
+          // Get effective stats with all active buffs (momentum + other effects)
+          const attackerStats = getEffectiveStatsFromActiveEffects(
             attackerCard,
-            player1.momentum,
+            gameState.activeEffects,
+            0,
           );
 
           // Calculate damage that will be dealt to defender
           let damageToDefender = 0;
           let damageToAttacker = 0; // Counter damage
           if (defenderCard) {
-            const defenderStats = getEffectiveCreatureStats(
+            const defenderStats = getEffectiveStatsFromActiveEffects(
               defenderCard,
-              player2.momentum,
+              gameState.activeEffects,
+              1,
             );
 
             // Combat damage calculation
@@ -835,7 +839,7 @@ export default function App() {
 
     // Get active effects that affect this card
     const cardEffects = gameState.activeEffects.filter((effect) =>
-      effect.affectedCardIds?.includes(card.id),
+      effect.affectedCardIds?.includes(card.instanceId),
     );
 
     dispatch(
@@ -853,7 +857,7 @@ export default function App() {
 
     // Get active effects that affect this card
     const cardEffects = gameState.activeEffects.filter((effect) =>
-      effect.affectedCardIds?.includes(card.id),
+      effect.affectedCardIds?.includes(card.instanceId),
     );
 
     dispatch(

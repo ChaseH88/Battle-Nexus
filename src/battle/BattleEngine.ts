@@ -223,6 +223,8 @@ export class BattleEngine {
     });
 
     const creature = player.lanes[lane]!;
+    // Regenerate instanceId to ensure uniqueness when played
+    creature.instanceId = `${creature.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     creature.isFaceDown = faceDown;
     creature.mode = mode;
 
@@ -359,7 +361,7 @@ export class BattleEngine {
     this.gainMomentum(playerIndex, momentumGain);
 
     // Remove any support cards targeting this creature
-    this.checkAndRemoveTargetedSupports(playerIndex, lane, creature.id);
+    this.checkAndRemoveTargetedSupports(playerIndex, lane, creature.instanceId);
 
     return true;
   }
@@ -585,11 +587,12 @@ export class BattleEngine {
       supportCard.targetPlayerIndex = eventData.targetPlayer ?? playerIndex;
       supportCard.targetLane = eventData.targetLane;
 
-      // Store the target card ID
+      // Store the target card ID and instance ID
       const targetPlayer = this.state.players[supportCard.targetPlayerIndex];
       const targetCreature = targetPlayer.lanes[supportCard.targetLane];
       if (targetCreature) {
         supportCard.targetCardId = targetCreature.id;
+        supportCard.targetCardInstanceId = targetCreature.instanceId;
       }
     }
 
@@ -741,7 +744,7 @@ export class BattleEngine {
   checkAndRemoveTargetedSupports(
     targetPlayerIndex: 0 | 1,
     targetLane: number,
-    removedCardId?: string,
+    removedCardInstanceId?: string,
   ) {
     // Check both players' support zones
     for (let pIndex = 0; pIndex < 2; pIndex++) {
@@ -762,8 +765,8 @@ export class BattleEngine {
           if (
             supportCard.targetPlayerIndex === targetPlayerIndex &&
             supportCard.targetLane === targetLane &&
-            (removedCardId === undefined ||
-              supportCard.targetCardId === removedCardId)
+            (removedCardInstanceId === undefined ||
+              supportCard.targetCardInstanceId === removedCardInstanceId)
           ) {
             // Target has left the field - discard this support
             moveCard(
@@ -812,6 +815,12 @@ export class BattleEngine {
     // Check if creature has already changed mode this turn
     if (creature.hasChangedModeThisTurn) {
       this.log(`${creature.name} has already changed mode this turn!`);
+      return false;
+    }
+
+    // Check if creature has already attacked this turn
+    if (creature.hasAttackedThisTurn) {
+      this.log(`${creature.name} cannot change modes after attacking!`);
       return false;
     }
 
@@ -1054,7 +1063,7 @@ export class BattleEngine {
         this.checkAndRemoveTargetedSupports(
           opponentIndex,
           targetLane,
-          defender.id,
+          defender.instanceId,
         );
         // Momentum: +2 for KO
         this.gainMomentum(playerIndex, 2);
@@ -1077,7 +1086,7 @@ export class BattleEngine {
         this.checkAndRemoveTargetedSupports(
           playerIndex,
           attackerLane,
-          attacker.id,
+          attacker.instanceId,
         );
         // Momentum: +2 for KO (defender's controller gets it)
         this.gainMomentum(opponentIndex, 2);
@@ -1124,7 +1133,7 @@ export class BattleEngine {
           this.checkAndRemoveTargetedSupports(
             opponentIndex,
             targetLane,
-            defender.id,
+            defender.instanceId,
           );
           // Momentum: +2 for KO
           this.gainMomentum(playerIndex, 2);
@@ -1285,7 +1294,7 @@ export class BattleEngine {
           // Skip if already recorded
           if (
             effect.affectedCardIds &&
-            effect.affectedCardIds.includes(creature.id)
+            effect.affectedCardIds.includes(creature.instanceId)
           )
             return;
 
@@ -1296,8 +1305,8 @@ export class BattleEngine {
               if (!effect.affectedCardIds) {
                 effect.affectedCardIds = [];
               }
-              if (!effect.affectedCardIds.includes(creature.id)) {
-                effect.affectedCardIds.push(creature.id);
+              if (!effect.affectedCardIds.includes(creature.instanceId)) {
+                effect.affectedCardIds.push(creature.instanceId);
               }
             }
 
@@ -1311,8 +1320,8 @@ export class BattleEngine {
               if (!effect.affectedCardIds) {
                 effect.affectedCardIds = [];
               }
-              if (!effect.affectedCardIds.includes(creature.id)) {
-                effect.affectedCardIds.push(creature.id);
+              if (!effect.affectedCardIds.includes(creature.instanceId)) {
+                effect.affectedCardIds.push(creature.instanceId);
               }
             }
           } catch (err) {
@@ -1383,7 +1392,7 @@ export class BattleEngine {
           // Skip if already affected
           if (
             effect.affectedCardIds &&
-            effect.affectedCardIds.includes(creature.id)
+            effect.affectedCardIds.includes(creature.instanceId)
           )
             return;
 
@@ -1407,9 +1416,12 @@ export class BattleEngine {
 
           // Track that this creature is now affected
           if (!effect.affectedCardIds) {
-            effect.affectedCardIds = [creature.id];
-          } else if (!effect.affectedCardIds.includes(creature.id)) {
-            effect.affectedCardIds = [...effect.affectedCardIds, creature.id];
+            effect.affectedCardIds = [creature.instanceId];
+          } else if (!effect.affectedCardIds.includes(creature.instanceId)) {
+            effect.affectedCardIds = [
+              ...effect.affectedCardIds,
+              creature.instanceId,
+            ];
           }
         });
         return; // Skip the source card lookup for global effects

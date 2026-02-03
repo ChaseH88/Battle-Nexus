@@ -41,7 +41,7 @@ export const callHomeHandler = (ctx: EffectContext) => {
   });
 
   engine?.log(
-    `${player.id} used Call Home to return ${targetCreature.name} to their hand (restored to full HP)`
+    `${player.id} used Call Home to return ${targetCreature.name} to their hand (restored to full HP)`,
   );
 
   // Remove any support cards that were targeting this creature
@@ -49,7 +49,7 @@ export const callHomeHandler = (ctx: EffectContext) => {
     engine.checkAndRemoveTargetedSupports(
       ownerIndex,
       targetLane,
-      targetCreature.id
+      targetCreature.instanceId,
     );
   }
 };

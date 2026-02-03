@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import DeckBuilder from "../DeckBuilder";
+import { Rarity } from "@/cards";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -39,7 +40,7 @@ jest.mock("../../../static/card-data/bn-core.json", () => [
     def: 1500,
     hp: 3000,
     affinity: "FIRE",
-    rarity: "R",
+    rarity: Rarity.Rare,
     set: "BN-CORE",
   },
   {
@@ -52,7 +53,7 @@ jest.mock("../../../static/card-data/bn-core.json", () => [
     def: 1000,
     hp: 2000,
     affinity: "WATER",
-    rarity: "C",
+    rarity: Rarity.Common,
     set: "BN-CORE",
   },
   {
@@ -62,7 +63,7 @@ jest.mock("../../../static/card-data/bn-core.json", () => [
     description: "Restores health",
     cost: 2,
     affinity: "WATER",
-    rarity: "C",
+    rarity: Rarity.Common,
     set: "BN-CORE",
   },
   {
@@ -72,7 +73,7 @@ jest.mock("../../../static/card-data/bn-core.json", () => [
     description: "Deals damage",
     cost: 4,
     affinity: "FIRE",
-    rarity: "U",
+    rarity: Rarity.UltraRare,
     set: "BN-CORE",
   },
 ]);
@@ -277,7 +278,7 @@ describe("DeckBuilder Component", () => {
       // Should show success message
       await waitFor(() => {
         expect(
-          screen.getByText(/deck saved successfully/i)
+          screen.getByText(/deck saved successfully/i),
         ).toBeInTheDocument();
       });
     });

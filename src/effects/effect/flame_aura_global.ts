@@ -9,6 +9,7 @@ export const flame_aura_global = (ctx: EffectContext) => {
   const allies = ctx.utils.getAllyCreatures(ctx.ownerIndex);
   const fireCreatures = ctx.utils.filterByAffinity(allies, "FIRE");
 
+  // Modify existing creatures' stats immediately
   fireCreatures.forEach((creature) => {
     ctx.utils.modifyCreatureStats(creature, 10, undefined);
   });
@@ -16,7 +17,7 @@ export const flame_aura_global = (ctx: EffectContext) => {
   // Add as permanent global effect with tracking
   // Use a unique ID based on player and timestamp to allow stacking
   const effectId = `flame_aura_global_p${ctx.ownerIndex}_${Date.now()}`;
-  const affectedCardIds = Array.from(fireCreatures.map((c) => c.id));
+  const affectedCardIds = Array.from(fireCreatures.map((c) => c.instanceId));
 
   ctx.utils.addActiveEffect(
     effectId,
@@ -27,10 +28,10 @@ export const flame_aura_global = (ctx: EffectContext) => {
     "+10 ATK to all Fire creatures",
     affectedCardIds,
     { atk: 10 },
-    true // mark as global effect
+    true, // mark as global effect
   );
 
   ctx.utils.log(
-    `${ctx.sourceCard.name}: All Fire creatures gain +10 ATK permanently!`
+    `${ctx.sourceCard.name}: All Fire creatures gain +10 ATK permanently!`,
   );
 };
