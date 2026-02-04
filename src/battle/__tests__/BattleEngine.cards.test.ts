@@ -2,7 +2,7 @@ import { createPlayerState } from "@battle/PlayerState";
 import { createGameState } from "@battle/GameState";
 import { BattleEngine } from "@battle/BattleEngine";
 import { CardType } from "@cards/types";
-import { MagicCard } from "@cards/MagicCard";
+import { ActionCard } from "@cards/ActionCard";
 import {
   drawMany,
   createTestDeck1,
@@ -83,7 +83,7 @@ describe("BattleEngine – Card State", () => {
 
     drawMany(engine, 0, 10);
 
-    const support = p1.hand.find((c) => c.type === CardType.Magic) as MagicCard;
+    const support = p1.hand.find((c) => c.type === CardType.Action) as ActionCard;
 
     if (support) {
       const initialHandSize = p1.hand.length;

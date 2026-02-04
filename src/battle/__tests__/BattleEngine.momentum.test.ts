@@ -554,7 +554,7 @@ describe("BattleEngine – Momentum System", () => {
       const support = {
         id: "support1",
         name: "Expensive Support",
-        type: CardType.Magic,
+        type: CardType.Action,
         cost: 5,
         rarity: "C",
         set: "Base",
@@ -584,7 +584,7 @@ describe("BattleEngine – Momentum System", () => {
       const support = {
         id: "support1",
         name: "Expensive Support",
-        type: CardType.Magic,
+        type: CardType.Action,
         cost: 5,
         rarity: "C",
         set: "Base",
@@ -614,7 +614,7 @@ describe("BattleEngine – Momentum System", () => {
       const support = {
         id: "support1",
         name: "Medium Support",
-        type: CardType.Magic,
+        type: CardType.Action,
         cost: 3,
         rarity: "C",
         set: "Base",
@@ -646,7 +646,7 @@ describe("BattleEngine – Momentum System", () => {
       const support = {
         id: "support1",
         name: "Medium Support",
-        type: CardType.Magic,
+        type: CardType.Action,
         cost: 3,
         rarity: "C",
         set: "Base",
@@ -674,7 +674,7 @@ describe("BattleEngine – Momentum System", () => {
       const support = {
         id: "support1",
         name: "Free Support",
-        type: CardType.Magic,
+        type: CardType.Action,
         cost: 0,
         rarity: "C",
         set: "Base",

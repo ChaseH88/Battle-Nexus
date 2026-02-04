@@ -1,7 +1,7 @@
 import { CardInterface, CardType } from "../../../cards/types";
 import { Creature } from "./Creature";
 import { Support } from "./Support";
-import { MagicCard } from "../../../cards/MagicCard";
+import { ActionCard } from "../../../cards/ActionCard";
 import { TrapCard } from "../../../cards/TrapCard";
 import { Back } from "./Back";
 import { CreatureCard } from "../../../cards";
@@ -74,10 +74,10 @@ export const Card = ({
   }
 
   const isCreature = card.type === CardType.Creature;
-  const isMagic = card.type === CardType.Magic;
+  const isAction = card.type === CardType.Action;
   const isTrap = card.type === CardType.Trap;
   const creature = isCreature ? (card as CreatureCard) : null;
-  const magic = isMagic ? (card as MagicCard) : null;
+  const action = isAction ? (card as ActionCard) : null;
   const trap = isTrap ? (card as TrapCard) : null;
 
   // Show creature face-down if it has isFaceDown property set
@@ -85,15 +85,15 @@ export const Card = ({
     return <Back onClick={onClick} type="creature" />;
   }
 
-  // Show magic/trap face-down if isFaceDown is true
-  if ((magic && magic.isFaceDown) || (trap && trap.isFaceDown)) {
-    const backType = magic ? "magic" : "trap";
+  // Show action/trap face-down if isFaceDown is true
+  if ((action && action.isFaceDown) || (trap && trap.isFaceDown)) {
+    const backType = action ? "action" : "trap";
     return <Back onClick={onClick} type={backType} />;
   }
 
   // Also show face-down for opponent's inactive cards if showFaceDown is true
-  if (showFaceDown && (magic || trap) && !(magic || trap)!.isActive) {
-    const backType = magic ? "magic" : "trap";
+  if (showFaceDown && (action || trap) && !(action || trap)!.isActive) {
+    const backType = action ? "action" : "trap";
     return <Back onClick={onClick} type={backType} />;
   }
 
@@ -101,7 +101,7 @@ export const Card = ({
   const isExhausted = creature ? creature.hasAttackedThisTurn : false;
   const isDefenseMode = creature ? creature.mode === "DEFENSE" : false;
   const isActiveCard = Boolean(
-    (magic && magic.isActive) || (trap && trap.isActive),
+    (action && action.isActive) || (trap && trap.isActive),
   );
 
   const handleDoubleClick = (e: React.MouseEvent) => {
@@ -158,17 +158,17 @@ export const Card = ({
           image={creature.image}
         />
       )}
-      {magic && (
+      {action && (
         <Support
-          id={magic.id}
-          name={magic.name}
-          type={magic.type}
-          description={magic.description}
-          cost={magic.cost}
-          isActive={magic.isActive}
-          isFaceDown={magic.isFaceDown}
-          targetPlayerIndex={magic.targetPlayerIndex}
-          image={magic.image}
+          id={action.id}
+          name={action.name}
+          type={action.type}
+          description={action.description}
+          cost={action.cost}
+          isActive={action.isActive}
+          isFaceDown={action.isFaceDown}
+          targetPlayerIndex={action.targetPlayerIndex}
+          image={action.image}
         />
       )}
       {trap && (

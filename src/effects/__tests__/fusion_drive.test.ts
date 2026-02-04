@@ -4,14 +4,14 @@ import { GameState, createGameState } from "@battle/GameState";
 import { createPlayerState } from "@battle/PlayerState";
 import { fusion_drive } from "../effect/fusion_drive";
 import { createEffectUtils, EffectContext } from "../handler";
-import { createTestMagic } from "@/__tests__/testUtils";
+import { createTestAction } from "@/__tests__/testUtils";
 
 describe("Fusion Drive Effect", () => {
   let engine: BattleEngine;
   let gameState: GameState;
 
   beforeEach(() => {
-    const fusionDriveCard = createTestMagic({
+    const fusionDriveCard = createTestAction({
       id: "fusion_drive_action",
       name: "Fusion Drive",
       effectId: "fusion_drive",
@@ -60,7 +60,7 @@ describe("Fusion Drive Effect", () => {
 
   it("should work when opponent plays it", () => {
     const ownerIndex: 0 | 1 = 1;
-    const fusionDriveCard = createTestMagic({
+    const fusionDriveCard = createTestAction({
       id: "fusion_drive_action_2",
       name: "Fusion Drive",
       effectId: "fusion_drive",

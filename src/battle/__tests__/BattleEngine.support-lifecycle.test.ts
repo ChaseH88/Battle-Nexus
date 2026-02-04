@@ -2,7 +2,7 @@ import { BattleEngine } from "../BattleEngine";
 import { cardFactory, createTestGame } from "../../__tests__/testUtils";
 import { CardType } from "@cards";
 import { CreatureCard } from "@cards/CreatureCard";
-import { MagicCard } from "@cards/MagicCard";
+import { ActionCard } from "@cards/ActionCard";
 
 describe("BattleEngine – Support Card Lifecycle", () => {
   let engine: BattleEngine;
@@ -20,11 +20,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
       // Create and play an action card
       const actionCard = cardFactory({
         id: "test_action",
-        type: CardType.Magic,
+        type: CardType.Action,
         name: "Test Action",
         effectId: "draw_on_play",
         effectType: "ONE_TIME",
-      }) as MagicCard;
+      }) as ActionCard;
 
       p1.hand.push(actionCard);
 
@@ -51,11 +51,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
 
       const supportCard = cardFactory({
         id: "test_support_onetime",
-        type: CardType.Magic,
+        type: CardType.Action,
         name: "One Time Support",
         effectId: "draw_on_play",
         effectType: "ONE_TIME",
-      }) as MagicCard;
+      }) as ActionCard;
 
       p1.hand.push(supportCard);
 
@@ -91,11 +91,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
       // Create persistent support (affects all Fire creatures)
       const persistentSupport = cardFactory({
         id: "persistent_test_support",
-        type: CardType.Magic,
+        type: CardType.Action,
         name: "Persistent Test Support",
         effectId: "fire_atk_boost_aura",
         effectType: "CONTINUOUS",
-      }) as MagicCard;
+      }) as ActionCard;
 
       p1.hand.push(persistentSupport);
 
@@ -136,11 +136,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
       // Create targeted support
       const targetedSupport = cardFactory({
         id: "ignite_burst",
-        type: CardType.Magic,
+        type: CardType.Action,
         name: "Ignite Burst",
         effectId: "boost_fire_and_extend_ignite",
         effectType: "CONTINUOUS",
-      }) as MagicCard;
+      }) as ActionCard;
 
       p1.hand.push(targetedSupport);
 
@@ -178,11 +178,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
       // P1 plays targeted support on that creature
       const targetedSupport = cardFactory({
         id: "ignite_burst",
-        type: CardType.Magic,
+        type: CardType.Action,
         name: "Ignite Burst",
         effectId: "boost_fire_and_extend_ignite",
         effectType: "CONTINUOUS",
-      }) as MagicCard;
+      }) as ActionCard;
 
       p1.hand.push(targetedSupport);
       engine.playSupport(0, 1, targetedSupport.id);
@@ -245,11 +245,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
       // P1 plays targeted support (boosts ATK +20)
       const targetedSupport = cardFactory({
         id: "ignite_burst",
-        type: CardType.Magic,
+        type: CardType.Action,
         name: "Ignite Burst",
         effectId: "boost_fire_atk",
         effectType: "CONTINUOUS",
-      }) as MagicCard;
+      }) as ActionCard;
 
       p1.hand.push(targetedSupport);
       engine.playSupport(0, 1, targetedSupport.id);
@@ -336,11 +336,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
       // P1 plays targeted support on creature in lane 0
       const targetedSupport = cardFactory({
         id: "ignite_burst",
-        type: CardType.Magic,
+        type: CardType.Action,
         name: "Ignite Burst",
         effectId: "boost_fire_and_extend_ignite",
         effectType: "CONTINUOUS",
-      }) as MagicCard;
+      }) as ActionCard;
 
       p1.hand.push(targetedSupport);
       engine.playSupport(0, 2, targetedSupport.id);
@@ -389,11 +389,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
       // P1 plays a support card
       const support = cardFactory({
         id: "persistent_test_support2",
-        type: CardType.Magic,
+        type: CardType.Action,
         name: "Persistent Test Support 2",
         effectId: "fire_atk_boost_aura",
         effectType: "CONTINUOUS",
-      }) as MagicCard;
+      }) as ActionCard;
 
       p1.hand.push(support);
       engine.playSupport(0, 0, support.id);
@@ -404,11 +404,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
       // P2 plays purge effect
       const purgeCard = cardFactory({
         id: "purge_beacon",
-        type: CardType.Magic,
+        type: CardType.Action,
         name: "Purge Beacon",
         effectId: "purge_opponent_support",
         effectType: "ONE_TIME",
-      }) as MagicCard;
+      }) as ActionCard;
 
       engine.endTurn();
       engine.draw(1);
@@ -433,11 +433,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
 
       const support = cardFactory({
         id: "test_support",
-        type: CardType.Magic,
+        type: CardType.Action,
         name: "Test Support",
         effectId: "fire_atk_boost_aura",
         effectType: "CONTINUOUS",
-      }) as MagicCard;
+      }) as ActionCard;
 
       p1.hand.push(support);
       engine.playSupport(0, 0, support.id);

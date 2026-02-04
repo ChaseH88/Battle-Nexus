@@ -1,38 +1,38 @@
 import { Card } from "./Card";
 import { CardInterface, CardType } from "./types";
 
-export type MagicSpeed = "NORMAL" | "QUICK";
+export type ActionSpeed = "NORMAL" | "QUICK";
 
-export interface MagicCardArgs extends CardInterface {
-  speed?: MagicSpeed;
+export interface ActionCardArgs extends CardInterface {
+  speed?: ActionSpeed;
   effectId: string;
 }
 
 /**
- * MagicCard - Represents magic cards in the game (formerly Action and Support cards)
+ * ActionCard - Represents action cards in the game (formerly Action and Support cards)
  *
- * Magic cards can be played face-down and activated later.
+ * Action cards can be played face-down and activated later.
  * When activated, they can either:
  * 1. One-time: Resolve their effect once and are sent to the discard pile
  * 2. Target-based: Stay active until the target leaves the field
  * 3. Persistent: Stay active indefinitely until removed by an effect
  *
- * Players cannot manually discard magic cards.
+ * Players cannot manually discard action cards.
  */
-export class MagicCard extends Card {
-  readonly speed: MagicSpeed;
+export class ActionCard extends Card {
+  readonly speed: ActionSpeed;
   readonly effectId: string;
   isActive: boolean;
   isFaceDown: boolean;
 
-  // Target tracking for magic cards that target specific creatures
+  // Target tracking for action cards that target specific creatures
   targetPlayerIndex?: 0 | 1;
   targetLane?: number; // Lane index (0-2) for creature targets
   targetCardId?: string; // ID of the targeted card (card definition ID)
   targetCardInstanceId?: string; // Instance ID of the targeted card (unique per instance)
 
-  constructor(args: MagicCardArgs) {
-    super({ ...args, type: CardType.Magic });
+  constructor(args: ActionCardArgs) {
+    super({ ...args, type: CardType.Action });
     this.speed = args.speed ?? "NORMAL";
     this.effectId = args.effectId;
     this.isActive = false;

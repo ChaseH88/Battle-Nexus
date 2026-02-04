@@ -1,6 +1,6 @@
 import { CardInterface } from "../cards";
 import { CreatureCard } from "../cards/CreatureCard";
-import { MagicCard } from "../cards/MagicCard";
+import { ActionCard } from "../cards/ActionCard";
 import { TrapCard } from "../cards/TrapCard";
 import { GameState } from "./GameState";
 import {
@@ -110,7 +110,7 @@ export function moveCard(
       const slot = options.toLane ?? supportIndexFromZone(to);
       if (player.support[slot] !== null)
         throw new Error(`Support ${slot} occupied`);
-      player.support[slot] = card as MagicCard | TrapCard;
+      player.support[slot] = card as ActionCard | TrapCard;
       return;
     }
 

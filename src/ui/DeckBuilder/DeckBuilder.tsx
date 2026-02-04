@@ -9,7 +9,7 @@ import {
 import cardData from "../../static/card-data/bn-core.json";
 import { CardType, Affinity, CardInterface, Rarity } from "../../cards/types";
 import { CreatureCard } from "../../cards/CreatureCard";
-import { MagicCard } from "../../cards/MagicCard";
+import { ActionCard } from "../../cards/ActionCard";
 import { TrapCard } from "../../cards/TrapCard";
 import { Card } from "../Battle/Card/Card";
 import { useDeckBuilder } from "@/hooks/useDeckBuilder";
@@ -24,8 +24,8 @@ function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
     case CardType.Creature:
       return new CreatureCard(raw);
-    case CardType.Magic:
-      return new MagicCard(raw);
+    case CardType.Action:
+      return new ActionCard(raw);
     case CardType.Trap:
       return new TrapCard(raw);
     default:

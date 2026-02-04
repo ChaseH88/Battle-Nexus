@@ -1,4 +1,4 @@
-import { CardType, MagicCard, TrapCard } from "../../../cards";
+import { CardType, ActionCard, TrapCard } from "../../../cards";
 import { PlayerState } from "../../../battle/PlayerState";
 import { Card } from "../Card";
 import { motion } from "framer-motion";
@@ -42,7 +42,7 @@ export const SupportZone = ({
             draggedCardId &&
             !card &&
             draggedCard &&
-            (draggedCard.type === CardType.Magic ||
+            (draggedCard.type === CardType.Action ||
               draggedCard.type === CardType.Trap);
 
           return (
@@ -80,10 +80,10 @@ export const SupportZone = ({
                       !isOpponent && card
                         ? () => {
                             if (
-                              card.type === CardType.Magic ||
+                              card.type === CardType.Action ||
                               card.type === CardType.Trap
                             ) {
-                              const spellCard = card as MagicCard | TrapCard;
+                              const spellCard = card as ActionCard | TrapCard;
                               if (!spellCard.isActive && onActivateSupport) {
                                 const element = cardRefs.current[i];
                                 if (element) {
@@ -103,10 +103,10 @@ export const SupportZone = ({
                     canActivate={
                       !isOpponent &&
                       card !== null &&
-                      (card.type === CardType.Magic ||
+                      (card.type === CardType.Action ||
                         card.type === CardType.Trap) &&
                       (card.isFaceDown ||
-                        !(card as MagicCard | TrapCard).isActive)
+                        !(card as ActionCard | TrapCard).isActive)
                     }
                   />
                 </div>
@@ -119,7 +119,7 @@ export const SupportZone = ({
                     const handCard = player.hand.find(
                       (c) => c.id === selectedHandCard,
                     );
-                    return handCard?.type === CardType.Magic ||
+                    return handCard?.type === CardType.Action ||
                       handCard?.type === CardType.Trap ? (
                       <SupportActions>
                         <FaceDownButton onClick={() => onPlaySupport(i)}>

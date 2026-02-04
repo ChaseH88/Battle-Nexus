@@ -65,9 +65,9 @@ export const CardFilters = ({
         sx={{ color: "#fff" }}
       >
         <MenuItem value="ALL">All Types</MenuItem>
-        <MenuItem value="CREATURE">Creature</MenuItem>
-        <MenuItem value="SUPPORT">Support</MenuItem>
-        <MenuItem value="ACTION">Action</MenuItem>
+        <MenuItem value={CardType.Creature}>Creature</MenuItem>
+        <MenuItem value={CardType.Action}>Action</MenuItem>
+        <MenuItem value={CardType.Trap}>Trap</MenuItem>
       </Select>
     </FormControl>
     <FormControl sx={{ minWidth: 150 }}>

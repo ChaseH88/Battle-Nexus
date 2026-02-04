@@ -1,8 +1,8 @@
-import { MagicCard } from "@cards/MagicCard";
+import { ActionCard } from "@cards/ActionCard";
 import { CardImage } from "./CardImage";
 
 type ActionProps = Pick<
-  MagicCard,
+  ActionCard,
   | "id"
   | "name"
   | "type"

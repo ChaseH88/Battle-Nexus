@@ -89,7 +89,7 @@ export const CardSlot = styled.div<CardSlotProps>`
     `}
 
   ${(props) =>
-    props.cardType === CardType.Magic &&
+    props.cardType === CardType.Action &&
     css`
       ${props.isFaceDown &&
       css`
@@ -103,7 +103,7 @@ export const CardSlot = styled.div<CardSlotProps>`
     `}
 
   ${(props) =>
-    props.cardType === CardType.Magic &&
+    props.cardType === CardType.Action &&
     css`
       ${props.isFaceDown &&
       css`

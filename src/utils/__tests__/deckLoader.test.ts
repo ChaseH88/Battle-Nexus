@@ -90,8 +90,8 @@ describe("Deck Loader Utilities", () => {
       // Check card types are properly instantiated
       const types = deck!.map((card) => card.type);
       expect(types).toContain(CardType.Creature);
-      expect(types).toContain(CardType.Magic);
-      expect(types).toContain(CardType.Magic);
+      expect(types).toContain(CardType.Action);
+      expect(types).toContain(CardType.Action);
     });
 
     it("expands card counts correctly", () => {
@@ -258,7 +258,7 @@ describe("Deck Loader Utilities", () => {
       const deck = loadDeckFromLocalStorage();
 
       expect(deck).not.toBeNull();
-      expect(deck![0].type).toBe(CardType.Magic);
+      expect(deck![0].type).toBe(CardType.Action);
     });
 
     it("loads Action cards correctly", () => {
@@ -268,7 +268,7 @@ describe("Deck Loader Utilities", () => {
       const deck = loadDeckFromLocalStorage();
 
       expect(deck).not.toBeNull();
-      expect(deck![0].type).toBe(CardType.Magic);
+      expect(deck![0].type).toBe(CardType.Action);
     });
   });
 

@@ -1,6 +1,6 @@
 import { CardInterface } from "../cards";
 import { CreatureCard } from "../cards/CreatureCard";
-import { MagicCard } from "../cards/MagicCard";
+import { ActionCard } from "../cards/ActionCard";
 import { TrapCard } from "../cards/TrapCard";
 
 export interface PlayerState {
@@ -13,7 +13,7 @@ export interface PlayerState {
   maxDeck: CardInterface[]; // MAX cards (max 10, never drawn, always visible)
 
   lanes: Array<CreatureCard | null>; // 3 creature lanes
-  support: Array<MagicCard | TrapCard | null>; // 3 support lanes
+  support: Array<ActionCard | TrapCard | null>; // 3 support lanes
 
   discardPile: CardInterface[];
   removedFromGame: CardInterface[]; // MAX cards go here when they leave play

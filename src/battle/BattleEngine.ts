@@ -1,6 +1,6 @@
 import { GameState, getOpponentIndex, ActiveEffect } from "./GameState";
 import { CardInterface, CardType, CreatureCard } from "../cards";
-import { MagicCard } from "../cards/MagicCard";
+import { ActionCard } from "../cards/ActionCard";
 import { TrapCard } from "../cards/TrapCard";
 import { moveCard } from "./ZoneEngine";
 import { Zone } from "./zones";
@@ -262,7 +262,7 @@ export class BattleEngine {
     if (player.support[slot] !== null) return false;
 
     const card = player.hand.find((c) => c.id === cardId);
-    if (!card || (card.type !== CardType.Magic && card.type !== CardType.Trap))
+    if (!card || (card.type !== CardType.Action && card.type !== CardType.Trap))
       return false;
 
     // Support cards can be played facedown without momentum cost
@@ -272,7 +272,7 @@ export class BattleEngine {
       toLane: slot,
     });
 
-    const spellCard = player.support[slot]! as MagicCard | TrapCard;
+    const spellCard = player.support[slot]! as ActionCard | TrapCard;
 
     // Always play face down and inactive
     spellCard.isActive = false;
@@ -471,9 +471,9 @@ export class BattleEngine {
     }
 
     const player = this.state.players[playerIndex];
-    const card = player.support[slot] as MagicCard | TrapCard | null;
+    const card = player.support[slot] as ActionCard | TrapCard | null;
 
-    if (!card || (card.type !== CardType.Magic && card.type !== CardType.Trap))
+    if (!card || (card.type !== CardType.Action && card.type !== CardType.Trap))
       return false;
 
     if (card.isActive) {
@@ -563,9 +563,9 @@ export class BattleEngine {
     card.isFaceDown = false;
     card.isActive = true;
 
-    // Track target for magic cards if targeting is required
-    if (card.type === CardType.Magic && eventData?.targetLane !== undefined) {
-      const magicCard = card as MagicCard;
+    // Track target for action cards if targeting is required
+    if (card.type === CardType.Action && eventData?.targetLane !== undefined) {
+      const magicCard = card as ActionCard;
       magicCard.targetPlayerIndex = eventData.targetPlayer ?? playerIndex;
       magicCard.targetLane = eventData.targetLane;
 
@@ -595,8 +595,8 @@ export class BattleEngine {
       onEffectActivated: this.onEffectActivated,
     });
 
-    // Magic cards with ONE_TIME effects get discarded after activation
-    if (card.type === CardType.Magic && getEffectTiming(card) === "ONE_TIME") {
+    // Action cards with ONE_TIME effects get discarded after activation
+    if (card.type === CardType.Action && getEffectTiming(card) === "ONE_TIME") {
       moveCard(
         this.state,
         playerIndex,
@@ -608,11 +608,11 @@ export class BattleEngine {
         },
       );
       this.log(
-        `${card.name} (Magic - One Time) resolved and was moved to the discard pile`,
+        `${card.name} (Action - One Time) resolved and was moved to the discard pile`,
       );
     }
 
-    // CONTINUOUS magic cards stay on field
+    // CONTINUOUS action cards stay on field
     // - Persistent effects (no target): Stay until removed by effect
     // - Targeted effects: Stay until target leaves field
 
@@ -631,11 +631,11 @@ export class BattleEngine {
     eventData?: { lane?: number; targetLane?: number },
   ): boolean {
     const player = this.state.players[playerIndex];
-    const card = player.support[slot] as MagicCard | TrapCard | null;
+    const card = player.support[slot] as ActionCard | TrapCard | null;
 
     if (
       !card ||
-      (card.type !== CardType.Magic && card.type !== CardType.Trap)
+      (card.type !== CardType.Action && card.type !== CardType.Trap)
     ) {
       return false;
     }
@@ -711,20 +711,20 @@ export class BattleEngine {
 
         if (
           card &&
-          card.type === CardType.Magic &&
+          card.type === CardType.Action &&
           card.isActive &&
           !card.isFaceDown
         ) {
-          const magicCard = card as MagicCard;
+          const magicCard = card as ActionCard;
 
-          // Check if this magic card was targeting the removed creature
+          // Check if this action card was targeting the removed creature
           if (
             magicCard.targetPlayerIndex === targetPlayerIndex &&
             magicCard.targetLane === targetLane &&
             (removedCardInstanceId === undefined ||
               magicCard.targetCardInstanceId === removedCardInstanceId)
           ) {
-            // Target has left the field - discard this magic card
+            // Target has left the field - discard this action card
             moveCard(
               this.state,
               pIndex as 0 | 1,
@@ -738,7 +738,7 @@ export class BattleEngine {
             this.log(
               `${magicCard.name} was discarded because its target left the field`,
             );
-            // Also remove any active effects that were provided by this magic card
+            // Also remove any active effects that were provided by this action card
             const effectsToRemove = this.state.activeEffects.filter(
               (e) => e.sourceCardId === magicCard.id,
             );
@@ -1300,10 +1300,10 @@ export class BattleEngine {
   getActivatableTraps(
     playerIndex: 0 | 1,
     trigger?: string,
-  ): Array<{ card: MagicCard | TrapCard; slot: number }> {
+  ): Array<{ card: ActionCard | TrapCard; slot: number }> {
     const player = this.state.players[playerIndex];
     const traps: Array<{
-      card: MagicCard | TrapCard;
+      card: ActionCard | TrapCard;
       slot: number;
     }> = [];
 
@@ -1314,7 +1314,7 @@ export class BattleEngine {
         // If trigger specified, only return cards matching that trigger
         if (effect && (!trigger || effect.trigger === trigger)) {
           traps.push({
-            card: card as MagicCard | TrapCard,
+            card: card as ActionCard | TrapCard,
             slot,
           });
         }
@@ -1407,12 +1407,12 @@ export class BattleEngine {
 
       if (!sourceCard || !sourceCard.effectId) return;
 
-      // If the source card is a targeted magic card, skip auto-applying to new creatures
-      // Targeted magic cards should only affect their original target
-      if (sourceCard.type === CardType.Magic) {
+      // If the source card is a targeted action card, skip auto-applying to new creatures
+      // Targeted action cards should only affect their original target
+      if (sourceCard.type === CardType.Action) {
         const magicCard = sourceCard as any;
         if (magicCard.targetCardId) {
-          // This is a targeted magic card - don't apply to other creatures
+          // This is a targeted action card - don't apply to other creatures
           return;
         }
       }

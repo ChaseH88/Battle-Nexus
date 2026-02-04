@@ -7,7 +7,7 @@ import {
   DECK_RULES,
 } from "../../cards/DeckValidator";
 import { CreatureCard } from "../../cards/CreatureCard";
-import { MagicCard } from "../../cards/MagicCard";
+import { ActionCard } from "../../cards/ActionCard";
 import { CardType, Affinity, Rarity } from "../../cards/types";
 
 function createCreatureCard(id: string, cost: number) {
@@ -26,12 +26,12 @@ function createCreatureCard(id: string, cost: number) {
   });
 }
 
-function createMagicCard(id: string, cost: number) {
-  return new MagicCard({
+function createActionCard(id: string, cost: number) {
+  return new ActionCard({
     id,
-    name: `Magic ${id}`,
-    type: CardType.Magic,
-    description: "Test magic card",
+    name: `Action ${id}`,
+    type: CardType.Action,
+    description: "Test action card",
     cost,
     affinity: Affinity.Water,
     rarity: Rarity.Common,
@@ -120,8 +120,8 @@ describe("DeckValidator Integration Tests", () => {
     it("works with different card types", () => {
       const deck = [
         createCreatureCard("creature", 2),
-        createMagicCard("support", 3),
-        createMagicCard("action", 4),
+        createActionCard("support", 3),
+        createActionCard("action", 4),
       ];
 
       const totalCost = calculateDeckCost(deck);

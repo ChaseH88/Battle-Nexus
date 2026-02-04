@@ -1,7 +1,7 @@
 import { GameState, getOpponentIndex } from "./GameState";
 import { BattleEngine } from "./BattleEngine";
 import { CreatureCard } from "../cards/CreatureCard";
-import { MagicCard } from "../cards/MagicCard";
+import { ActionCard } from "../cards/ActionCard";
 import { TrapCard } from "../cards/TrapCard";
 import { CardType } from "../cards/types";
 import { effectsRegistry } from "../effects/registry";
@@ -198,8 +198,8 @@ export class AIPlayer {
   private async playSpells(state: GameState): Promise<void> {
     const player = state.players[this.playerIndex];
     const spells = player.hand.filter(
-      (c) => c?.type === CardType.Magic,
-    ) as MagicCard[];
+      (c) => c?.type === CardType.Action,
+    ) as ActionCard[];
 
     const emptySlots = player.support
       .map((c, i) => (c === null ? i : -1))
@@ -234,7 +234,7 @@ export class AIPlayer {
       const card = player.support[i];
       if (!card) continue;
 
-      const spellCard = card as MagicCard | TrapCard;
+      const spellCard = card as ActionCard | TrapCard;
       if (spellCard.isActive) continue;
       if (!spellCard.isFaceDown) continue; // Only activate face-down cards
 
@@ -301,7 +301,7 @@ export class AIPlayer {
    */
   public shouldActivateTrap(
     state: GameState,
-    trapCard: MagicCard,
+    trapCard: ActionCard,
     _attackerLane: number,
     _targetLane: number,
   ): boolean {
