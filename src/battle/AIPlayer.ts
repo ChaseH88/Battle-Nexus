@@ -1,8 +1,7 @@
 import { GameState, getOpponentIndex } from "./GameState";
 import { BattleEngine } from "./BattleEngine";
 import { CreatureCard } from "../cards/CreatureCard";
-import { SupportCard } from "../cards/SupportCard";
-import { ActionCard } from "../cards/ActionCard";
+import { MagicCard } from "../cards/MagicCard";
 import { TrapCard } from "../cards/TrapCard";
 import { CardType } from "../cards/types";
 import { effectsRegistry } from "../effects/registry";
@@ -20,11 +19,11 @@ export class AIPlayer {
   private trapActivationCallback?: (
     defenderIndex: 0 | 1,
     attackerLane: number,
-    targetLane: number
+    targetLane: number,
   ) => Promise<boolean>;
   private attackAnimationCallback?: (
     attackerLane: number,
-    targetLane: number | null
+    targetLane: number | null,
   ) => Promise<void>;
 
   constructor(
@@ -34,12 +33,12 @@ export class AIPlayer {
     trapActivationCallback?: (
       defenderIndex: 0 | 1,
       attackerLane: number,
-      targetLane: number
+      targetLane: number,
     ) => Promise<boolean>,
     attackAnimationCallback?: (
       attackerLane: number,
-      targetLane: number | null
-    ) => Promise<void>
+      targetLane: number | null,
+    ) => Promise<void>,
   ) {
     this.skillLevel = Math.max(1, Math.min(10, config.skillLevel)); // Clamp 1-10
     this.playerIndex = config.playerIndex;
@@ -111,7 +110,7 @@ export class AIPlayer {
   private async playCreatures(state: GameState): Promise<void> {
     const player = state.players[this.playerIndex];
     const creatures = player.hand.filter(
-      (c) => c?.type === CardType.Creature
+      (c) => c?.type === CardType.Creature,
     ) as CreatureCard[];
 
     for (const creature of creatures) {
@@ -145,7 +144,7 @@ export class AIPlayer {
   private chooseLaneForCreature(
     state: GameState,
     creature: CreatureCard,
-    emptyLanes: number[]
+    emptyLanes: number[],
   ): number {
     const opponent = state.players[getOpponentIndex(this.playerIndex)];
 
@@ -199,8 +198,8 @@ export class AIPlayer {
   private async playSpells(state: GameState): Promise<void> {
     const player = state.players[this.playerIndex];
     const spells = player.hand.filter(
-      (c) => c?.type === CardType.Support || c?.type === CardType.Action
-    ) as (SupportCard | ActionCard)[];
+      (c) => c?.type === CardType.Magic,
+    ) as MagicCard[];
 
     const emptySlots = player.support
       .map((c, i) => (c === null ? i : -1))
@@ -235,7 +234,7 @@ export class AIPlayer {
       const card = player.support[i];
       if (!card) continue;
 
-      const spellCard = card as SupportCard | ActionCard | TrapCard;
+      const spellCard = card as MagicCard | TrapCard;
       if (spellCard.isActive) continue;
       if (!spellCard.isFaceDown) continue; // Only activate face-down cards
 
@@ -302,9 +301,9 @@ export class AIPlayer {
    */
   public shouldActivateTrap(
     state: GameState,
-    trapCard: SupportCard | ActionCard,
+    trapCard: MagicCard,
     _attackerLane: number,
-    _targetLane: number
+    _targetLane: number,
   ): boolean {
     const player = state.players[this.playerIndex];
     const opponent = state.players[getOpponentIndex(this.playerIndex)];
@@ -319,7 +318,7 @@ export class AIPlayer {
     if (effectDef.id === "mirror_force") {
       // Count opponent's attack-mode creatures
       const attackModeCount = opponent.lanes.filter(
-        (c) => c && (c as CreatureCard).mode === "ATTACK"
+        (c) => c && (c as CreatureCard).mode === "ATTACK",
       ).length;
 
       // Skill 1-3: Rarely activate (don't understand value)
@@ -367,7 +366,7 @@ export class AIPlayer {
           const trapActivated = await this.trapActivationCallback(
             defenderIndex,
             laneIndex,
-            target
+            target,
           );
           // If trap was activated, state may have changed
           if (trapActivated) {
@@ -397,7 +396,7 @@ export class AIPlayer {
    */
   private chooseAttackTarget(
     state: GameState,
-    attackerLane: number
+    attackerLane: number,
   ): number | null {
     const player = state.players[this.playerIndex];
     const opponent = state.players[getOpponentIndex(this.playerIndex)];
@@ -586,7 +585,7 @@ export class AIPlayer {
             // Calculate if we could win the battle
             const damageToThem = Math.max(
               0,
-              creature.atk - opponentCreature.def
+              creature.atk - opponentCreature.def,
             );
             const wouldDestroyThem = damageToThem >= opponentCreature.currentHp;
             const wouldSurvive =

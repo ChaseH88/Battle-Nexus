@@ -1,8 +1,7 @@
 import cards from "@static/card-data/bn-core.json";
 import { CardInterface, CardType } from "@cards/types";
 import { CreatureCard } from "@cards/CreatureCard";
-import { ActionCard } from "@cards/ActionCard";
-import { SupportCard } from "@cards/SupportCard";
+import { MagicCard } from "@cards/MagicCard";
 import { TrapCard } from "@cards/TrapCard";
 import { BattleEngine } from "@battle/BattleEngine";
 import { createPlayerState } from "@battle/PlayerState";
@@ -16,10 +15,8 @@ export function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
     case CardType.Creature:
       return new CreatureCard(raw);
-    case CardType.Action:
-      return new ActionCard(raw);
-    case CardType.Support:
-      return new SupportCard(raw);
+    case CardType.Magic:
+      return new MagicCard(raw);
     case CardType.Trap:
       return new TrapCard(raw);
     default:
@@ -80,34 +77,18 @@ export function createTestCreature(overrides: Partial<any> = {}): CreatureCard {
 }
 
 /**
- * Helper to create a test support card
+ * Helper to create a test magic card (formerly support/action)
  */
-export function createTestSupport(overrides: Partial<any> = {}): SupportCard {
+export function createTestMagic(overrides: Partial<any> = {}): MagicCard {
   return cardFactory({
-    id: "test_support",
-    type: CardType.Support,
-    name: "Test Support",
+    id: "test_magic",
+    type: CardType.Magic,
+    name: "Test Magic",
     effectId: "draw_on_play",
     cost: 1,
     rarity: "Common",
     ...overrides,
-  }) as SupportCard;
-}
-
-/**
- * Helper to create a test action card
- */
-export function createTestAction(overrides: Partial<any> = {}): ActionCard {
-  return cardFactory({
-    id: "test_action",
-    type: CardType.Action,
-    name: "Test Action",
-    effectId: "draw_on_play",
-    effectType: "ONE_TIME",
-    cost: 1,
-    rarity: "Common",
-    ...overrides,
-  }) as ActionCard;
+  }) as MagicCard;
 }
 
 /**
@@ -145,9 +126,9 @@ export function playSupportInSlot(
   engine: BattleEngine,
   playerIndex: 0 | 1,
   slot: number,
-  support?: SupportCard | ActionCard,
-): SupportCard | ActionCard {
-  const card = support || createTestSupport({ id: `support_${Date.now()}` });
+  support?: MagicCard,
+): MagicCard {
+  const card = support || createTestMagic({ id: `support_${Date.now()}` });
   addCardToHand(engine, playerIndex, card);
   engine.playSupport(playerIndex, slot, card.id);
   return card;

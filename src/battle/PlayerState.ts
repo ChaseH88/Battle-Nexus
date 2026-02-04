@@ -1,7 +1,7 @@
 import { CardInterface } from "../cards";
 import { CreatureCard } from "../cards/CreatureCard";
-import { SupportCard } from "../cards/SupportCard";
-import { ActionCard } from "../cards/ActionCard";
+import { MagicCard } from "../cards/MagicCard";
+import { TrapCard } from "../cards/TrapCard";
 
 export interface PlayerState {
   id: string;
@@ -13,7 +13,7 @@ export interface PlayerState {
   maxDeck: CardInterface[]; // MAX cards (max 10, never drawn, always visible)
 
   lanes: Array<CreatureCard | null>; // 3 creature lanes
-  support: Array<SupportCard | ActionCard | null>; // 3 support lanes
+  support: Array<MagicCard | TrapCard | null>; // 3 support lanes
 
   discardPile: CardInterface[];
   removedFromGame: CardInterface[]; // MAX cards go here when they leave play
@@ -22,7 +22,7 @@ export interface PlayerState {
 export function createPlayerState(
   id: string,
   deck: CardInterface[],
-  maxDeck: CardInterface[] = []
+  maxDeck: CardInterface[] = [],
 ): PlayerState {
   return {
     id,

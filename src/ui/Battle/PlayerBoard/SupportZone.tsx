@@ -1,4 +1,4 @@
-import { ActionCard, CardType, SupportCard, TrapCard } from "../../../cards";
+import { CardType, MagicCard, TrapCard } from "../../../cards";
 import { PlayerState } from "../../../battle/PlayerState";
 import { Card } from "../Card";
 import { motion } from "framer-motion";
@@ -42,8 +42,7 @@ export const SupportZone = ({
             draggedCardId &&
             !card &&
             draggedCard &&
-            (draggedCard.type === CardType.Support ||
-              draggedCard.type === CardType.Action ||
+            (draggedCard.type === CardType.Magic ||
               draggedCard.type === CardType.Trap);
 
           return (
@@ -81,14 +80,10 @@ export const SupportZone = ({
                       !isOpponent && card
                         ? () => {
                             if (
-                              card.type === CardType.Support ||
-                              card.type === CardType.Action ||
+                              card.type === CardType.Magic ||
                               card.type === CardType.Trap
                             ) {
-                              const spellCard = card as
-                                | SupportCard
-                                | ActionCard
-                                | TrapCard;
+                              const spellCard = card as MagicCard | TrapCard;
                               if (!spellCard.isActive && onActivateSupport) {
                                 const element = cardRefs.current[i];
                                 if (element) {
@@ -108,11 +103,10 @@ export const SupportZone = ({
                     canActivate={
                       !isOpponent &&
                       card !== null &&
-                      (card.type === CardType.Support ||
-                        card.type === CardType.Action ||
+                      (card.type === CardType.Magic ||
                         card.type === CardType.Trap) &&
                       (card.isFaceDown ||
-                        !(card as SupportCard | ActionCard | TrapCard).isActive)
+                        !(card as MagicCard | TrapCard).isActive)
                     }
                   />
                 </div>
@@ -123,10 +117,9 @@ export const SupportZone = ({
                   onPlaySupport &&
                   (() => {
                     const handCard = player.hand.find(
-                      (c) => c.id === selectedHandCard
+                      (c) => c.id === selectedHandCard,
                     );
-                    return handCard?.type === CardType.Support ||
-                      handCard?.type === CardType.Action ||
+                    return handCard?.type === CardType.Magic ||
                       handCard?.type === CardType.Trap ? (
                       <SupportActions>
                         <FaceDownButton onClick={() => onPlaySupport(i)}>

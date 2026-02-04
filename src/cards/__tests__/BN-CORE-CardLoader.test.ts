@@ -1,8 +1,7 @@
 import bnCoreCardData from "../../static/card-data/bn-core.json";
 import { CardType } from "../types";
 import { CreatureCard } from "../CreatureCard";
-import { ActionCard } from "../ActionCard";
-import { SupportCard } from "../SupportCard";
+import { MagicCard } from "../MagicCard";
 import { TrapCard } from "../TrapCard";
 
 type RawCard = any; // you can tighten this later
@@ -11,10 +10,8 @@ function createCardFromJson(raw: RawCard) {
   switch (raw.type as CardType) {
     case CardType.Creature:
       return new CreatureCard(raw);
-    case CardType.Action:
-      return new ActionCard(raw);
-    case CardType.Support:
-      return new SupportCard(raw);
+    case CardType.Magic:
+      return new MagicCard(raw);
     case CardType.Trap:
       return new TrapCard(raw);
     default:
@@ -34,7 +31,7 @@ describe("cards.json loader", () => {
     const igniteBurst = instances.find((c) => c.id === "ignite_burst");
 
     expect(emberCub).toBeInstanceOf(CreatureCard);
-    expect(igniteBurst).toBeInstanceOf(SupportCard);
+    expect(igniteBurst).toBeInstanceOf(MagicCard);
   });
 
   it("preserves important fields from JSON", () => {

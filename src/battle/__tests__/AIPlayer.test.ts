@@ -1,7 +1,7 @@
 import { AIPlayer } from "../AIPlayer";
 import {
   createTestGameWithAI,
-  createTestSupport,
+  createTestMagic,
   playCreatureInLane,
   playSupportInSlot,
   enterMainPhase,
@@ -22,7 +22,7 @@ describe("AIPlayer", () => {
         playCreatureInLane(engine, 0, 1, undefined, false, "ATTACK");
         playCreatureInLane(engine, 0, 2, undefined, false, "ATTACK");
 
-        const mirrorForce = createTestSupport({
+        const mirrorForce = createTestMagic({
           id: "mirror_force_test",
           effectId: "mirror_force",
           effectType: "ONE_TIME",
@@ -52,7 +52,7 @@ describe("AIPlayer", () => {
         // Scenario 1: Only 1 attack-mode creature
         playCreatureInLane(engine, 0, 0, undefined, false, "ATTACK");
 
-        const mirrorForce = createTestSupport({
+        const mirrorForce = createTestMagic({
           id: "mirror_force_test",
           effectId: "mirror_force",
           effectType: "ONE_TIME",
@@ -75,7 +75,7 @@ describe("AIPlayer", () => {
 
         enterMainPhase(engine);
 
-        const mirrorForce = createTestSupport({
+        const mirrorForce = createTestMagic({
           id: "mirror_force_test",
           effectId: "mirror_force",
           effectType: "ONE_TIME",
@@ -109,7 +109,7 @@ describe("AIPlayer", () => {
 
         enterMainPhase(engine);
 
-        const mirrorForce = createTestSupport({
+        const mirrorForce = createTestMagic({
           id: "mirror_force_test",
           effectId: "mirror_force",
           effectType: "ONE_TIME",
@@ -143,7 +143,7 @@ describe("AIPlayer", () => {
         playCreatureInLane(engine, 0, 1, undefined, false, "DEFENSE");
         playCreatureInLane(engine, 0, 2, undefined, false, "DEFENSE");
 
-        const mirrorForce = createTestSupport({
+        const mirrorForce = createTestMagic({
           id: "mirror_force_test",
           effectId: "mirror_force",
           effectType: "ONE_TIME",
@@ -167,7 +167,7 @@ describe("AIPlayer", () => {
         playCreatureInLane(engine, 0, 1, undefined, false, "DEFENSE");
         playCreatureInLane(engine, 0, 2, undefined, false, "ATTACK");
 
-        const mirrorForce = createTestSupport({
+        const mirrorForce = createTestMagic({
           id: "mirror_force_test",
           effectId: "mirror_force",
           effectType: "ONE_TIME",
@@ -181,7 +181,7 @@ describe("AIPlayer", () => {
     it("returns false for unknown trap effects", () => {
       const { game, ai } = createTestGameWithAI(10);
 
-      const unknownTrap = createTestSupport({
+      const unknownTrap = createTestMagic({
         id: "unknown_trap",
         effectId: "nonexistent_effect",
         effectType: "ONE_TIME",
@@ -193,7 +193,7 @@ describe("AIPlayer", () => {
     it("returns false for traps without effectId", () => {
       const { game, ai } = createTestGameWithAI(10);
 
-      const noEffectTrap = createTestSupport({
+      const noEffectTrap = createTestMagic({
         id: "no_effect_trap",
         effectId: undefined,
         effectType: "ONE_TIME",
@@ -214,7 +214,7 @@ describe("AIPlayer", () => {
       enterMainPhase(engine);
 
       // Play Mirror Force face-down
-      const mirrorForce = createTestSupport({
+      const mirrorForce = createTestMagic({
         id: "mirror_force_test",
         effectId: "mirror_force",
         effectType: "ONE_TIME",
@@ -242,7 +242,7 @@ describe("AIPlayer", () => {
       enterMainPhase(engine);
 
       // Play a regular support card
-      const regularSupport = createTestSupport({
+      const regularSupport = createTestMagic({
         id: "regular_support",
         effectId: "draw_on_play",
         effectType: "ONE_TIME",
@@ -293,7 +293,7 @@ describe("AIPlayer", () => {
       game.players[0].momentum = 10;
       game.players[1].momentum = 10;
 
-      const mirrorForce = createTestSupport({
+      const mirrorForce = createTestMagic({
         id: "mirror_force_test",
         effectId: "mirror_force",
         effectType: "ONE_TIME",
@@ -316,7 +316,7 @@ describe("AIPlayer", () => {
 
       enterMainPhase(engine);
 
-      const mirrorForce = createTestSupport({
+      const mirrorForce = createTestMagic({
         id: "mirror_force_test2",
         effectId: "mirror_force",
         effectType: "ONE_TIME",
@@ -342,7 +342,7 @@ describe("AIPlayer", () => {
         playCreatureInLane(engine, 0, i, undefined, false, "ATTACK");
       }
 
-      const mirrorForce = createTestSupport({
+      const mirrorForce = createTestMagic({
         id: "mirror_force_test",
         effectId: "mirror_force",
         effectType: "ONE_TIME",

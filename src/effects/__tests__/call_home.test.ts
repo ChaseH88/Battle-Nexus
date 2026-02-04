@@ -6,7 +6,7 @@ import { CreatureCard } from "@cards/CreatureCard";
 import { CardType, Affinity } from "@cards/types";
 import { callHomeHandler } from "../effect/call_home";
 import { createEffectUtils } from "../handler";
-import { createTestCreature, createTestAction } from "@/__tests__/testUtils";
+import { createTestCreature, createTestMagic } from "@/__tests__/testUtils";
 
 describe("Call Home Effect", () => {
   let engine: BattleEngine;
@@ -44,7 +44,7 @@ describe("Call Home Effect", () => {
       hp: 30,
     });
 
-    const callHomeCard = createTestAction({
+    const callHomeCard = createTestMagic({
       id: "call_home_action",
       name: "Call Home",
       effectId: "call_home",
@@ -191,7 +191,7 @@ describe("Call Home Effect", () => {
     const supportCard = {
       id: "support1",
       name: "Test Support",
-      type: CardType.Support,
+      type: CardType.Magic,
       isActive: true,
       isFaceDown: false,
       targetPlayerIndex: 0 as 0 | 1,

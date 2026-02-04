@@ -1,7 +1,7 @@
 import { CardInterface } from "../cards";
 import { CreatureCard } from "../cards/CreatureCard";
-import { SupportCard } from "../cards/SupportCard";
-import { ActionCard } from "../cards/ActionCard";
+import { MagicCard } from "../cards/MagicCard";
+import { TrapCard } from "../cards/TrapCard";
 import { GameState } from "./GameState";
 import {
   Zone,
@@ -22,7 +22,7 @@ export function moveCard(
   from: Zone,
   to: Zone,
   cardId: string,
-  options: MoveOptions = {}
+  options: MoveOptions = {},
 ): CardInterface | null {
   const player = state.players[playerIndex];
 
@@ -110,7 +110,7 @@ export function moveCard(
       const slot = options.toLane ?? supportIndexFromZone(to);
       if (player.support[slot] !== null)
         throw new Error(`Support ${slot} occupied`);
-      player.support[slot] = card as SupportCard | ActionCard;
+      player.support[slot] = card as MagicCard | TrapCard;
       return;
     }
 

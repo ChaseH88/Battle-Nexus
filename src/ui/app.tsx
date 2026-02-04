@@ -477,8 +477,8 @@ export default function App() {
     if (!selectedHandCard) return;
     const card = player1.hand.find((c) => c.id === selectedHandCard);
     if (
-      card?.type === CardType.Support ||
-      card?.type === CardType.Action ||
+      card?.type === CardType.Magic ||
+      card?.type === CardType.Magic ||
       card?.type === CardType.Trap
     ) {
       const success = playSupport(
@@ -1015,8 +1015,8 @@ export default function App() {
                   dropZone.getAttribute("data-drop-support")!,
                 );
                 if (
-                  card.type === CardType.Support ||
-                  card.type === CardType.Action ||
+                  card.type === CardType.Magic ||
+                  card.type === CardType.Magic ||
                   card.type === CardType.Trap
                 ) {
                   handlePlaySupport(slot);

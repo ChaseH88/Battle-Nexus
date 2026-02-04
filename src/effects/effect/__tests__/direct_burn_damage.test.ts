@@ -14,7 +14,7 @@ describe("Effect: direct_burn_damage", () => {
     const initialLP = p2.lifePoints;
     const testCard = cardFactory({
       id: "blazing_strike",
-      type: CardType.Action,
+      type: CardType.Magic,
       name: "Blazing Strike",
     });
 
@@ -51,7 +51,7 @@ describe("Effect: direct_burn_damage", () => {
 
     const testCard = cardFactory({
       id: "blazing_strike",
-      type: CardType.Action,
+      type: CardType.Magic,
       name: "Blazing Strike",
     });
 
@@ -88,7 +88,7 @@ describe("Effect: direct_burn_damage", () => {
 
     const testCard = cardFactory({
       id: "blazing_strike",
-      type: CardType.Action,
+      type: CardType.Magic,
       name: "Blazing Strike",
     });
 
@@ -125,7 +125,7 @@ describe("Effect: direct_burn_damage", () => {
 
     const testCard = cardFactory({
       id: "blazing_strike",
-      type: CardType.Action,
+      type: CardType.Magic,
       name: "Blazing Strike",
     });
 
@@ -173,7 +173,7 @@ describe("Effect: direct_burn_damage", () => {
 
     const testCard = cardFactory({
       id: "blazing_strike",
-      type: CardType.Action,
+      type: CardType.Magic,
       name: "Blazing Strike",
     });
 
@@ -221,7 +221,7 @@ describe("Effect: direct_burn_damage", () => {
 
     const testCard = cardFactory({
       id: "blazing_strike",
-      type: CardType.Action,
+      type: CardType.Magic,
       name: "Blazing Strike",
     });
 
@@ -244,7 +244,7 @@ describe("Effect: direct_burn_damage", () => {
 
     const testCard = cardFactory({
       id: "blazing_strike",
-      type: CardType.Action,
+      type: CardType.Magic,
       name: "Blazing Strike",
     });
 

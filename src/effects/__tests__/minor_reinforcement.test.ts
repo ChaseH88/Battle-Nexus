@@ -4,7 +4,7 @@ import { GameState, createGameState } from "@battle/GameState";
 import { createPlayerState } from "@battle/PlayerState";
 import { minor_reinforcement } from "../effect/minor_reinforcement";
 import { createEffectUtils, EffectContext } from "../handler";
-import { createTestAction, createTestCreature } from "@/__tests__/testUtils";
+import { createTestMagic, createTestCreature } from "@/__tests__/testUtils";
 import { CreatureCard } from "@cards/CreatureCard";
 
 describe("Minor Reinforcement Effect", () => {
@@ -13,7 +13,7 @@ describe("Minor Reinforcement Effect", () => {
   let targetCreature: CreatureCard;
 
   beforeEach(() => {
-    const minorReinforcementCard = createTestAction({
+    const minorReinforcementCard = createTestMagic({
       id: "minor_reinforcement_action",
       name: "Minor Reinforcement",
       effectId: "minor_reinforcement",

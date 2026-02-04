@@ -3,7 +3,7 @@ import { createGameState } from "@battle/GameState";
 import { BattleEngine } from "@battle/BattleEngine";
 import { CardType } from "@cards/types";
 import { CreatureCard } from "@cards/CreatureCard";
-import { SupportCard } from "@cards/SupportCard";
+import { MagicCard } from "@cards/MagicCard";
 import {
   drawMany,
   createTestDeck1,
@@ -67,16 +67,16 @@ describe("BattleEngine – Edge Cases", () => {
 
     // Fill all 3 support slots
     const supports = p1.hand.filter(
-      (c) => c.type === CardType.Support
-    ) as SupportCard[];
+      (c) => c.type === CardType.Magic,
+    ) as MagicCard[];
     for (let i = 0; i < 3 && i < supports.length; i++) {
       engine.playSupport(0, i, supports[i].id);
     }
 
     // Try to play to occupied slot
     const extraSupport = p1.hand.find(
-      (c) => c.type === CardType.Support
-    ) as SupportCard;
+      (c) => c.type === CardType.Magic,
+    ) as MagicCard;
     if (extraSupport) {
       const handSize = p1.hand.length;
       engine.playSupport(0, 0, extraSupport.id);

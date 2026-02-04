@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { CardInterface, CardType } from "../cards/types";
 import { CreatureCard } from "../cards/CreatureCard";
-import { ActionCard } from "../cards/ActionCard";
-import { SupportCard } from "../cards/SupportCard";
+import { MagicCard } from "../cards/MagicCard";
 import { TrapCard } from "../cards/TrapCard";
 import cardsData from "../static/card-data/bn-core.json";
 import {
@@ -15,10 +14,8 @@ function cardFactory(raw: any): CardInterface {
   switch (raw.type) {
     case CardType.Creature:
       return new CreatureCard(raw);
-    case CardType.Action:
-      return new ActionCard(raw);
-    case CardType.Support:
-      return new SupportCard(raw);
+    case CardType.Magic:
+      return new MagicCard(raw);
     case CardType.Trap:
       return new TrapCard(raw);
     default:

@@ -7,8 +7,7 @@ import {
   DECK_RULES,
 } from "../../cards/DeckValidator";
 import { CreatureCard } from "../../cards/CreatureCard";
-import { SupportCard } from "../../cards/SupportCard";
-import { ActionCard } from "../../cards/ActionCard";
+import { MagicCard } from "../../cards/MagicCard";
 import { CardType, Affinity, Rarity } from "../../cards/types";
 
 function createCreatureCard(id: string, cost: number) {
@@ -27,32 +26,17 @@ function createCreatureCard(id: string, cost: number) {
   });
 }
 
-function createSupportCard(id: string, cost: number) {
-  return new SupportCard({
+function createMagicCard(id: string, cost: number) {
+  return new MagicCard({
     id,
-    name: `Support ${id}`,
-    type: CardType.Support,
-    description: "Test support",
+    name: `Magic ${id}`,
+    type: CardType.Magic,
+    description: "Test magic card",
     cost,
     affinity: Affinity.Water,
     rarity: Rarity.Common,
     set: "Base",
     effectId: "test_effect",
-  });
-}
-
-function createActionCard(id: string, cost: number) {
-  return new ActionCard({
-    id,
-    name: `Action ${id}`,
-    type: CardType.Action,
-    description: "Test action",
-    cost,
-    affinity: Affinity.Grass,
-    rarity: Rarity.Common,
-    set: "Base",
-    effectId: "test_effect",
-    speed: "NORMAL",
   });
 }
 
@@ -136,8 +120,8 @@ describe("DeckValidator Integration Tests", () => {
     it("works with different card types", () => {
       const deck = [
         createCreatureCard("creature", 2),
-        createSupportCard("support", 3),
-        createActionCard("action", 4),
+        createMagicCard("support", 3),
+        createMagicCard("action", 4),
       ];
 
       const totalCost = calculateDeckCost(deck);

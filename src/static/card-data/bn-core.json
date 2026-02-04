@@ -187,7 +187,7 @@
   },
   {
     "id": "ignite_burst",
-    "type": "SUPPORT",
+    "type": "MAGIC",
     "name": "Ignite Burst",
     "description": "Support: Choose an allied Fire creature. That creature gains +20 ATK while this support remains on the field.",
     "cost": 1,
@@ -197,7 +197,7 @@
   },
   {
     "id": "purge_beacon",
-    "type": "SUPPORT",
+    "type": "MAGIC",
     "name": "Purge Beacon",
     "description": "Support: When activated, remove one card from an opponent's support slot. Can be played face-down but can only be activated if an opponent has at least one support.",
     "cost": 3,
@@ -207,7 +207,7 @@
   },
   {
     "id": "flame_aura",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Flame Aura",
     "description": "All Fire creatures you control gain +10 ATK while this card remains in play.",
     "cost": 3,
@@ -218,7 +218,7 @@
   },
   {
     "id": "card_draw_spell",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Card Draw Spell",
     "description": "Draw 1 card.",
     "cost": 1,
@@ -230,7 +230,7 @@
   },
   {
     "id": "card_draw_spell_plus",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Card Draw Spell +",
     "description": "Draw 2 cards.",
     "cost": 2,
@@ -242,7 +242,7 @@
   },
   {
     "id": "card_draw_spell_plus_plus",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Card Draw Spell ++",
     "description": "Draw 3 cards.",
     "cost": 3,
@@ -254,7 +254,7 @@
   },
   {
     "id": "blazing_strike",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Blazing Strike",
     "description": "Deal 30 damage directly to your opponent. If you control a Fire creature, deal 50 damage instead.",
     "cost": 3,
@@ -276,7 +276,7 @@
   },
   {
     "id": "quick_assessment",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Quick Assessment",
     "description": "Draw 1 card. If you control no creatures, draw 2 instead.",
     "cost": 1,
@@ -288,7 +288,7 @@
   },
   {
     "id": "minor_reinforcement",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Minor Reinforcement",
     "description": "Target one of your creatures. That creature gains +20 HP.",
     "cost": 1,
@@ -299,7 +299,7 @@
   },
   {
     "id": "call_home",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Call Home",
     "description": "Return one of your creatures to your hand.",
     "cost": 1,
@@ -311,7 +311,7 @@
   },
   {
     "id": "flame_spark",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Flame Spark",
     "description": "Deal 20 damage to a creature. If you control a Fire creature, deal 30 instead.",
     "cost": 1,
@@ -322,7 +322,7 @@
   },
   {
     "id": "combat_readiness",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Combat Readiness",
     "description": "Target creature gains +30 ATK.",
     "cost": 1,
@@ -333,7 +333,7 @@
   },
   {
     "id": "guard_protocol",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Guard Protocol",
     "description": "Target creature gains +30 DEF.",
     "cost": 1,
@@ -344,7 +344,7 @@
   },
   {
     "id": "power_surge",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Power Surge",
     "description": "Gain 3 momentum.",
     "cost": 1,
@@ -355,7 +355,7 @@
   },
   {
     "id": "blazing_path",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Blazing Path",
     "description": "Destroy an enemy creature with 50 HP or less.",
     "cost": 3,
@@ -366,7 +366,7 @@
   },
   {
     "id": "tidal_collapse",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Tidal Collapse",
     "description": "Deal 40 damage to all enemy creatures.",
     "cost": 3,
@@ -377,7 +377,7 @@
   },
   {
     "id": "heal_pulse",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Heal Pulse",
     "description": "Heal all your creatures for 30 HP.",
     "cost": 3,
@@ -388,7 +388,7 @@
   },
   {
     "id": "radiant_break",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Radiant Break",
     "description": "Remove all ATK and DEF bonuses from enemy creatures.",
     "cost": 3,
@@ -399,7 +399,7 @@
   },
   {
     "id": "shadow_bargain",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Shadow Bargain",
     "description": "Lose 30 HP from one of your creatures. Draw 2 cards.",
     "cost": 3,
@@ -410,7 +410,7 @@
   },
   {
     "id": "fusion_drive",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Fusion Drive",
     "description": "Gain 2 momentum. This card's cost does not reduce your momentum.",
     "cost": 3,
@@ -422,7 +422,7 @@
   },
   {
     "id": "inferno_detonation",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Inferno Detonation",
     "description": "Deal 80 damage to all creatures.",
     "cost": 4,
@@ -433,7 +433,7 @@
   },
   {
     "id": "absolute_severance",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Absolute Severance",
     "description": "Destroy target creature. Your opponent loses 3 momentum.",
     "cost": 4,
@@ -444,7 +444,7 @@
   },
   {
     "id": "momentum_overload",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Momentum Overload",
     "description": "Gain 3 momentum. End your turn.",
     "cost": 4,
@@ -455,7 +455,7 @@
   },
   {
     "id": "cull_the_weak",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Cull the Weak",
     "description": "Destroy all enemy creatures with 50 HP or less.",
     "cost": 4,
@@ -466,7 +466,7 @@
   },
   {
     "id": "final_accord",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Final Accord",
     "description": "End all ongoing effects currently in play.",
     "cost": 4,
@@ -477,7 +477,7 @@
   },
   {
     "id": "cataclysmic_blast",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Cataclysmic Blast",
     "description": "Deal 100 damage to enemy creatures.",
     "cost": 5,
@@ -489,7 +489,7 @@
   },
   {
     "id": "ethereal_rebirth",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Ethereal Rebirth",
     "description": "Return all your creatures from the discard pile to your hand.",
     "cost": 5,
@@ -501,7 +501,7 @@
   },
   {
     "id": "temporal_stasis",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Temporal Stasis",
     "description": "Your opponent cannot attack next turn. You gain 3 momentum.",
     "cost": 5,
@@ -513,7 +513,7 @@
   },
   {
     "id": "ultimate_sacrifice",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Ultimate Sacrifice",
     "description": "Destroy all of your creatures. Gain 10 momentum.",
     "cost": 5,
@@ -524,7 +524,7 @@
   },
   {
     "id": "maximum_output",
-    "type": "ACTION",
+    "type": "MAGIC",
     "name": "Maximum Output",
     "description": "Consume all momentum. A target creature gains +10 ATK for each momentum consumed.",
     "cost": 3,

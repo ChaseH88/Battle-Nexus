@@ -1,5 +1,5 @@
 import { CardType } from "@cards/types";
-import { SupportCard } from "@cards/SupportCard";
+import { MagicCard } from "@cards/MagicCard";
 import { purge_opponent_support } from "@effects/effect/purge_opponent_support";
 import { createEffectUtils } from "@effects/handler";
 import { createTestGame, drawMany, testDeck1 } from "@/__tests__/testUtils";
@@ -19,7 +19,7 @@ describe("Effect: purge_opponent_support", () => {
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);
 
-    const supportCard = p2.hand.find((c) => c.type === CardType.Support);
+    const supportCard = p2.hand.find((c) => c.type === CardType.Magic);
 
     if (supportCard) {
       // Play support card for opponent
@@ -54,7 +54,7 @@ describe("Effect: purge_opponent_support", () => {
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);
 
-    const supportCard = p2.hand.find((c) => c.type === CardType.Support);
+    const supportCard = p2.hand.find((c) => c.type === CardType.Magic);
 
     if (supportCard) {
       engine.playSupport(1, 0, supportCard.id);
@@ -89,8 +89,8 @@ describe("Effect: purge_opponent_support", () => {
     drawMany(engine, 1, 15);
 
     const supportCards = p2.hand.filter(
-      (c) => c.type === CardType.Support
-    ) as SupportCard[];
+      (c) => c.type === CardType.Magic,
+    ) as MagicCard[];
 
     if (supportCards.length >= 2) {
       engine.playSupport(1, 0, supportCards[0].id);
@@ -126,8 +126,8 @@ describe("Effect: purge_opponent_support", () => {
     drawMany(engine, 1, 15);
 
     const supportCards = p2.hand.filter(
-      (c) => c.type === CardType.Support
-    ) as SupportCard[];
+      (c) => c.type === CardType.Magic,
+    ) as MagicCard[];
 
     if (supportCards.length >= 1) {
       // Play support in slot 1 (leaving slot 0 empty)
@@ -181,7 +181,7 @@ describe("Effect: purge_opponent_support", () => {
     drawMany(engine, 0, 10);
     drawMany(engine, 1, 10);
 
-    const supportCard = p2.hand.find((c) => c.type === CardType.Support);
+    const supportCard = p2.hand.find((c) => c.type === CardType.Magic);
 
     if (supportCard) {
       engine.playSupport(1, 0, supportCard.id);

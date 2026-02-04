@@ -1,9 +1,7 @@
 import { CardInterface, CardType } from "../../../cards/types";
 import { Creature } from "./Creature";
 import { Support } from "./Support";
-import { Action } from "./Action";
-import { SupportCard } from "../../../cards/SupportCard";
-import { ActionCard } from "../../../cards/ActionCard";
+import { MagicCard } from "../../../cards/MagicCard";
 import { TrapCard } from "../../../cards/TrapCard";
 import { Back } from "./Back";
 import { CreatureCard } from "../../../cards";
@@ -76,12 +74,10 @@ export const Card = ({
   }
 
   const isCreature = card.type === CardType.Creature;
-  const isSupport = card.type === CardType.Support;
-  const isAction = card.type === CardType.Action;
+  const isMagic = card.type === CardType.Magic;
   const isTrap = card.type === CardType.Trap;
   const creature = isCreature ? (card as CreatureCard) : null;
-  const support = isSupport ? (card as SupportCard) : null;
-  const action = isAction ? (card as ActionCard) : null;
+  const magic = isMagic ? (card as MagicCard) : null;
   const trap = isTrap ? (card as TrapCard) : null;
 
   // Show creature face-down if it has isFaceDown property set
@@ -89,23 +85,15 @@ export const Card = ({
     return <Back onClick={onClick} type="creature" />;
   }
 
-  // Show support/action/trap face-down if isFaceDown is true
-  if (
-    (support && support.isFaceDown) ||
-    (action && action.isFaceDown) ||
-    (trap && trap.isFaceDown)
-  ) {
-    const backType = support ? "support" : action ? "action" : "trap";
+  // Show magic/trap face-down if isFaceDown is true
+  if ((magic && magic.isFaceDown) || (trap && trap.isFaceDown)) {
+    const backType = magic ? "magic" : "trap";
     return <Back onClick={onClick} type={backType} />;
   }
 
   // Also show face-down for opponent's inactive cards if showFaceDown is true
-  if (
-    showFaceDown &&
-    (support || action || trap) &&
-    !(support || action || trap)!.isActive
-  ) {
-    const backType = support ? "support" : action ? "action" : "trap";
+  if (showFaceDown && (magic || trap) && !(magic || trap)!.isActive) {
+    const backType = magic ? "magic" : "trap";
     return <Back onClick={onClick} type={backType} />;
   }
 
@@ -113,9 +101,7 @@ export const Card = ({
   const isExhausted = creature ? creature.hasAttackedThisTurn : false;
   const isDefenseMode = creature ? creature.mode === "DEFENSE" : false;
   const isActiveCard = Boolean(
-    (support && support.isActive) ||
-    (action && action.isActive) ||
-    (trap && trap.isActive),
+    (magic && magic.isActive) || (trap && trap.isActive),
   );
 
   const handleDoubleClick = (e: React.MouseEvent) => {
@@ -172,30 +158,17 @@ export const Card = ({
           image={creature.image}
         />
       )}
-      {support && (
+      {magic && (
         <Support
-          id={support.id}
-          name={support.name}
-          type={support.type}
-          description={support.description}
-          cost={support.cost}
-          isActive={support.isActive}
-          isFaceDown={support.isFaceDown}
-          targetPlayerIndex={support.targetPlayerIndex}
-          image={support.image}
-        />
-      )}
-      {action && (
-        <Action
-          id={action.id}
-          name={action.name}
-          type={action.type}
-          description={action.description}
-          cost={action.cost}
-          speed={action.speed}
-          isActive={action.isActive}
-          isFaceDown={action.isFaceDown}
-          image={action.image}
+          id={magic.id}
+          name={magic.name}
+          type={magic.type}
+          description={magic.description}
+          cost={magic.cost}
+          isActive={magic.isActive}
+          isFaceDown={magic.isFaceDown}
+          targetPlayerIndex={magic.targetPlayerIndex}
+          image={magic.image}
         />
       )}
       {trap && (

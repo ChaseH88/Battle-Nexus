@@ -1,11 +1,11 @@
-import { SupportCard } from "@cards/SupportCard";
+import { MagicCard } from "@cards/MagicCard";
 import { CardImage } from "./CardImage";
 import { Box } from "@mui/material";
 import { CARD_IMAGE_DIMENSIONS } from "./cardDimensions";
 import { Cost } from "./Common/Cost";
 
 interface SupportProps extends Pick<
-  SupportCard,
+  MagicCard,
   | "id"
   | "name"
   | "type"

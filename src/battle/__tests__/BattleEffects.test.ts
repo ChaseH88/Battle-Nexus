@@ -167,7 +167,7 @@ describe("BattleEngine – Effect System", () => {
     drawMany(engine, 0, 10);
 
     const supportCard = p1.hand.find(
-      (c) => c.type === CardType.Support,
+      (c) => c.type === CardType.Magic,
     ) as CardInterface;
 
     if (supportCard) {
@@ -298,7 +298,7 @@ describe("BattleEngine – Effect System", () => {
       // Play the card
       if (cardWithEffect.type === CardType.Creature) {
         engine.playCreature(0, 0, cardWithEffect.id);
-      } else if (cardWithEffect.type === CardType.Support) {
+      } else if (cardWithEffect.type === CardType.Magic) {
         engine.playSupport(0, 0, cardWithEffect.id);
       }
 

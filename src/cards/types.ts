@@ -33,8 +33,7 @@ export interface EffectInterface {
 
 export enum CardType {
   Creature = "CREATURE",
-  Action = "ACTION",
-  Support = "SUPPORT",
+  Magic = "MAGIC",
   Trap = "TRAP",
 }
 
