@@ -3,12 +3,13 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Outlet } from "react-router-dom";
 import { store } from "../store/store";
 import { theme } from "./theme";
 import App from "./app";
 import DeckBuilder from "./DeckBuilder/DeckBuilder";
 import Effects from "./Effects";
+import { CardDetailModal } from "./Battle/Modal/CardDetailModal";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -57,12 +58,21 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             </Link>
           </nav>
           <Routes>
-            <Route path="/" element={<App />} />
-            <Route path="/deck-builder" element={<DeckBuilder />} />
-            <Route path="/effects" element={<Effects />} />
+            <Route
+              element={
+                <>
+                  <Outlet />
+                  <CardDetailModal />
+                </>
+              }
+            >
+              <Route path="/" element={<App />} />
+              <Route path="/deck-builder" element={<DeckBuilder />} />
+              <Route path="/effects" element={<Effects />} />
+            </Route>
           </Routes>
         </BrowserRouter>
       </ThemeProvider>
     </Provider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

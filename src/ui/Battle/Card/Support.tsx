@@ -1,6 +1,6 @@
 import { ActionCard } from "@cards/ActionCard";
 import { CardImage } from "./CardImage";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { CARD_IMAGE_DIMENSIONS } from "./cardDimensions";
 import { Cost } from "./Common/Cost";
 
@@ -85,10 +85,51 @@ export const Support = ({
         boxSizing: "border-box",
       }}
     >
-      <div>
-        <Box>
+      <Box display="flex" alignItems="center">
+        <Box flex="0 0 40px">
           <Cost
             cost={cost}
+            sx={{
+              position: "relative",
+              left: "6px",
+              bottom: "1px",
+            }}
+          />
+        </Box>
+        <Box
+          className="card-text-header"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          flexWrap="wrap"
+        >
+          <Box
+            className="card-name"
+            style={{
+              fontSize: "12px",
+              fontWeight: "bold",
+            }}
+          >
+            <Typography
+              variant="h6"
+              noWrap
+              fontSize={10}
+              m={0}
+              lineHeight={0.8}
+            >
+              {name}
+            </Typography>
+          </Box>
+          <Box className="card-id">
+            <Typography variant="h6" noWrap fontSize={7} m={0}>
+              {type.toUpperCase()}
+            </Typography>
+          </Box>
+        </Box>
+        <Box>
+          <Cost
+            showInnerRing={false}
+            cost={<></>}
             size={16}
             sx={{
               position: "relative",
@@ -96,16 +137,7 @@ export const Support = ({
             }}
           />
         </Box>
-        <div className="card-type" style={{ fontSize: "9px" }}>
-          {type}
-        </div>
-        <div
-          className="card-name"
-          style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "4px" }}
-        >
-          {name}
-        </div>
-      </div>
+      </Box>
       <Box height={CARD_IMAGE_DIMENSIONS.HEIGHT} marginBottom="4px">
         <CardImage card={{ id, name, image }} />
       </Box>

@@ -301,7 +301,7 @@ export class AIPlayer {
    */
   public shouldActivateTrap(
     state: GameState,
-    trapCard: ActionCard,
+    trapCard: ActionCard | TrapCard,
     _attackerLane: number,
     _targetLane: number,
   ): boolean {

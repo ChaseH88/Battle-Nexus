@@ -476,11 +476,7 @@ export default function App() {
     }
     if (!selectedHandCard) return;
     const card = player1.hand.find((c) => c.id === selectedHandCard);
-    if (
-      card?.type === CardType.Action ||
-      card?.type === CardType.Action ||
-      card?.type === CardType.Trap
-    ) {
+    if (card?.type === CardType.Action || card?.type === CardType.Trap) {
       const success = playSupport(
         0, // Player 1 only
         slot,
@@ -1015,7 +1011,6 @@ export default function App() {
                   dropZone.getAttribute("data-drop-support")!,
                 );
                 if (
-                  card.type === CardType.Action ||
                   card.type === CardType.Action ||
                   card.type === CardType.Trap
                 ) {

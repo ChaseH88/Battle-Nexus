@@ -5,12 +5,10 @@ import {
   Snackbar,
   Alert,
   IconButton,
+  useMediaQuery,
 } from "@mui/material";
 import cardData from "../../static/card-data/bn-core.json";
-import { CardType, Affinity, CardInterface, Rarity } from "../../cards/types";
-import { CreatureCard } from "../../cards/CreatureCard";
-import { ActionCard } from "../../cards/ActionCard";
-import { TrapCard } from "../../cards/TrapCard";
+import { CardType, Affinity, Rarity } from "../../cards/types";
 import { Card } from "../Battle/Card/Card";
 import { useDeckBuilder } from "@/hooks/useDeckBuilder";
 import { DeckViewer } from "./components/DeckViewer";
@@ -19,19 +17,7 @@ import { CardFilters } from "./components/CardFilters";
 import { useCallback, useState, useEffect, useMemo } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { closeCardDetailModal } from "@/store/uiSlice";
-
-function cardFactory(raw: any): CardInterface {
-  switch (raw.type) {
-    case CardType.Creature:
-      return new CreatureCard(raw);
-    case CardType.Action:
-      return new ActionCard(raw);
-    case CardType.Trap:
-      return new TrapCard(raw);
-    default:
-      throw new Error(`Unknown card type: ${raw.type}`);
-  }
-}
+import { cardFactory } from "@/utils/cardFactory";
 
 export interface CardData {
   id: string;
@@ -44,7 +30,7 @@ export interface CardData {
   hp?: number;
   affinity: Affinity;
   rarity: Rarity;
-  set: string;
+  set: "Base";
   effectId?: string;
 }
 
@@ -143,6 +129,8 @@ const DeckBuilder = () => {
     ],
   );
 
+  const mediaQuery = useMediaQuery("(max-width:1300px)");
+
   return (
     <Box sx={{ maxWidth: "1600px", margin: "0 auto", padding: "20px" }}>
       <Typography
@@ -152,12 +140,20 @@ const DeckBuilder = () => {
         Deck Builder
       </Typography>
 
-      <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "nowrap" }}>
+      <Box
+        sx={{
+          mb: 3,
+          display: "flex",
+          gap: 2,
+          flexWrap: !mediaQuery ? "nowrap" : "wrap",
+        }}
+      >
         {/* Left Panel - Card Collection */}
         <Box
           className="left-container"
-          flex="0 0 73%"
+          flex={!mediaQuery ? "0 0 73%" : "1 1 100%"}
           display={isDeckFullScreen ? "none" : "block"}
+          {...(mediaQuery && { order: 2, mt: 5 })}
         >
           <CardFilters
             searchTerm={searchTerm}
@@ -179,8 +175,9 @@ const DeckBuilder = () => {
                 const cardInstance = cardFactory(card);
 
                 return (
-                  <Grid key={card.id}>
+                  <Grid key={card.id} flex="1 1 auto">
                     <Box
+                      display={"inline-block"}
                       sx={{
                         cursor: "pointer",
                         transition: "all 0.3s ease",
@@ -238,7 +235,12 @@ const DeckBuilder = () => {
         </Box>
 
         {/* Right Panel - Current Deck */}
-        <Box className="right-container" flex="1 1 27%" position="relative">
+        <Box
+          className="right-container"
+          position="relative"
+          flex={!mediaQuery ? "0 0 27%" : "1 1 100%"}
+          {...(mediaQuery && { order: 1 })}
+        >
           <DeckViewer
             deckList={deckList}
             totalCards={totalCards}

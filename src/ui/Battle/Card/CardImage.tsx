@@ -46,7 +46,7 @@ export const CardImage = ({ card, alt, sx }: CardImageProps) => {
       <Box
         sx={{
           width: CARD_IMAGE_DIMENSIONS.WIDTH - 2,
-          height: "auto",
+          height: CARD_IMAGE_DIMENSIONS.HEIGHT - 2,
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           display: "flex",
           alignItems: "center",
@@ -59,7 +59,7 @@ export const CardImage = ({ card, alt, sx }: CardImageProps) => {
           ...styles,
         }}
       >
-        {card.name.slice(0, 3).toUpperCase()}
+        {"Image Not Available"}
       </Box>
     );
   }

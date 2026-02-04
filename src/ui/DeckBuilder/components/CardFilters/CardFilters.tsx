@@ -64,10 +64,11 @@ export const CardFilters = ({
         onChange={(e) => setFilterType(e.target.value as CardType | "ALL")}
         sx={{ color: "#fff" }}
       >
-        <MenuItem value="ALL">All Types</MenuItem>
-        <MenuItem value={CardType.Creature}>Creature</MenuItem>
-        <MenuItem value={CardType.Action}>Action</MenuItem>
-        <MenuItem value={CardType.Trap}>Trap</MenuItem>
+        {Object.values(CardType).map((type) => (
+          <MenuItem key={type} value={type}>
+            {type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}
+          </MenuItem>
+        ))}
       </Select>
     </FormControl>
     <FormControl sx={{ minWidth: 150 }}>

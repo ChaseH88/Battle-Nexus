@@ -533,5 +533,25 @@
     "rarity": "UR",
     "set": "BN-CORE",
     "image": "maximum_output.png"
+  },
+  {
+    "id": "reflective_barrier",
+    "type": "TRAP",
+    "name": "Reflective Barrier",
+    "description": "When an opponent's creature attacks, negate the attack.",
+    "cost": 2,
+    "effectId": "reflective_barrier",
+    "rarity": "SR",
+    "set": "BN-CORE"
+  },
+  {
+    "id": "damage_shield",
+    "type": "TRAP",
+    "name": "Damage Shield",
+    "description": "When an opponent's creature attacks, reduce the damage by 20.",
+    "cost": 2,
+    "effectId": "damage_shield",
+    "rarity": "SR",
+    "set": "BN-CORE"
   }
 ]
