@@ -1,6 +1,7 @@
 import { EffectContext } from "@effects/handler";
 import { GameState, getOpponentIndex } from "@battle/GameState";
 import { EffectMetadata } from "@effects/metadata";
+import { Targeting } from "@effects/Targeting";
 
 /**
  * Purge Beacon Effect
@@ -83,31 +84,7 @@ purge_opponent_support.metadata = {
     };
   },
 
-  targeting: {
-    required: true,
-    targetType: "ENEMY_SUPPORT" as const,
-    description: "Select opponent support card to remove",
-    allowMultiple: false,
-  },
-
-  getValidTargets: (state: GameState, ownerIndex: 0 | 1) => {
-    const opponentIndex = getOpponentIndex(ownerIndex);
-    const opponent = state.players[opponentIndex];
-
-    return opponent.support
-      .map((card, index) => ({
-        label: card
-          ? card.isFaceDown
-            ? `Face-down card in slot ${index + 1}`
-            : card.name
-          : null,
-        value: index,
-        metadata: { slot: index, card },
-      }))
-      .filter((option) => option.label !== null) as Array<{
-      label: string;
-      value: number;
-      metadata: any;
-    }>;
-  },
+  targeting: Targeting.enemySupports().buildWithExecutor(
+    "Select opponent support card to remove",
+  ),
 } as EffectMetadata;

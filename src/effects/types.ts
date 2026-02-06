@@ -109,10 +109,11 @@ export interface ActivationRequirement {
 
   // For HAS_TARGET: what kind of target is needed
   targetType?:
-    | "ENEMY_SUPPORT"
     | "ALLY_CREATURE"
     | "ENEMY_CREATURE"
-    | "ALLY_FIRE_CREATURE";
+    | "ALLY_SUPPORT"
+    | "ENEMY_SUPPORT"
+    | "ANY_CREATURE";
 
   // For MIN_COUNT: minimum number of valid targets
   minCount?: number;
@@ -124,10 +125,10 @@ export interface ActivationRequirement {
 export interface TargetingConfig {
   required: boolean; // Does this effect require targeting?
   targetType:
-    | "ENEMY_SUPPORT"
     | "ALLY_CREATURE"
     | "ENEMY_CREATURE"
-    | "ALLY_FIRE_CREATURE"
+    | "ALLY_SUPPORT"
+    | "ENEMY_SUPPORT"
     | "ANY_CREATURE";
   filter?: CardFilter; // Additional filters for valid targets
   allowMultiple?: boolean; // Can target multiple cards?

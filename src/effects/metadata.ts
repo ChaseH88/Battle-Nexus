@@ -24,7 +24,20 @@ export interface EffectMetadata {
   activationRequirements?: ActivationRequirement[];
 
   // Targeting configuration - defines what UI prompts to show
-  targeting?: TargetingConfig;
+  // Can be a TargetingConfig OR a function that returns both config and getValidTargets
+  targeting?:
+    | TargetingConfig
+    | ((
+        state: GameState,
+        ownerIndex: 0 | 1,
+      ) => {
+        config: TargetingConfig;
+        getTargets: () => Array<{
+          label: string;
+          value: number;
+          metadata?: any;
+        }>;
+      });
 
   // Validation function - returns true if effect can be activated
   canActivate?: (
@@ -36,6 +49,7 @@ export interface EffectMetadata {
   };
 
   // Get valid targets for selection - returns options for UI dropdown
+  // This is auto-populated if targeting is a function, otherwise you can define it manually
   getValidTargets?: (
     state: GameState,
     ownerIndex: 0 | 1,
@@ -98,9 +112,18 @@ export function canActivateEffect(
 /**
  * Check if an effect requires targeting
  */
+/**
+ * Check if effect requires targeting
+ */
 export function effectRequiresTargeting(effectId: string): boolean {
   const metadata = getEffectMetadata(effectId);
-  return metadata?.targeting?.required ?? false;
+  if (!metadata?.targeting) return false;
+
+  // If targeting is a function, it requires targeting
+  if (typeof metadata.targeting === "function") return true;
+
+  // If targeting is a config object, check the required field
+  return metadata.targeting.required ?? false;
 }
 
 /**
@@ -113,9 +136,44 @@ export function getEffectTargets(
 ): Array<{ label: string; value: number; metadata?: any }> {
   const metadata = getEffectMetadata(effectId);
 
-  if (!metadata || !metadata.getValidTargets) {
+  if (!metadata) {
     return [];
   }
 
-  return metadata.getValidTargets(state, ownerIndex);
+  // If targeting is a function, call it to get targets
+  if (typeof metadata.targeting === "function") {
+    const result = metadata.targeting(state, ownerIndex);
+    return result.getTargets();
+  }
+
+  // Otherwise use legacy getValidTargets if provided
+  if (metadata.getValidTargets) {
+    return metadata.getValidTargets(state, ownerIndex);
+  }
+
+  return [];
+}
+
+/**
+ * Get the targeting config for an effect
+ */
+export function getEffectTargetingConfig(
+  effectId: string,
+  state: GameState,
+  ownerIndex: 0 | 1,
+): TargetingConfig | undefined {
+  const metadata = getEffectMetadata(effectId);
+
+  if (!metadata?.targeting) {
+    return undefined;
+  }
+
+  // If targeting is a function, call it to get the config
+  if (typeof metadata.targeting === "function") {
+    const result = metadata.targeting(state, ownerIndex);
+    return result.config;
+  }
+
+  // Otherwise return the static config
+  return metadata.targeting;
 }

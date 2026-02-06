@@ -1,6 +1,7 @@
 import { EffectContext } from "@effects/handler";
 import { GameState } from "@battle/GameState";
 import { EffectMetadata } from "@effects/metadata";
+import { Targeting } from "@effects/Targeting";
 
 /**
  * Maximum Output Effect
@@ -85,27 +86,13 @@ maximum_output.metadata = {
     };
   },
 
-  targeting: {
-    required: true,
-    targetType: "ALLY_CREATURE" as const,
-    description: "Select creature to boost",
-    allowMultiple: false,
-  },
-
-  getValidTargets: (state: GameState, ownerIndex: 0 | 1) => {
-    const player = state.players[ownerIndex];
-    const momentum = player.momentum;
-
-    return player.lanes
-      .map((creature, lane) => ({
-        creature,
-        lane,
-      }))
-      .filter((item) => item.creature !== null)
-      .map(({ creature, lane }) => ({
-        label: `${creature!.name} (Lane ${lane + 1}) - ${creature!.atk} ATK (Will gain +${momentum * 10} ATK)`,
-        value: lane,
-        metadata: { lane, creature },
-      }));
+  targeting: (state: GameState, ownerIndex: 0 | 1) => {
+    const momentum = state.players[ownerIndex].momentum;
+    return Targeting.allyCreatures()
+      .withCustomFormatter(
+        (creature, lane) =>
+          `${creature.name} (Lane ${lane + 1}) - ${creature.atk} ATK (Will gain +${momentum * 10} ATK)`,
+      )
+      .buildWithExecutor("Select creature to boost")(state, ownerIndex);
   },
 } satisfies EffectMetadata;

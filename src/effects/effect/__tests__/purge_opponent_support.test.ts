@@ -208,7 +208,7 @@ describe("Effect: purge_opponent_support", () => {
     expect(purge_opponent_support.metadata).toBeDefined();
     expect(purge_opponent_support.metadata?.canActivate).toBeDefined();
     expect(purge_opponent_support.metadata?.targeting).toBeDefined();
-    expect(purge_opponent_support.metadata?.getValidTargets).toBeDefined();
+    // getValidTargets is optional now - targeting can be a function instead
   });
 
   it("validates targeting constraints", () => {

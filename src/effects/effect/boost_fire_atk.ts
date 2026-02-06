@@ -2,6 +2,7 @@ import { EffectContext } from "@effects/handler";
 import { GameState } from "@battle/GameState";
 import { EffectMetadata } from "@effects/metadata";
 import { Affinity } from "@cards";
+import { Targeting } from "@effects/Targeting";
 
 /**
  * Ignite Burst Effect
@@ -18,14 +19,14 @@ export const boost_fire_atk = (ctx: EffectContext) => {
     target = ctx.utils.getCreatureInLane(ctx.ownerIndex, chosenLane) as any;
     if (!target) {
       ctx.utils.log(
-        `  No creature in chosen lane ${chosenLane} - effect fails`
+        `  No creature in chosen lane ${chosenLane} - effect fails`,
       );
       return;
     }
     // Verify it's a Fire creature
     if (target.affinity !== "FIRE") {
       ctx.utils.log(
-        `  Creature in lane ${chosenLane} is not Fire type - effect fails`
+        `  Creature in lane ${chosenLane} is not Fire type - effect fails`,
       );
       return;
     }
@@ -42,7 +43,7 @@ export const boost_fire_atk = (ctx: EffectContext) => {
     }
 
     target = fireCreatures.reduce((best, c) =>
-      (c as any).atk > (best as any).atk ? c : best
+      (c as any).atk > (best as any).atk ? c : best,
     );
   }
 
@@ -59,7 +60,7 @@ export const boost_fire_atk = (ctx: EffectContext) => {
     undefined, // permanent while source is on field
     "+200 ATK (while on field)",
     [(target as any).id],
-    { atk: 200 }
+    { atk: 200 },
   );
 };
 
@@ -72,7 +73,7 @@ boost_fire_atk.metadata = {
   canActivate: (state: GameState, ownerIndex: 0 | 1) => {
     const player = state.players[ownerIndex];
     const fireCreatures = player.lanes.filter(
-      (c) => c !== null && c.affinity === Affinity.Fire
+      (c) => c !== null && c.affinity === Affinity.Fire,
     );
 
     return {
@@ -84,29 +85,9 @@ boost_fire_atk.metadata = {
     };
   },
 
-  targeting: {
-    required: true,
-    targetType: "ALLY_FIRE_CREATURE" as const,
-    description: "Select Fire creature to boost",
-    allowMultiple: false,
-    filter: { affinity: Affinity.Fire },
-  },
-
-  getValidTargets: (state: GameState, ownerIndex: 0 | 1) => {
-    const player = state.players[ownerIndex];
-
-    return player.lanes
-      .map((creature, lane) => ({
-        creature,
-        lane,
-      }))
-      .filter(
-        (item) => item.creature && item.creature.affinity === Affinity.Fire
-      )
-      .map(({ creature, lane }) => ({
-        label: `${creature!.name} (Lane ${lane + 1}) - ${creature!.atk} ATK`,
-        value: lane,
-        metadata: { lane, creature },
-      }));
-  },
+  // Unified targeting - no duplication!
+  targeting: Targeting.allyCreatures()
+    .withAffinity(Affinity.Fire)
+    .formatWithStats("atk")
+    .buildWithExecutor("Select Fire creature to boost"),
 } as EffectMetadata;

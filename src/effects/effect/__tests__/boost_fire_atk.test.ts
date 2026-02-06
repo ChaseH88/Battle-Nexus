@@ -21,7 +21,7 @@ describe("Effect: boost_fire_atk", () => {
 
     const fireCreature = p1.hand.find(
       (c) =>
-        c.type === CardType.Creature && (c as CreatureCard).affinity === "FIRE"
+        c.type === CardType.Creature && (c as CreatureCard).affinity === "FIRE",
     );
 
     if (fireCreature) {
@@ -57,7 +57,7 @@ describe("Effect: boost_fire_atk", () => {
       .filter(
         (c) =>
           c.type === CardType.Creature &&
-          (c as CreatureCard).affinity === "FIRE"
+          (c as CreatureCard).affinity === "FIRE",
       )
       .slice(0, 2);
 
@@ -99,7 +99,8 @@ describe("Effect: boost_fire_atk", () => {
 
     const waterCreature = p1.hand.find(
       (c) =>
-        c.type === CardType.Creature && (c as CreatureCard).affinity === "WATER"
+        c.type === CardType.Creature &&
+        (c as CreatureCard).affinity === "WATER",
     );
 
     if (waterCreature) {
@@ -132,7 +133,7 @@ describe("Effect: boost_fire_atk", () => {
       .filter(
         (c) =>
           c.type === CardType.Creature &&
-          (c as CreatureCard).affinity === "FIRE"
+          (c as CreatureCard).affinity === "FIRE",
       )
       .slice(0, 2);
 
@@ -174,7 +175,7 @@ describe("Effect: boost_fire_atk", () => {
 
     const fireCreature = p1.hand.find(
       (c) =>
-        c.type === CardType.Creature && (c as CreatureCard).affinity === "FIRE"
+        c.type === CardType.Creature && (c as CreatureCard).affinity === "FIRE",
     );
 
     if (fireCreature) {
@@ -201,6 +202,6 @@ describe("Effect: boost_fire_atk", () => {
     expect(boost_fire_atk.metadata).toBeDefined();
     expect(boost_fire_atk.metadata?.canActivate).toBeDefined();
     expect(boost_fire_atk.metadata?.targeting).toBeDefined();
-    expect(boost_fire_atk.metadata?.getValidTargets).toBeDefined();
+    // getValidTargets is optional now - targeting can be a function instead
   });
 });

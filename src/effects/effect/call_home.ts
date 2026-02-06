@@ -3,6 +3,7 @@ import { Zone } from "../../battle/zones";
 import { moveCard } from "../../battle/ZoneEngine";
 import { EffectMetadata } from "../metadata";
 import { GameState } from "../../battle/GameState";
+import { Targeting } from "@effects/Targeting";
 
 /**
  * Call Home - Return one of your creatures to your hand
@@ -74,28 +75,12 @@ callHomeHandler.metadata = {
     };
   },
 
-  targeting: {
-    required: true,
-    targetType: "ALLY_CREATURE" as const,
-    description: "Select a creature to return to your hand",
-    allowMultiple: false,
-  },
-
-  getValidTargets: (state: GameState, ownerIndex: 0 | 1) => {
-    const player = state.players[ownerIndex];
-
-    return player.lanes
-      .map((creature, lane) => ({
-        creature,
-        lane,
-      }))
-      .filter((item) => item.creature !== null)
-      .map(({ creature, lane }) => ({
-        label: `${creature!.name} (Lane ${lane + 1})${
-          creature!.isFaceDown ? " [Face-Down]" : ""
-        }${creature!.hasAttackedThisTurn ? " [Attacked]" : ""}`,
-        value: lane,
-        metadata: { lane, creature },
-      }));
-  },
+  targeting: Targeting.allyCreatures()
+    .withCustomFormatter(
+      (creature, lane) =>
+        `${creature.name} (Lane ${lane + 1})${
+          creature.isFaceDown ? " [Face-Down]" : ""
+        }${creature.hasAttackedThisTurn ? " [Attacked]" : ""}`,
+    )
+    .buildWithExecutor("Select a creature to return to your hand"),
 } as EffectMetadata;

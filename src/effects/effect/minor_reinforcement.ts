@@ -1,5 +1,6 @@
 import { EffectHandler } from "../handler";
 import { GameState } from "../../battle/GameState";
+import { Targeting } from "@effects/Targeting";
 
 // Minor Reinforcement: Target creature gains +20 HP
 export const minor_reinforcement: EffectHandler = (context) => {
@@ -28,7 +29,7 @@ export const minor_reinforcement: EffectHandler = (context) => {
 
   if (!foundCreature) {
     utils.log(
-      `Minor Reinforcement: Target creature ${targetCreature.name} not found on field.`
+      `Minor Reinforcement: Target creature ${targetCreature.name} not found on field.`,
     );
     return;
   }
@@ -37,7 +38,7 @@ export const minor_reinforcement: EffectHandler = (context) => {
   foundCreature.currentHp += 20;
 
   utils.log(
-    `Minor Reinforcement resolved: ${targetCreature.name} gains 20 HP (now ${foundCreature.currentHp} HP).`
+    `Minor Reinforcement resolved: ${targetCreature.name} gains 20 HP (now ${foundCreature.currentHp} HP).`,
   );
 };
 
@@ -60,28 +61,7 @@ minor_reinforcement.metadata = {
     };
   },
 
-  targeting: {
-    required: true,
-    targetType: "ALLY_CREATURE" as const,
-    description: "Select a creature to give +20 HP",
-    allowMultiple: false,
-  },
-
-  getValidTargets: (state: GameState, ownerIndex: 0 | 1) => {
-    const player = state.players[ownerIndex];
-
-    return player.lanes
-      .map((creature, lane) => ({
-        creature,
-        lane,
-      }))
-      .filter((item) => item.creature !== null)
-      .map(({ creature, lane }) => ({
-        label: `${creature!.name} (Lane ${lane + 1}) - ${creature!.currentHp}/${
-          creature!.hp
-        } HP`,
-        value: lane,
-        metadata: { lane, creature },
-      }));
-  },
+  targeting: Targeting.allyCreatures()
+    .formatWithStats("hp")
+    .buildWithExecutor("Select creature to reinforce"),
 };

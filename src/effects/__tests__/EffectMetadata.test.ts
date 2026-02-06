@@ -91,7 +91,9 @@ describe("Effects – Metadata", () => {
 
     effects.forEach((metadata) => {
       if (metadata.targeting) {
-        expect(typeof metadata.targeting).toBe("object");
+        // targeting can be either an object (TargetingConfig) or a function
+        const targetingType = typeof metadata.targeting;
+        expect(["object", "function"]).toContain(targetingType);
       }
     });
   });
