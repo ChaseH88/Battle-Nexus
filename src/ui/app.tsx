@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { CardInterface } from "../cards/types";
+import { useState, useEffect, useCallback } from "react";
 import "./styles.css";
 import { GameLog } from "./Battle/GameLog";
 import { Controls } from "./Battle/Controls";
@@ -11,27 +10,27 @@ import { TargetSelectModal } from "./Battle/Modal";
 import { CardDetailModal } from "./Battle/Modal/CardDetailModal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
-  openModal,
   closeModal,
-  openPlayCreatureModal,
   closePlayCreatureModal,
   setSelectedHandCard,
   setSelectedAttacker,
-  openTargetSelectModal,
-  openCardDetailModal,
   closeCardDetailModal,
   queueEffectNotification,
 } from "../store/uiSlice";
 import backgroundImage from "../assets/background.png";
 import { useBattleEngine } from "../hooks/useBattleEngine";
 import { useGameInitialization } from "../hooks/useGameInitialization";
-import { getEffectMetadata } from "../effects/metadata";
-import { effectsRegistry } from "../effects/registry";
-import { getEffectiveStatsFromActiveEffects } from "../battle/MomentumBuff";
 import { CardActivationEffect } from "./Battle/Card/CardActivationEffect";
 import { CardAttackAnimation } from "./Battle/Card/CardAttackAnimation";
 import { useAnimationQueue } from "./Battle/Card/useAnimationQueue";
-import { CardType } from "../cards/types";
+import { useAttackAnimation } from "../hooks/useAttackAnimation";
+import { useTrapActivation } from "../hooks/useTrapActivation";
+import { useDrawReminder } from "../hooks/useDrawReminder";
+import { useCardActions } from "../hooks/useCardActions";
+import { useCreatureActions } from "../hooks/useCreatureActions";
+import { useCardDetailModals } from "../hooks/useCardDetailModals";
+import { useAttackHandler } from "../hooks/useAttackHandler";
+import { CardType } from "@/cards";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -53,25 +52,6 @@ export default function App() {
     queueAttack,
     completeCurrentAnimation,
   } = useAnimationQueue();
-
-  // Store refs for attack animation
-  const attackerRef = useRef<HTMLElement | null>(null);
-
-  // Ref to store trap activation callback - needs to be stable and have access to latest state
-  const trapActivationCallbackRef =
-    useRef<
-      (
-        defenderIndex: 0 | 1,
-        attackerLane: number,
-        targetLane: number,
-      ) => Promise<boolean>
-    >(undefined);
-
-  // Ref to store AI attack animation callback - needs to be stable and have access to latest state
-  const aiAttackAnimationCallbackRef =
-    useRef<(attackerLane: number, targetLane: number | null) => Promise<void>>(
-      undefined,
-    );
 
   // Use the battle engine hook for all state management
   const {
@@ -95,69 +75,20 @@ export default function App() {
     setEffectCallback,
   } = useBattleEngine();
 
-  // Create stable trap activation callback for ON_DEFEND triggers (combat)
-  const trapActivationCallback = useCallback(
-    async (
-      defenderIndex: 0 | 1,
-      attackerLane: number,
-      targetLane: number,
-    ): Promise<boolean> => {
-      if (!engine || !gameState) return false;
+  // Use trap activation hook
+  const { trapActivationCallbackRef } = useTrapActivation({
+    engine,
+    gameState,
+    ai,
+    activateTrap,
+  });
 
-      // Get traps that activate on defend (combat)
-      const traps = engine.getActivatableTraps(defenderIndex, "ON_DEFEND");
-      if (!traps || traps.length === 0) return false;
-
-      const trap = traps[0];
-
-      // If defender is AI (player 1), let AI decide
-      if (defenderIndex === 1 && ai) {
-        const shouldActivate = ai.shouldActivateTrap(
-          gameState,
-          trap.card,
-          attackerLane,
-          targetLane,
-        );
-
-        if (shouldActivate) {
-          activateTrap(defenderIndex, trap.slot, { targetLane });
-          return true;
-        }
-        return false;
-      }
-
-      // If defender is human (player 0), prompt them
-      if (defenderIndex === 0) {
-        return new Promise<boolean>((resolve) => {
-          dispatch(
-            openModal({
-              title: "Trap Activation",
-              message: `Your opponent is attacking! Activate ${trap.card.name}?`,
-              onConfirm: () => {
-                // Activate trap then resolve true
-                activateTrap(defenderIndex, trap.slot, { targetLane });
-                dispatch(closeModal());
-                resolve(true);
-              },
-              onCancel: () => {
-                // Don't activate trap
-                dispatch(closeModal());
-                resolve(false);
-              },
-            }),
-          );
-        });
-      }
-
-      return false;
-    },
-    [engine, gameState, ai, activateTrap, dispatch],
-  );
-
-  // Update ref whenever callback changes
-  useEffect(() => {
-    trapActivationCallbackRef.current = trapActivationCallback;
-  }, [trapActivationCallback]);
+  // Use attack animation hook
+  const { aiAttackAnimationCallbackRef } = useAttackAnimation({
+    engine,
+    gameState,
+    queueAttack,
+  });
 
   // Close card detail modal when component unmounts (e.g., navigating away)
   useEffect(() => {
@@ -165,128 +96,6 @@ export default function App() {
       dispatch(closeCardDetailModal());
     };
   }, [dispatch]);
-
-  // Create stable AI attack animation callback
-  const aiAttackAnimationCallback = useCallback(
-    async (attackerLane: number, targetLane: number | null): Promise<void> => {
-      // Query DOM for attacker element (AI is player 1, opponent board)
-      const attackerElement = document.querySelector(
-        `[data-testid="opponent-creature-lane-${attackerLane}"] > div`,
-      ) as HTMLElement | null;
-
-      // Query DOM for defender element (player is player 0)
-      const defenderElement =
-        targetLane !== null
-          ? (document.querySelector(
-              `[data-testid="creature-lane-${targetLane}"] > div`,
-            ) as HTMLElement | null)
-          : null;
-
-      if (!attackerElement || !gameState) {
-        // Fallback: execute attack without animation
-        if (engine) {
-          engine.attack(
-            1,
-            attackerLane,
-            targetLane === null ? undefined : targetLane,
-          );
-        }
-        return;
-      }
-
-      const player2 = gameState.players[1]; // AI
-      const player1 = gameState.players[0]; // Human
-      const attackerCard = player2.lanes[attackerLane];
-      const defenderCard =
-        targetLane !== null ? player1.lanes[targetLane] : null;
-
-      if (!attackerCard) {
-        return;
-      }
-
-      // Calculate damage using effective stats with all active buffs
-      let damageToDefender = 0;
-      let damageToAttacker = 0;
-
-      // Get effective stats with all active buffs (momentum + other effects)
-      const attackerStats = getEffectiveStatsFromActiveEffects(
-        attackerCard,
-        gameState.activeEffects,
-        1,
-      );
-
-      if (defenderCard && defenderElement) {
-        const defenderStats = getEffectiveStatsFromActiveEffects(
-          defenderCard,
-          gameState.activeEffects,
-          0,
-        );
-
-        // Combat damage calculation
-        if (attackerCard.mode === "ATTACK" && defenderCard.mode === "ATTACK") {
-          damageToDefender = attackerStats.atk;
-          damageToAttacker = Math.max(0, defenderStats.atk - attackerStats.def);
-        } else if (
-          attackerCard.mode === "ATTACK" &&
-          defenderCard.mode === "DEFENSE"
-        ) {
-          damageToDefender = Math.max(0, attackerStats.atk - defenderStats.def);
-          damageToAttacker = 0;
-        }
-      } else {
-        // Direct attack
-        damageToDefender = attackerStats.atk;
-        damageToAttacker = 0;
-      }
-
-      // Queue animation and wait for completion
-      return new Promise<void>((resolve) => {
-        // If no defender element (direct attack), use player's board center as target
-        const targetElement =
-          defenderElement ||
-          (document.querySelector(
-            '[data-testid="creature-lane-0"]',
-          ) as HTMLElement);
-
-        if (targetElement) {
-          queueAttack(
-            attackerCard,
-            attackerElement,
-            targetElement,
-            damageToDefender,
-            damageToAttacker,
-            () => {
-              // Execute the actual attack after animation
-              if (engine) {
-                engine.attack(
-                  1,
-                  attackerLane,
-                  targetLane === null ? undefined : targetLane,
-                );
-              }
-              resolve();
-            },
-          );
-        } else {
-          // Fallback
-          if (engine) {
-            engine.attack(
-              1,
-              attackerLane,
-              targetLane === null ? undefined : targetLane,
-            );
-          }
-          resolve();
-        }
-      });
-    },
-    [engine, gameState, queueAttack],
-  );
-
-  // Update ref whenever callback changes
-  useEffect(() => {
-    aiAttackAnimationCallbackRef.current = aiAttackAnimationCallback;
-  }, [aiAttackAnimationCallback]);
 
   // Wire BattleEngine effect callback into the UI queue
   useEffect(() => {
@@ -320,28 +129,67 @@ export default function App() {
       }, [dispatch]),
     });
 
-  const checkNeedsToDraw = (): boolean => {
-    if (!gameState) return false;
-    // Check if it's the current player's turn and they haven't drawn yet
-    return (
-      gameState.activePlayer === 0 &&
-      !gameState.hasDrawnThisTurn &&
-      gameState.phase === "DRAW"
-    );
+  const handleDraw = () => {
+    if (isShowingEffectNotification) return;
+    // The engine handles empty deck case automatically
+    draw(gameState!.activePlayer);
   };
 
-  const showDrawReminderModal = () => {
-    dispatch(
-      openModal({
-        title: "Draw Required",
-        message: "You must draw a card before taking any actions this turn.",
-        onConfirm: () => {
-          handleDraw();
-          dispatch(closeModal());
-        },
-      }),
-    );
-  };
+  // Use draw reminder hook
+  const { checkNeedsToDraw, showDrawReminderModal } = useDrawReminder({
+    gameState,
+    handleDraw,
+  });
+
+  // Use card actions hook
+  const {
+    handlePlayCreature,
+    handlePlayCreatureClick,
+    handlePlaySupport,
+    handleActivateSupport,
+  } = useCardActions({
+    engine,
+    gameState,
+    selectedHandCard,
+    isShowingEffectNotification,
+    checkNeedsToDraw,
+    showDrawReminderModal,
+    playCreature,
+    playSupport,
+    activateSupport,
+    refresh,
+    queueActivation,
+  });
+
+  // Use creature actions hook
+  const { handleToggleMode, handleFlipFaceUp } = useCreatureActions({
+    engine,
+    gameState,
+    checkNeedsToDraw,
+    showDrawReminderModal,
+    toggleCreatureMode,
+  });
+
+  // Use attack handler hook
+  const { handleSelectAttacker, handleAttack, setAttackerRef } =
+    useAttackHandler({
+      engine,
+      gameState,
+      selectedAttacker,
+      isShowingEffectNotification,
+      checkNeedsToDraw,
+      showDrawReminderModal,
+      attack,
+      activateTrap,
+      queueAttack,
+    });
+
+  // Use card detail modals hook
+  const {
+    handleCreatureDoubleClick,
+    handleSupportDoubleClick,
+    handleHandCardDoubleClick,
+  } = useCardDetailModals({ gameState });
 
   // Render deck load prompt if needed
   if (showDeckLoadPrompt) {
@@ -421,457 +269,10 @@ export default function App() {
   const player1 = gameState.players[0]; // User (always bottom)
   const player2 = gameState.players[1]; // AI (always top)
 
-  const handleDraw = () => {
-    if (isShowingEffectNotification) return;
-    // The engine handles empty deck case automatically
-    draw(gameState.activePlayer);
-  };
-
-  const handlePlayCreature = (
-    lane: number,
-    faceDown: boolean = false,
-    mode: "ATTACK" | "DEFENSE" = "ATTACK",
-  ) => {
-    if (isShowingEffectNotification) return;
-    if (!selectedHandCard) return;
-    const card = player1.hand.find((c) => c.id === selectedHandCard);
-    if (card?.type === CardType.Creature) {
-      const success = playCreature(
-        gameState.activePlayer,
-        lane,
-        selectedHandCard,
-        faceDown,
-        mode,
-      );
-      if (success) {
-        dispatch(setSelectedHandCard(null));
-        dispatch(closePlayCreatureModal());
-      }
-    }
-  };
-
-  const handlePlayCreatureClick = (lane: number) => {
-    if (isShowingEffectNotification) return;
-    if (checkNeedsToDraw()) {
-      showDrawReminderModal();
-      return;
-    }
-    if (!selectedHandCard) return;
-    const card = player1.hand.find((c) => c.id === selectedHandCard);
-    if (card?.type === CardType.Creature) {
-      dispatch(
-        openPlayCreatureModal({
-          lane,
-          creatureName: card.name,
-        }),
-      );
-    }
-  };
-
-  const handlePlaySupport = (slot: number) => {
-    if (isShowingEffectNotification) return;
-    if (checkNeedsToDraw()) {
-      showDrawReminderModal();
-      return;
-    }
-    if (!selectedHandCard) return;
-    const card = player1.hand.find((c) => c.id === selectedHandCard);
-    if (card?.type === CardType.Action || card?.type === CardType.Trap) {
-      const success = playSupport(
-        0, // Player 1 only
-        slot,
-        selectedHandCard,
-      );
-      if (success) {
-        dispatch(setSelectedHandCard(null));
-      }
-    }
-  };
-
-  const handleActivateSupport = (slot: number, element?: HTMLElement) => {
-    if (isShowingEffectNotification) return;
-    if (checkNeedsToDraw()) {
-      showDrawReminderModal();
-      return;
-    }
-    const card = player1.support[slot];
-    if (!card || card.isActive) return;
-
-    // Check if card is face down - must flip and activate
-    if (card.isFaceDown) {
-      // Check if this is a TRAP card type - cannot be manually activated
-      if (card.type === CardType.Trap) {
-        dispatch(
-          openModal({
-            title: "Cannot Activate",
-            message: `${card.name} is a Trap card and can only be activated when its trigger condition is met.`,
-            onConfirm: () => {
-              dispatch(closeModal());
-            },
-          }),
-        );
-        return;
-      }
-
-      // Check if this card has a reactive trigger - cannot be manually activated
-      // Allow: ON_PLAY, CONTINUOUS (manually activatable)
-      // Block: ON_DEFEND, ON_ATTACK, ON_DESTROY, ON_DRAW (reactive triggers)
-      if (card.effectId) {
-        const effectDef = effectsRegistry[card.effectId];
-        const reactiveTriggers = [
-          "ON_DEFEND",
-          "ON_ATTACK",
-          "ON_DESTROY",
-          "ON_DRAW",
-        ];
-        if (
-          effectDef &&
-          effectDef.trigger &&
-          reactiveTriggers.includes(effectDef.trigger)
-        ) {
-          dispatch(
-            openModal({
-              title: "Cannot Activate",
-              message: `${card.name} can only be activated when its trigger condition is met (${effectDef.trigger}).`,
-              onConfirm: () => {
-                dispatch(closeModal());
-              },
-            }),
-          );
-          return;
-        }
-      }
-
-      // Get metadata once and use it for all checks
-      const metadata = card.effectId ? getEffectMetadata(card.effectId) : null;
-      const requiresTargeting = metadata?.targeting?.required ?? false;
-
-      if (card.effectId && requiresTargeting) {
-        // Check if activation is possible
-        const activationCheck = metadata?.canActivate
-          ? metadata.canActivate(gameState, 0)
-          : { canActivate: true };
-
-        if (!activationCheck.canActivate) {
-          dispatch(
-            openModal({
-              title: "Cannot Activate",
-              message: `${card.name}: ${activationCheck.reason}. The card will be discarded.`,
-              onConfirm: () => {
-                // Activate anyway - effect will fail and card will be discarded
-                engine.activateSupport(0 as 0 | 1, slot);
-                refresh();
-                dispatch(closeModal());
-              },
-            }),
-          );
-          return;
-        }
-
-        // Get valid targets
-        const options = metadata?.getValidTargets?.(gameState, 0) || [];
-
-        if (options.length === 0) {
-          dispatch(
-            openModal({
-              title: "Cannot Activate",
-              message: `${card.name} has no valid targets. The card will be discarded.`,
-              onConfirm: () => {
-                engine.activateSupport(0 as 0 | 1, slot); // removes the card from play - may want to revisit this later
-                refresh();
-                dispatch(closeModal());
-              },
-            }),
-          );
-          return;
-        }
-
-        // First show confirmation modal, then target selection
-        dispatch(
-          openModal({
-            title: "Activate Card",
-            message: `Flip ${card.name} face-up and activate it?`,
-            onConfirm: () => {
-              dispatch(closeModal());
-              // After confirmation, open target selection modal
-              dispatch(
-                openTargetSelectModal({
-                  title: metadata?.targeting?.description || "Select target",
-                  message: `Choose a target for ${card.name}`,
-                  options,
-                  onConfirm: (targetValue: number) => {
-                    // Determine what the target value represents based on effect type
-                    const eventData: any = {};
-
-                    if (metadata?.targeting?.targetType === "ENEMY_SUPPORT") {
-                      eventData.targetPlayer = 1;
-                      eventData.targetLane = targetValue;
-                    } else if (
-                      metadata?.targeting?.targetType?.includes("CREATURE")
-                    ) {
-                      eventData.targetLane = targetValue;
-                      eventData.lane = targetValue; // Also set lane for effect handler
-                    }
-
-                    // Queue animation first if element is provided
-                    if (element) {
-                      queueActivation(card, element, () => {
-                        // Execute activation after animation completes
-                        engine.activateSupport(0 as 0 | 1, slot, eventData);
-                        refresh();
-                      });
-                    } else {
-                      // No animation - activate immediately
-                      engine.activateSupport(0 as 0 | 1, slot, eventData);
-                      refresh();
-                    }
-                  },
-                }),
-              );
-            },
-          }),
-        );
-        return;
-      }
-
-      // Standard activation (no targeting required)
-      dispatch(
-        openModal({
-          title: "Activate Card",
-          message: `Flip ${card.name} face-up and activate it?`,
-          onConfirm: () => {
-            // Queue animation first if element is provided
-            if (element) {
-              queueActivation(card, element, () => {
-                // Execute activation after animation completes
-                activateSupport(0, slot);
-              });
-            } else {
-              // No animation - activate immediately
-              activateSupport(0, slot);
-            }
-            dispatch(closeModal());
-          },
-        }),
-      );
-    }
-  };
-
-  const handleSelectAttacker = (lane: number) => {
-    if (checkNeedsToDraw()) {
-      showDrawReminderModal();
-      return;
-    }
-    const creature = player1.lanes[lane];
-    if (!creature) return;
-
-    // Cannot select creatures in defense mode as attackers
-    if (creature.mode === "DEFENSE") {
-      return;
-    }
-
-    dispatch(setSelectedAttacker(lane));
-    dispatch(setSelectedHandCard(null));
-  };
-
-  const handleAttack = (targetLane: number, defenderElement?: HTMLElement) => {
-    if (isShowingEffectNotification) return;
-    if (selectedAttacker === null) return;
-
-    // Determine defender index
-    const defenderIndex = gameState.activePlayer === 0 ? 1 : 0;
-
-    const executeAttack = () => {
-      // Only animate if it's the human player's turn (player 0) and we have both elements
-      if (
-        gameState.activePlayer === 0 &&
-        attackerRef.current &&
-        defenderElement
-      ) {
-        const attackerCard = player1.lanes[selectedAttacker];
-        const defenderCard =
-          targetLane !== null ? player2.lanes[targetLane] : null;
-
-        if (attackerCard) {
-          // Get effective stats with all active buffs (momentum + other effects)
-          const attackerStats = getEffectiveStatsFromActiveEffects(
-            attackerCard,
-            gameState.activeEffects,
-            0,
-          );
-
-          // Calculate damage that will be dealt to defender
-          let damageToDefender = 0;
-          let damageToAttacker = 0; // Counter damage
-          if (defenderCard) {
-            const defenderStats = getEffectiveStatsFromActiveEffects(
-              defenderCard,
-              gameState.activeEffects,
-              1,
-            );
-
-            // Combat damage calculation
-            if (
-              attackerCard.mode === "ATTACK" &&
-              defenderCard.mode === "ATTACK"
-            ) {
-              // ATTACK vs ATTACK: both deal damage, calculate net counter damage
-              damageToDefender = attackerStats.atk;
-              // Counter damage is defender's ATK minus attacker's DEF
-              damageToAttacker = Math.max(
-                0,
-                defenderStats.atk - attackerStats.def,
-              );
-            } else if (
-              attackerCard.mode === "ATTACK" &&
-              defenderCard.mode === "DEFENSE"
-            ) {
-              // ATTACK vs DEFENSE: only attacker deals damage (ATK - DEF)
-              damageToDefender = Math.max(
-                0,
-                attackerStats.atk - defenderStats.def,
-              );
-              damageToAttacker = 0;
-            }
-          } else {
-            // Direct attack
-            damageToDefender = attackerStats.atk;
-            damageToAttacker = 0;
-          }
-
-          // Store refs for animation then clear immediately to prevent re-triggers
-          const attackerElement = attackerRef.current;
-          attackerRef.current = null; // Clear immediately!
-
-          // Queue attack animation with callback to execute attack after animation
-          queueAttack(
-            attackerCard,
-            attackerElement,
-            defenderElement,
-            damageToDefender,
-            damageToAttacker,
-            () => {
-              attack(gameState.activePlayer, selectedAttacker, targetLane);
-              dispatch(setSelectedAttacker(null));
-            },
-          );
-          return;
-        }
-      }
-      // No animation - execute attack immediately
-      // Clear refs
-      attackerRef.current = null;
-      attack(gameState.activePlayer, selectedAttacker, targetLane);
-      dispatch(setSelectedAttacker(null));
-    };
-
-    // If defender is human (player 0) and they have face-down traps, prompt them
-    const traps = engine?.getActivatableTraps(defenderIndex) || [];
-    if (traps.length > 0 && defenderIndex === 0) {
-      const trap = traps[0];
-      dispatch(
-        openModal({
-          title: "Trap Activation",
-          message: `Your opponent is attacking! Activate ${trap.card.name}?`,
-          onConfirm: () => {
-            // Activate the trap (will resolve and be discarded)
-            activateTrap(defenderIndex, trap.slot, { targetLane });
-            dispatch(closeModal());
-            // Proceed with the attack after trap resolution
-            executeAttack();
-          },
-          onCancel: () => {
-            dispatch(closeModal());
-            // Don't activate trap, just proceed with attack
-            executeAttack();
-          },
-        }),
-      );
-      return;
-    }
-
-    // No trap prompt needed — proceed with attack
-    executeAttack();
-  };
-
   const handleEndTurn = () => {
     endTurn();
     dispatch(setSelectedHandCard(null));
     dispatch(setSelectedAttacker(null));
-  };
-
-  const handleToggleMode = (lane: number) => {
-    if (checkNeedsToDraw()) {
-      showDrawReminderModal();
-      return;
-    }
-    toggleCreatureMode(gameState.activePlayer, lane);
-  };
-
-  const handleFlipFaceUp = (lane: number) => {
-    if (checkNeedsToDraw()) {
-      showDrawReminderModal();
-      return;
-    }
-    const creature = player1.lanes[lane];
-    if (!creature || !creature.isFaceDown) return;
-
-    dispatch(
-      openModal({
-        title: "Flip Creature Face-Up",
-        message: `Do you want to flip ${creature.name} face-up? This action cannot be reversed.`,
-        onConfirm: () => {
-          engine.flipCreatureFaceUp(gameState.activePlayer, lane);
-          dispatch(closeModal());
-        },
-      }),
-    );
-  };
-
-  const handleCreatureDoubleClick = (lane: number, playerIndex: 0 | 1) => {
-    const player = gameState.players[playerIndex];
-    const card = player.lanes[lane];
-    if (!card) return;
-
-    // Get active effects that affect this card
-    const cardEffects = gameState.activeEffects.filter((effect) =>
-      effect.affectedCardIds?.includes(card.instanceId),
-    );
-
-    dispatch(
-      openCardDetailModal({
-        card,
-        activeEffects: cardEffects,
-      }),
-    );
-  };
-
-  const handleSupportDoubleClick = (slot: number, playerIndex: 0 | 1) => {
-    const player = gameState.players[playerIndex];
-    const card = player.support[slot];
-    if (!card) return;
-
-    // Get active effects that affect this card
-    const cardEffects = gameState.activeEffects.filter((effect) =>
-      effect.affectedCardIds?.includes(card.instanceId),
-    );
-
-    dispatch(
-      openCardDetailModal({
-        card,
-        activeEffects: cardEffects,
-      }),
-    );
-  };
-
-  const handleHandCardDoubleClick = (card: CardInterface) => {
-    // Hand cards don't have active effects on them yet
-    dispatch(
-      openCardDetailModal({
-        card,
-        activeEffects: [],
-      }),
-    );
   };
 
   return (
@@ -920,9 +321,7 @@ export default function App() {
               handleAttack(targetLane);
             }
           }}
-          onSetAttackerRef={(element) => {
-            attackerRef.current = element;
-          }}
+          onSetAttackerRef={setAttackerRef}
           onCreatureDoubleClick={(lane) => handleCreatureDoubleClick(lane, 1)}
           onSupportDoubleClick={(slot) => handleSupportDoubleClick(slot, 1)}
           onActivateCreatureEffect={(lane) => {
@@ -957,9 +356,7 @@ export default function App() {
             }
           }}
           onSelectAttacker={handleSelectAttacker}
-          onSetAttackerRef={(element) => {
-            attackerRef.current = element;
-          }}
+          onSetAttackerRef={setAttackerRef}
           onToggleMode={handleToggleMode}
           onFlipFaceUp={handleFlipFaceUp}
           onCreatureDoubleClick={(lane) => handleCreatureDoubleClick(lane, 0)}
