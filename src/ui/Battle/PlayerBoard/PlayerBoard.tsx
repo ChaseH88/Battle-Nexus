@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { PlayerBoardContainer, DeckArea } from "./PlayerBoard.styled";
 import { Player } from "./Player";
 import { DeckDisplay } from "../DeckDisplay";
+import { DiscardDisplay } from "../DiscardDisplay";
 import { Box } from "@mui/material";
 
 interface PlayerBoardProps
@@ -85,6 +86,16 @@ export const PlayerBoard = ({
     ],
   );
 
+  const DiscardDisplayComponent = useMemo(
+    () => (
+      <DiscardDisplay
+        discardPile={player.discardPile}
+        playerIndex={isOpponent ? 1 : 0}
+      />
+    ),
+    [player.discardPile, isOpponent],
+  );
+
   return (
     <PlayerBoardContainer
       isTurn={gameState?.activePlayer === (isOpponent ? 1 : 0)}
@@ -118,15 +129,16 @@ export const PlayerBoard = ({
           right: isOpponent ? "auto" : 0,
           border: "3px dashed rgba(255, 255, 255, 0.25)",
           borderRadius: "10px",
-          ...(isOpponent ? { left: 0 } : { top: "30px", right: "50px" }),
+          ...(isOpponent
+            ? { left: "50px", bottom: "50%", transform: "translateY(50%)" }
+            : { right: "50px", top: "50%", transform: "translateY(-50%)" }),
         }}
       >
-        {/* will also create a component for the discard pile that goes here */}
-        {!isOpponent && deckSize !== undefined && (
-          <DeckArea>
-            <DeckDisplay deckSize={deckSize} />
-          </DeckArea>
-        )}
+        <DeckArea>
+          {!isOpponent && DiscardDisplayComponent}
+          <DeckDisplay deckSize={deckSize || 0} />
+          {isOpponent && DiscardDisplayComponent}
+        </DeckArea>
       </Box>
       {!isOpponent && SupportZoneComponent}
     </PlayerBoardContainer>

@@ -55,10 +55,10 @@ export interface BattleEngineHookReturn {
   ) => boolean;
   activateCreatureEffect: (playerIndex: number, lane: number) => boolean;
   attack: (
-    playerIndex: number,
+    playerIndex: 0 | 1,
     attackerLane: number,
-    targetLane: number,
-  ) => void;
+    targetLane?: number,
+  ) => boolean;
   toggleCreatureMode: (playerIndex: number, lane: number) => boolean;
   endTurn: () => void;
   setEffectCallback: (
@@ -235,10 +235,15 @@ export function useBattleEngine(): BattleEngineHookReturn {
   );
 
   const attack = useCallback(
-    (playerIndex: number, attackerLane: number, targetLane: number) => {
-      if (!engine) return;
+    (
+      playerIndex: 0 | 1,
+      attackerLane: number,
+      targetLane?: number,
+    ): boolean => {
+      if (!engine) return false;
       engine.attack(playerIndex, attackerLane, targetLane);
       refresh();
+      return true;
     },
     [engine, refresh],
   );

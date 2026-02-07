@@ -26,7 +26,9 @@ export const BoardContent = styled(Box)(() => ({
 
 export const DeckArea = styled(Box)(() => ({
   display: "flex",
+  flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  minWidth: "140px",
+  gap: "15px",
+  padding: "15px",
 }));

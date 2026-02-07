@@ -314,6 +314,7 @@ export const Battle = () => {
           isOpponent={true}
           isFirstTurn={gameState.turn === 1 && gameState.activePlayer === 0}
           selectedAttacker={selectedAttacker}
+          deckSize={player2.deck.length}
           onAttack={(targetLane, defenderElement) => {
             if (defenderElement) {
               handleAttack(targetLane, defenderElement);
