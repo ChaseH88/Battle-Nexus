@@ -6,11 +6,13 @@ import {
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import HomeIcon from "@mui/icons-material/Home";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useMemo } from "react";
 
 const ROUTES = [
-  { label: "Battle", path: "/", icon: <SportsEsportsIcon /> },
+  { label: "Home", path: "/", icon: <HomeIcon /> },
+  { label: "Battle", path: "/battle", icon: <SportsEsportsIcon /> },
   { label: "Deck Builder", path: "/deck-builder", icon: <ViewModuleIcon /> },
   { label: "Effects", path: "/effects", icon: <AutoFixHighIcon /> },
 ] as const;

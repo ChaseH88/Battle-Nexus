@@ -51,6 +51,7 @@ export const Controls = ({
       data-testid="new-game-button"
       onClick={startNewGame}
       disabled={!isPlayerTurn || isShowingEffectNotification}
+      size="small"
     >
       New Game
     </ControlButton>

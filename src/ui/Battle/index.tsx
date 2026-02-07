@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
-import "./styles.css";
-import { GameLog } from "./Battle/GameLog";
-import { Controls } from "./Battle/Controls";
-import { ActiveEffects } from "./Battle/ActiveEffects";
-import { PlayerBoard } from "./Battle/PlayerBoard";
-import { Hand } from "./Battle/Hand";
-import { Modal, PlayCreatureModal } from "./Battle/Modal";
-import { TargetSelectModal } from "./Battle/Modal";
-import { CardDetailModal } from "./Battle/Modal/CardDetailModal";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import "../styles.css";
+import { GameLog } from "./GameLog";
+import { Controls } from "./Controls";
+import { ActiveEffects } from "./ActiveEffects";
+import { PlayerBoard } from "./PlayerBoard";
+import { Hand } from "./Hand";
+import { Modal, PlayCreatureModal } from "./Modal";
+import { TargetSelectModal } from "./Modal";
+import { CardDetailModal } from "./Modal/CardDetailModal";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   closeModal,
   closePlayCreatureModal,
@@ -16,23 +16,23 @@ import {
   setSelectedAttacker,
   closeCardDetailModal,
   queueEffectNotification,
-} from "../store/uiSlice";
-import backgroundImage from "../assets/background.png";
-import { useBattleEngine } from "../hooks/useBattleEngine";
-import { useGameInitialization } from "../hooks/useGameInitialization";
-import { CardActivationEffect } from "./Battle/Card/CardActivationEffect";
-import { CardAttackAnimation } from "./Battle/Card/CardAttackAnimation";
-import { useAnimationQueue } from "./Battle/Card/useAnimationQueue";
-import { useAttackAnimation } from "../hooks/useAttackAnimation";
-import { useTrapActivation } from "../hooks/useTrapActivation";
-import { useDrawReminder } from "../hooks/useDrawReminder";
-import { useCardActions } from "../hooks/useCardActions";
-import { useCreatureActions } from "../hooks/useCreatureActions";
-import { useCardDetailModals } from "../hooks/useCardDetailModals";
-import { useAttackHandler } from "../hooks/useAttackHandler";
-import { CardType } from "@/cards";
+} from "../../store/uiSlice";
+import backgroundImage from "../../assets/background.png";
+import { useBattleEngine } from "../../hooks/useBattleEngine";
+import { useGameInitialization } from "../../hooks/useGameInitialization";
+import { CardActivationEffect } from "./Card/CardActivationEffect";
+import { CardAttackAnimation } from "./Card/CardAttackAnimation";
+import { useAnimationQueue } from "./Card/useAnimationQueue";
+import { useAttackAnimation } from "../../hooks/useAttackAnimation";
+import { useTrapActivation } from "../../hooks/useTrapActivation";
+import { useDrawReminder } from "../../hooks/useDrawReminder";
+import { useCardActions } from "../../hooks/useCardActions";
+import { useCreatureActions } from "../../hooks/useCreatureActions";
+import { useCardDetailModals } from "../../hooks/useCardDetailModals";
+import { useAttackHandler } from "../../hooks/useAttackHandler";
+import { CardType } from "../../cards/types";
 
-export default function App() {
+export const Battle = () => {
   const dispatch = useAppDispatch();
   const {
     selectedHandCard,
@@ -488,4 +488,4 @@ export default function App() {
       </div>
     </div>
   );
-}
+};

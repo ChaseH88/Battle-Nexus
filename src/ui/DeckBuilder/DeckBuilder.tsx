@@ -18,6 +18,7 @@ import { useCallback, useState, useEffect, useMemo } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { closeCardDetailModal } from "@/store/uiSlice";
 import { cardFactory } from "@/utils/cardFactory";
+import backgroundImage from "../../assets/layout/deckbuilder-background.png";
 
 export interface CardData {
   id: string;
@@ -132,7 +133,18 @@ const DeckBuilder = () => {
   const mediaQuery = useMediaQuery("(max-width:1300px)");
 
   return (
-    <Box sx={{ maxWidth: "1600px", margin: "0 auto", padding: "20px 0 64px" }}>
+    <Box
+      sx={{
+        maxWidth: "1600px",
+        margin: "0 auto",
+        padding: "20px 0 64px",
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        minHeight: "100vh",
+      }}
+    >
       <Typography
         variant="h3"
         sx={{ mb: 3, textAlign: "center", color: "#fff" }}

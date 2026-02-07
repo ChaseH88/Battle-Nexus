@@ -3,10 +3,14 @@ import { CardDetailModal } from "./Battle/Modal/CardDetailModal";
 import { BottomNavigation } from "./Navigation/BottomNavigation";
 import { Box } from "@mui/material";
 
-export const PageWrapper = () => (
+interface PageWrapperProps {
+  showBottomNav?: boolean;
+}
+
+export const PageWrapper = ({ showBottomNav = true }: PageWrapperProps) => (
   <Box id="page-wrapper">
     <Outlet />
     <CardDetailModal />
-    <BottomNavigation />
+    {showBottomNav && <BottomNavigation />}
   </Box>
 );
