@@ -26,7 +26,7 @@ interface CardDetailModalState {
 interface PlayCreatureModalState {
   isOpen: boolean;
   lane: number;
-  creatureName: string;
+  card: CardInterface | null;
 }
 
 interface TargetSelectOption {
@@ -70,7 +70,7 @@ const initialState: UIState = {
   playCreatureModal: {
     isOpen: false,
     lane: 0,
-    creatureName: "",
+    card: null,
   },
   targetSelectModal: {
     isOpen: false,
@@ -103,7 +103,7 @@ export const uiSlice = createSlice({
     },
     openPlayCreatureModal: (
       state,
-      action: PayloadAction<{ lane: number; creatureName: string }>,
+      action: PayloadAction<{ lane: number; card: CardInterface }>,
     ) => {
       state.playCreatureModal = {
         isOpen: true,

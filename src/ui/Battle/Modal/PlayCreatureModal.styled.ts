@@ -9,24 +9,35 @@ import {
 } from "../Modal/styled";
 
 export const PlayCreatureModalContent = styled(ModalContent)(() => ({
-  maxWidth: "650px",
+  maxWidth: "800px",
+  minHeight: "500px",
 }));
 
 export const PlayOptions = styled(Box)(() => ({
   display: "flex",
-  gap: "25px",
+  gap: "30px",
   marginBottom: "25px",
-  flexWrap: "wrap",
+  justifyContent: "center",
+  alignItems: "stretch",
 }));
 
 export const PlayOptionGroup = styled(Box)(() => ({
   flex: 1,
-  minWidth: "250px",
+  maxWidth: "300px",
   background: "rgba(0, 0, 0, 0.4)",
   padding: "20px",
   borderRadius: "12px",
-  border: "1px solid rgba(255, 255, 255, 0.1)",
+  border: "2px solid rgba(255, 255, 255, 0.1)",
   boxShadow: "inset 0 2px 8px rgba(0, 0, 0, 0.3)",
+  transition: "all 0.3s ease",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  "&:hover": {
+    border: "2px solid rgba(251, 191, 36, 0.5)",
+    transform: "translateY(-5px) scale(1.02)",
+    boxShadow: "0 8px 24px rgba(251, 191, 36, 0.3)",
+  },
 }));
 
 export const PlayOptionTitle = styled(Typography)(() => ({

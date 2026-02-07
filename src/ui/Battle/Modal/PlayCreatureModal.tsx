@@ -6,64 +6,69 @@ import {
   PlayOptions,
   PlayOptionGroup,
   PlayOptionTitle,
-  PlayOptionButton,
   CancelButton,
 } from "./PlayCreatureModal.styled";
+import { CreatureCard } from "../../../cards/types";
+import { Card } from "../Card/Card";
 
 interface PlayCreatureModalProps {
   isOpen: boolean;
-  creatureName: string;
+  card: CreatureCard | null;
   onPlayFaceUpAttack: () => void;
-  onPlayFaceUpDefense: () => void;
-  onPlayFaceDownAttack: () => void;
   onPlayFaceDownDefense: () => void;
   onCancel: () => void;
 }
 
 export const PlayCreatureModal = ({
   isOpen,
-  creatureName,
+  card,
   onPlayFaceUpAttack,
-  onPlayFaceUpDefense,
-  onPlayFaceDownAttack,
   onPlayFaceDownDefense,
   onCancel,
 }: PlayCreatureModalProps) => {
-  if (!isOpen) return null;
+  if (!isOpen || !card) return null;
 
   return (
     <ModalOverlay onClick={onCancel}>
       <PlayCreatureModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalTitle>Play {creatureName}</ModalTitle>
+        <ModalTitle>Play {card.name}</ModalTitle>
         <ModalMessage>Choose how to play this creature:</ModalMessage>
 
         <PlayOptions>
-          <PlayOptionGroup>
-            <PlayOptionTitle>Face-Up</PlayOptionTitle>
-            <PlayOptionButton
-              mode="attack"
-              data-testid="play-attack-button"
-              onClick={onPlayFaceUpAttack}
-            >
-              Attack Mode
-            </PlayOptionButton>
-            <PlayOptionButton
-              mode="defense"
-              data-testid="play-defense-button"
-              onClick={onPlayFaceUpDefense}
-            >
-              Defense Mode
-            </PlayOptionButton>
+          <PlayOptionGroup
+            onClick={onPlayFaceUpAttack}
+            style={{ cursor: "pointer" }}
+          >
+            <PlayOptionTitle>Face-Up Attack Mode</PlayOptionTitle>
+            <div style={{ pointerEvents: "none" }}>
+              <Card
+                card={{ ...card, mode: "ATTACK", isFaceDown: false }}
+                isSelected={false}
+                showFaceDown={false}
+                canActivate={false}
+                playerIndex={0}
+                activeEffects={[]}
+                playerMomentum={0}
+              />
+            </div>
           </PlayOptionGroup>
 
-          <PlayOptionGroup>
-            <PlayOptionTitle>Face-Down</PlayOptionTitle>
-            <PlayOptionButton mode="attack" onClick={onPlayFaceDownAttack}>
-              Attack Mode
-            </PlayOptionButton>
-            <PlayOptionButton mode="defense" onClick={onPlayFaceDownDefense}>
-              Defense Mode
-            </PlayOptionButton>
+          <PlayOptionGroup
+            onClick={onPlayFaceDownDefense}
+            style={{ cursor: "pointer" }}
+          >
+            <PlayOptionTitle>Face-Down Defense Mode</PlayOptionTitle>
+            <div style={{ pointerEvents: "none" }}>
+              <Card
+                card={{ ...card, mode: "DEFENSE", isFaceDown: true }}
+                isSelected={false}
+                showFaceDown={true}
+                canActivate={false}
+                playerIndex={0}
+                activeEffects={[]}
+                playerMomentum={0}
+              />
+            </div>
           </PlayOptionGroup>
         </PlayOptions>
 

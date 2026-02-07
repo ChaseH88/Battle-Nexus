@@ -3,8 +3,10 @@ import { GameState } from "../../../battle/GameState";
 import { SupportZone, SupportZoneProps } from "./SupportZone";
 import { CreatureZone, CreatureZoneProps } from "./CreatureZone";
 import { useMemo } from "react";
-import { PlayerBoardContainer } from "./PlayerBoard.styled";
+import { PlayerBoardContainer, DeckArea } from "./PlayerBoard.styled";
 import { Player } from "./Player";
+import { DeckDisplay } from "../DeckDisplay";
+import { Box } from "@mui/material";
 
 interface PlayerBoardProps
   extends
@@ -31,6 +33,7 @@ interface PlayerBoardProps
   onCreatureDoubleClick?: (lane: number) => void;
   onSupportDoubleClick?: (slot: number) => void;
   showPlayButtons?: boolean; // Show "Play Here" buttons for accessibility
+  deckSize?: number; // Number of cards remaining in deck
 }
 
 export const PlayerBoard = ({
@@ -55,6 +58,7 @@ export const PlayerBoard = ({
   draggedCardId,
   onSetAttackerRef,
   showPlayButtons = false,
+  deckSize,
 }: PlayerBoardProps) => {
   const SupportZoneComponent = useMemo(
     () => (
@@ -107,6 +111,23 @@ export const PlayerBoard = ({
         showPlayButtons={showPlayButtons}
         onSetAttackerRef={onSetAttackerRef}
       />
+      <Box
+        className="side-area"
+        sx={{
+          position: "absolute",
+          right: isOpponent ? "auto" : 0,
+          border: "3px dashed rgba(255, 255, 255, 0.25)",
+          borderRadius: "10px",
+          ...(isOpponent ? { left: 0 } : { top: "30px", right: "50px" }),
+        }}
+      >
+        {/* will also create a component for the discard pile that goes here */}
+        {!isOpponent && deckSize !== undefined && (
+          <DeckArea>
+            <DeckDisplay deckSize={deckSize} />
+          </DeckArea>
+        )}
+      </Box>
       {!isOpponent && SupportZoneComponent}
     </PlayerBoardContainer>
   );

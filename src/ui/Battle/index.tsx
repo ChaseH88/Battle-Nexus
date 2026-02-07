@@ -339,6 +339,7 @@ export const Battle = () => {
           isFirstTurn={gameState.turn === 1 && gameState.activePlayer === 0}
           selectedHandCard={selectedHandCard}
           selectedAttacker={selectedAttacker}
+          deckSize={player1.deck.length}
           onPlayCreature={handlePlayCreatureClick}
           onPlaySupport={handlePlaySupport}
           onActivateSupport={handleActivateSupport}
@@ -433,20 +434,10 @@ export const Battle = () => {
         <GameLog log={gameState.log} />
         <PlayCreatureModal
           isOpen={playCreatureModal.isOpen}
-          creatureName={playCreatureModal.creatureName || ""}
+          card={playCreatureModal.card}
           onPlayFaceUpAttack={() => {
             if (playCreatureModal.isOpen) {
               handlePlayCreature(playCreatureModal.lane!, false, "ATTACK");
-            }
-          }}
-          onPlayFaceUpDefense={() => {
-            if (playCreatureModal.isOpen) {
-              handlePlayCreature(playCreatureModal.lane!, false, "DEFENSE");
-            }
-          }}
-          onPlayFaceDownAttack={() => {
-            if (playCreatureModal.isOpen) {
-              handlePlayCreature(playCreatureModal.lane!, true, "ATTACK");
             }
           }}
           onPlayFaceDownDefense={() => {

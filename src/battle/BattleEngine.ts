@@ -768,6 +768,14 @@ export class BattleEngine {
 
     if (!creature || creature.type !== CardType.Creature) return false;
 
+    // Face-down creatures cannot toggle modes - they must be flipped face-up first
+    if (creature.isFaceDown) {
+      this.log(
+        `${creature.name} must be flipped face-up before changing modes!`,
+      );
+      return false;
+    }
+
     // Check if creature has already changed mode this turn
     if (creature.hasChangedModeThisTurn) {
       this.log(`${creature.name} has already changed mode this turn!`);
@@ -799,7 +807,9 @@ export class BattleEngine {
     if (!creature.isFaceDown) return false;
 
     creature.isFaceDown = false;
-    this.log(`${creature.name} was flipped face-up!`);
+    // When flipped face-up, automatically switch to ATTACK mode
+    creature.mode = "ATTACK";
+    this.log(`${creature.name} was flipped face-up in ATTACK mode!`);
 
     // Apply any persistent active effects when a creature is revealed
     this.applyActiveEffectsToCreature(playerIndex, creature);

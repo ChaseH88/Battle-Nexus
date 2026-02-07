@@ -228,7 +228,8 @@ export const CreatureZone = ({
               {/* Current player creature controls */}
               {!isOpponent && card && card.type === CardType.Creature && (
                 <>
-                  {onToggleMode && (
+                  {/* Hide "Switch Mode" button for face-down creatures */}
+                  {onToggleMode && !(card as CreatureCard).isFaceDown && (
                     <ToggleModeButton
                       onClick={() => onToggleMode(i)}
                       disabled={

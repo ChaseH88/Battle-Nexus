@@ -100,7 +100,7 @@ export const useCardActions = ({
         dispatch(
           openPlayCreatureModal({
             lane,
-            creatureName: card.name,
+            card,
           }),
         );
       }
