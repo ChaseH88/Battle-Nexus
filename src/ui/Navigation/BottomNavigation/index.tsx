@@ -35,16 +35,33 @@ export const BottomNavigation = () => {
 
   return (
     <Paper
-      sx={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1300 }}
+      sx={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1300,
+        background: "#000536af",
+      }}
       elevation={3}
     >
       <MuiBottomNavigation
         showLabels
         value={value}
         onChange={(_, newValue) => navigate(ROUTES[newValue]?.path ?? "/")}
+        sx={{ backgroundColor: "transparent !important", height: 64 }}
       >
         {ROUTES.map(({ label, icon }) => (
-          <MuiBottomNavigationAction key={label} label={label} icon={icon} />
+          <MuiBottomNavigationAction
+            key={label}
+            label={label}
+            icon={icon}
+            sx={{
+              color: "#fff !important",
+              "&.Mui-selected": { color: "#4fe7ffff !important" },
+              svg: { fontSize: "1.8rem" },
+            }}
+          />
         ))}
       </MuiBottomNavigation>
     </Paper>

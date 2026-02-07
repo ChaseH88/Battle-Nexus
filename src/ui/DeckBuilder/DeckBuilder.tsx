@@ -132,7 +132,7 @@ const DeckBuilder = () => {
   const mediaQuery = useMediaQuery("(max-width:1300px)");
 
   return (
-    <Box sx={{ maxWidth: "1600px", margin: "0 auto", padding: "20px" }}>
+    <Box sx={{ maxWidth: "1600px", margin: "0 auto", padding: "20px 0 64px" }}>
       <Typography
         variant="h3"
         sx={{ mb: 3, textAlign: "center", color: "#fff" }}
@@ -153,6 +153,7 @@ const DeckBuilder = () => {
           className="left-container"
           flex={!mediaQuery ? "0 0 73%" : "1 1 100%"}
           display={isDeckFullScreen ? "none" : "block"}
+          px={2}
           {...(mediaQuery && { order: 2, mt: 5 })}
         >
           <CardFilters
