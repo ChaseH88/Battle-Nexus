@@ -1,10 +1,6 @@
-import {
-  DeckContainer,
-  DeckCard,
-  CardCount,
-  EmptyDeck,
-} from "./DeckDisplay.styled";
+import { DeckContainer, DeckCard, EmptyDeck } from "./DeckDisplay.styled";
 import cardBackImage from "../../../assets/card-back.png";
+import { TextOutline } from "../Common/TextOutline";
 
 interface DeckDisplayProps {
   deckSize: number;
@@ -23,7 +19,6 @@ export const DeckDisplay = ({ deckSize }: DeckDisplayProps) => {
 
   return (
     <DeckContainer>
-      {/* Render stacked cards */}
       {Array.from({ length: visibleLayers }).map((_, index) => (
         <DeckCard
           key={index}
@@ -35,9 +30,7 @@ export const DeckDisplay = ({ deckSize }: DeckDisplayProps) => {
           <img src={cardBackImage} alt="Card back" />
         </DeckCard>
       ))}
-
-      {/* Card count overlay */}
-      <CardCount>{deckSize}</CardCount>
+      <TextOutline text={deckSize.toString()} />
     </DeckContainer>
   );
 };

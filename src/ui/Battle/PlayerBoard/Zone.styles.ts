@@ -1,12 +1,6 @@
 import styled from "styled-components";
 import { CARD_DIMENSIONS } from "../Card/cardDimensions";
 
-export const ZoneContainer = styled.div`
-  &:not(:last-child) {
-    margin-bottom: 2.5em;
-  }
-`;
-
 export const Lanes = styled.div<{ isCreature?: boolean }>`
   display: grid;
   grid-template-columns: repeat(3, 1fr);

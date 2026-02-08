@@ -5,7 +5,6 @@ import { CreatureCard } from "../../../cards/CreatureCard";
 import { Card } from "../Card";
 import { motion } from "framer-motion";
 import {
-  ZoneContainer,
   Lanes,
   Lane,
   PlayHereButton,
@@ -16,6 +15,7 @@ import {
 } from "./Zone.styles";
 import { useRef } from "react";
 import { canActivateEffect } from "../../../effects/metadata";
+import { Box } from "@mui/material";
 
 export interface CreatureZoneProps {
   player: PlayerState;
@@ -66,7 +66,7 @@ export const CreatureZone = ({
     playerIndex !== undefined ? playerIndex : ((isOpponent ? 1 : 0) as 0 | 1);
 
   return (
-    <ZoneContainer>
+    <Box mb={!isOpponent ? 2 : 0}>
       <Lanes isCreature>
         {player.lanes.map((card, i) => {
           const draggedCard = draggedCardId
@@ -292,6 +292,6 @@ export const CreatureZone = ({
           );
         })}
       </Lanes>
-    </ZoneContainer>
+    </Box>
   );
 };

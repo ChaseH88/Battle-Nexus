@@ -7,6 +7,7 @@ import { PlayerBoardContainer, DeckArea } from "./PlayerBoard.styled";
 import { Player } from "./Player";
 import { DeckDisplay } from "../DeckDisplay";
 import { DiscardDisplay } from "../DiscardDisplay";
+import { PlayerActiveEffects } from "../PlayerActiveEffects";
 import { Box } from "@mui/material";
 
 interface PlayerBoardProps
@@ -91,9 +92,22 @@ export const PlayerBoard = ({
       <DiscardDisplay
         discardPile={player.discardPile}
         playerIndex={isOpponent ? 1 : 0}
+        isOpponent={isOpponent}
       />
     ),
     [player.discardPile, isOpponent],
+  );
+
+  const ActiveEffectsComponent = useMemo(
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
+    () =>
+      gameState?.activeEffects ? (
+        <PlayerActiveEffects
+          playerIndex={isOpponent ? 1 : 0}
+          activeEffects={gameState.activeEffects}
+        />
+      ) : null,
+    [gameState?.activeEffects, isOpponent],
   );
 
   return (
@@ -123,7 +137,7 @@ export const PlayerBoard = ({
         onSetAttackerRef={onSetAttackerRef}
       />
       <Box
-        className="side-area"
+        className="side-area deck-discard"
         sx={{
           position: "absolute",
           right: isOpponent ? "auto" : 0,
@@ -139,6 +153,20 @@ export const PlayerBoard = ({
           <DeckDisplay deckSize={deckSize || 0} />
           {isOpponent && DiscardDisplayComponent}
         </DeckArea>
+      </Box>
+      <Box
+        className="side-area active-effects"
+        sx={{
+          position: "absolute",
+          left: isOpponent ? "auto" : 0,
+          border: "3px dashed rgba(139, 92, 246, 0.25)",
+          borderRadius: "10px",
+          ...(isOpponent
+            ? { right: "50px", bottom: "50%", transform: "translateY(50%)" }
+            : { left: "50px", top: "50%", transform: "translateY(-50%)" }),
+        }}
+      >
+        {ActiveEffectsComponent}
       </Box>
       {!isOpponent && SupportZoneComponent}
     </PlayerBoardContainer>

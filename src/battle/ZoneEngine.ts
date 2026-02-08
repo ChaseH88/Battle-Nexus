@@ -115,22 +115,22 @@ export function moveCard(
     }
 
     if (to === Zone.DiscardPile) {
-      player.discardPile.push(card);
+      player.discardPile = [...player.discardPile, card];
       return;
     }
 
     if (to === Zone.Stack) {
-      state.stack.push(card);
+      state.stack = [...state.stack, card];
       return;
     }
 
     if (to === Zone.MaxDeck) {
-      player.maxDeck.push(card);
+      player.maxDeck = [...player.maxDeck, card];
       return;
     }
 
     if (to === Zone.RemovedFromGame) {
-      player.removedFromGame.push(card);
+      player.removedFromGame = [...player.removedFromGame, card];
       return;
     }
   };

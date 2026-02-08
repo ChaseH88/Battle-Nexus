@@ -2,9 +2,10 @@ import { CardType, ActionCard, TrapCard } from "../../../cards";
 import { PlayerState } from "../../../battle/PlayerState";
 import { Card } from "../Card";
 import { motion } from "framer-motion";
-import { ZoneContainer, Lanes, Lane, FaceDownButton } from "./Zone.styles";
+import { Lanes, Lane, FaceDownButton } from "./Zone.styles";
 import { SupportZoneTitle, SupportActions } from "./SupportZone.styled";
 import { useRef } from "react";
+import { Box } from "@mui/material";
 
 export interface SupportZoneProps {
   player: PlayerState;
@@ -30,7 +31,7 @@ export const SupportZone = ({
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   return (
-    <ZoneContainer>
+    <Box mb={isOpponent ? 5 : 0}>
       <SupportZoneTitle />
       <Lanes>
         {player.support.map((card, i) => {
@@ -133,6 +134,6 @@ export const SupportZone = ({
           );
         })}
       </Lanes>
-    </ZoneContainer>
+    </Box>
   );
 };

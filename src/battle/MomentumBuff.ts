@@ -53,7 +53,7 @@ export function createMomentumBuffEffect(
   const scope = playerIndex === 0 ? "player1" : "player2";
 
   return {
-    id: `momentum-pressure-${playerIndex}`,
+    id: `momentum-buff-${playerIndex}`,
     name: `${momentum === 10 ? "Max" : ""} Momentum${momentum === 10 ? "!" : ""}`,
     sourceCardId: "system",
     sourceCardName: "",
@@ -61,7 +61,7 @@ export function createMomentumBuffEffect(
     scope,
     description: `+${buff.atk} ATK, +${buff.def} DEF from ${momentum} Momentum`,
     statModifiers: buff,
-    isGlobal: true,
+    isGlobal: false, // Changed to false - only affects this player's creatures
     isMomentumEffect: true,
   };
 }

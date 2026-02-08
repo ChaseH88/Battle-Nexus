@@ -40,32 +40,6 @@ export const DiscardCard = styled(Box)(() => ({
   },
 }));
 
-export const CardCount = styled(Box)(() => ({
-  position: "absolute",
-  bottom: "8px",
-  right: "8px",
-  zIndex: 10,
-  fontSize: "1.8rem",
-  fontWeight: 900,
-  color: "#fff",
-  textShadow: `
-    0 0 10px rgba(0, 0, 0, 0.9),
-    0 0 20px rgba(0, 0, 0, 0.8),
-    2px 2px 4px rgba(0, 0, 0, 1),
-    -2px -2px 4px rgba(0, 0, 0, 1),
-    0 4px 8px rgba(0, 0, 0, 0.8)
-  `,
-  pointerEvents: "none",
-  background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  backgroundClip: "text",
-  filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))",
-  padding: "4px 8px",
-  borderRadius: "6px",
-  backgroundColor: "rgba(0, 0, 0, 0.6)",
-}));
-
 export const EmptyDiscard = styled(Box)(() => ({
   margin: "10px 0",
   width: "120px",

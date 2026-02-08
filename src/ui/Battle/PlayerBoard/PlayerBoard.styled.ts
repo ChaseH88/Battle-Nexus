@@ -14,7 +14,6 @@ export const PlayerBoardContainer = styled(Box)<{ isTurn?: boolean }>(
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
   }),
 );
 

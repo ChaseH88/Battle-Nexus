@@ -8,7 +8,6 @@ export const DeckContainer = styled(Box)(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  cursor: "default",
 }));
 
 export const DeckCard = styled(Box)(() => ({
@@ -19,6 +18,8 @@ export const DeckCard = styled(Box)(() => ({
   overflow: "hidden",
   boxShadow: "0 4px 8px rgba(0, 0, 0, 0.6)",
   transition: "all 0.3s ease",
+  userSelect: "none",
+  pointerEvents: "none",
 
   "& img": {
     width: "100%",
@@ -26,25 +27,6 @@ export const DeckCard = styled(Box)(() => ({
     objectFit: "cover",
     display: "block",
   },
-}));
-
-export const CardCount = styled(Box)(() => ({
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  zIndex: 10,
-  fontSize: "3.5rem",
-  fontWeight: 900,
-  color: "#fff",
-  "-webkit-text-stroke": "1px black",
-  "text-stroke": "1px black",
-  pointerEvents: "none",
-  background: "linear-gradient(135deg, #fff 0%, #fff 100%)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  backgroundClip: "text",
-  filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))",
 }));
 
 export const EmptyDeck = styled(Box)(() => ({

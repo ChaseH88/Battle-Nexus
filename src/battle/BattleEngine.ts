@@ -67,11 +67,11 @@ export class BattleEngine {
    */
   public syncMomentumEffects(playerIndex: number) {
     const player = this.state.players[playerIndex];
-    const scope = playerIndex === 0 ? "player1" : "player2";
 
     // Remove existing momentum effect for this player
     this.state.activeEffects = this.state.activeEffects.filter(
-      (effect) => !(effect.isMomentumEffect && effect.scope === scope),
+      (effect) =>
+        !(effect.isMomentumEffect && effect.playerIndex === playerIndex),
     );
 
     // Only create effect if there's an actual buff (momentum >= 3)
@@ -346,7 +346,7 @@ export class BattleEngine {
 
     // Remove creature from field
     player.lanes[lane] = null;
-    player.discardPile.push(creature);
+    player.discardPile = [...player.discardPile, creature];
 
     this.log(`${player.id} sacrificed ${creature.name}!`);
     this.gainMomentum(playerIndex, momentumGain);
@@ -999,12 +999,12 @@ export class BattleEngine {
         opponent.lanes[targetLane] = null;
         // MAX cards are removed from game, not discarded
         if (defender.isMax) {
-          opponent.removedFromGame.push(defender);
+          opponent.removedFromGame = [...opponent.removedFromGame, defender];
           this.log(
             `💀 ${defender.name} was destroyed and removed from the game! (MAX card)`,
           );
         } else {
-          opponent.discardPile.push(defender);
+          opponent.discardPile = [...opponent.discardPile, defender];
           this.log(`💀 ${defender.name} was destroyed!`);
         }
 
@@ -1040,12 +1040,18 @@ export class BattleEngine {
         this.state.players[playerIndex].lanes[attackerLane] = null;
         // MAX cards are removed from game, not discarded
         if (attacker.isMax) {
-          this.state.players[playerIndex].removedFromGame.push(attacker);
+          this.state.players[playerIndex].removedFromGame = [
+            ...this.state.players[playerIndex].removedFromGame,
+            attacker,
+          ];
           this.log(
             `💀 ${attacker.name} was destroyed by the counter-attack and removed from the game! (MAX card)`,
           );
         } else {
-          this.state.players[playerIndex].discardPile.push(attacker);
+          this.state.players[playerIndex].discardPile = [
+            ...this.state.players[playerIndex].discardPile,
+            attacker,
+          ];
           this.log(`💀 ${attacker.name} was destroyed by the counter-attack!`);
         }
         // Remove any support cards targeting this creature
@@ -1087,12 +1093,12 @@ export class BattleEngine {
           opponent.lanes[targetLane] = null;
           // MAX cards are removed from game, not discarded
           if (defender.isMax) {
-            opponent.removedFromGame.push(defender);
+            opponent.removedFromGame = [...opponent.removedFromGame, defender];
             this.log(
               `💀 ${defender.name} was destroyed and removed from the game! (MAX card)`,
             );
           } else {
-            opponent.discardPile.push(defender);
+            opponent.discardPile = [...opponent.discardPile, defender];
             this.log(`💀 ${defender.name} was destroyed!`);
           }
           // Remove any support cards targeting this creature

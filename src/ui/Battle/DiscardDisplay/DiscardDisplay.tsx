@@ -1,24 +1,25 @@
 import {
   DiscardContainer,
   DiscardCard,
-  CardCount,
   EmptyDiscard,
 } from "./DiscardDisplay.styled";
 import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card/Card";
+import { TextOutline } from "../Common/TextOutline";
 
 interface DiscardDisplayProps {
   discardPile: CardInterface[];
   playerIndex: number;
   onCardClick?: () => void;
+  isOpponent?: boolean;
 }
 
 export const DiscardDisplay = ({
   discardPile,
   playerIndex,
   onCardClick,
+  isOpponent = false,
 }: DiscardDisplayProps) => {
-  // Calculate how many card layers to show (max 3 for visual effect)
   const visibleLayers = Math.min(discardPile.length, 3);
   const topCard = discardPile[discardPile.length - 1];
 
@@ -32,7 +33,6 @@ export const DiscardDisplay = ({
 
   return (
     <DiscardContainer onClick={onCardClick} clickable={!!onCardClick}>
-      {/* Render stacked cards - show the top card with layers beneath */}
       {Array.from({ length: visibleLayers }).map((_, index) => {
         const cardIndex = discardPile.length - visibleLayers + index;
         const card = discardPile[cardIndex];
@@ -41,13 +41,18 @@ export const DiscardDisplay = ({
           <DiscardCard
             key={`${card.id}-${index}`}
             style={{
-              transform: `translateY(${index * 2}px) translateX(${index * -1}px)`,
+              transform: `rotate(${(index - (visibleLayers - 1) / 1.25) * 3}deg) translateY(${index * -1}px) translateX(${index * -1}px)`,
               zIndex: index,
-              opacity: index === visibleLayers - 1 ? 1 : 0.5 - index * 0.15,
             }}
           >
             {index === visibleLayers - 1 && topCard ? (
-              <div style={{ pointerEvents: "none", transform: "scale(0.95)" }}>
+              <div
+                style={{
+                  pointerEvents: "none",
+                  transform: "scale(0.95)",
+                  filter: isOpponent ? "grayscale(100%)" : "none",
+                }}
+              >
                 <Card
                   card={topCard}
                   isSelected={false}
@@ -63,9 +68,9 @@ export const DiscardDisplay = ({
           </DiscardCard>
         );
       })}
-
-      {/* Card count overlay */}
-      {discardPile.length > 1 && <CardCount>{discardPile.length}</CardCount>}
+      <TextOutline
+        text={discardPile.length ? discardPile.length.toString() : "0"}
+      />
     </DiscardContainer>
   );
 };

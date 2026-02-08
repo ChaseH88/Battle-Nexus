@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import "../styles.css";
-import { GameLog } from "./GameLog";
+// import { GameLog } from "./GameLog";
 import { Controls } from "./Controls";
-import { ActiveEffects } from "./ActiveEffects";
 import { PlayerBoard } from "./PlayerBoard";
 import { Hand } from "./Hand";
 import { Modal, PlayCreatureModal } from "./Modal";
@@ -189,7 +188,7 @@ export const Battle = () => {
     handleCreatureDoubleClick,
     handleSupportDoubleClick,
     handleHandCardDoubleClick,
-  } = useCardDetailModals({ gameState });
+  } = useCardDetailModals(gameState);
 
   // Render deck load prompt if needed
   if (showDeckLoadPrompt) {
@@ -302,10 +301,6 @@ export const Battle = () => {
         />
       </div>
       <div className="game-container">
-        <ActiveEffects
-          activeEffects={gameState.activeEffects}
-          players={gameState.players}
-        />
         <PlayerBoard
           player={player2}
           gameState={gameState}
@@ -432,7 +427,7 @@ export const Battle = () => {
           isPlayerTurn={gameState.activePlayer === 0}
           isShowingEffectNotification={isShowingEffectNotification}
         />
-        <GameLog log={gameState.log} />
+        {/* <GameLog log={gameState.log} /> */}
         <PlayCreatureModal
           isOpen={playCreatureModal.isOpen}
           card={playCreatureModal.card}

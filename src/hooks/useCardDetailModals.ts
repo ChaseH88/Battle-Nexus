@@ -4,13 +4,7 @@ import { CardInterface } from "../cards/types";
 import { useAppDispatch } from "../store/hooks";
 import { openCardDetailModal } from "../store/uiSlice";
 
-interface UseCardDetailModalsProps {
-  gameState: GameState | null;
-}
-
-export const useCardDetailModals = ({
-  gameState,
-}: UseCardDetailModalsProps) => {
+export const useCardDetailModals = (gameState: GameState | null) => {
   const dispatch = useAppDispatch();
 
   const handleCreatureDoubleClick = useCallback(
