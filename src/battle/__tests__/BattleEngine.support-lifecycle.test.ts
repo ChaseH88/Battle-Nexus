@@ -40,7 +40,7 @@ describe("BattleEngine – Support Card Lifecycle", () => {
 
       // Should be discarded immediately
       expect(p1.support[0]).toBeNull();
-      expect(p1.discardPile).toContain(actionCard);
+      expect(p1.discardPile.some(c => c.id === actionCard.id)).toBe(true);
     });
   });
 
@@ -65,7 +65,7 @@ describe("BattleEngine – Support Card Lifecycle", () => {
 
       // Should be discarded
       expect(p1.support[0]).toBeNull();
-      expect(p1.discardPile).toContain(supportCard);
+      expect(p1.discardPile.some(c => c.id === supportCard.id)).toBe(true);
     });
   });
 
@@ -213,13 +213,13 @@ describe("BattleEngine – Support Card Lifecycle", () => {
       // P2 attacks and destroys P1's Fire creature
       engine.attack(1, 0, 0); // P2 lane 0 attacks P1 lane 0
 
-      // Fire creature should be destroyed
+      // Fire creature should be discarded
       expect(p1.lanes[0]).toBeNull();
-      expect(p1.discardPile).toContain(fireCreature);
+      expect(p1.discardPile.some(c => c.id === fireCreature.id)).toBe(true);
 
       // Targeted support should also be discarded
       expect(p1.support[1]).toBeNull();
-      expect(p1.discardPile).toContain(targetedSupport);
+      expect(p1.discardPile.some(c => c.id === targetedSupport.id)).toBe(true);
     });
 
     it("removes active effects when targeted support is discarded", () => {
@@ -372,7 +372,7 @@ describe("BattleEngine – Support Card Lifecycle", () => {
 
       // Creature in lane 1 destroyed
       expect(p1.lanes[1]).toBeNull();
-      expect(p1.discardPile).toContain(fireCreature2);
+      expect(p1.discardPile.some(c => c.id === fireCreature2.id)).toBe(true);
 
       // But targeted support should STILL be active (targets lane 0)
       expect(p1.support[2]).toBe(targetedSupport);
@@ -418,11 +418,11 @@ describe("BattleEngine – Support Card Lifecycle", () => {
 
       // P1's support should be discarded
       expect(p1.support[0]).toBeNull();
-      expect(p1.discardPile).toContain(support);
+      expect(p1.discardPile.some(c => c.id === support.id)).toBe(true);
 
       // P2's purge card should also be discarded (ONE_TIME)
       expect(p2.support[0]).toBeNull();
-      expect(p2.discardPile).toContain(purgeCard);
+      expect(p2.discardPile.some(c => c.id === purgeCard.id)).toBe(true);
     });
   });
 

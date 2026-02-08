@@ -10,18 +10,17 @@ import { TextOutline } from "../Common/TextOutline";
 interface DiscardDisplayProps {
   discardPile: CardInterface[];
   playerIndex: number;
-  onCardClick?: () => void;
-  isOpponent?: boolean;
+  onDiscardClick?: () => void;
 }
 
 export const DiscardDisplay = ({
   discardPile,
   playerIndex,
-  onCardClick,
-  isOpponent = false,
+  onDiscardClick,
 }: DiscardDisplayProps) => {
   const visibleLayers = Math.min(discardPile.length, 3);
   const topCard = discardPile[discardPile.length - 1];
+  const isClickable = discardPile.length > 0 && !!onDiscardClick;
 
   if (discardPile.length === 0) {
     return (
@@ -32,7 +31,7 @@ export const DiscardDisplay = ({
   }
 
   return (
-    <DiscardContainer onClick={onCardClick} clickable={!!onCardClick}>
+    <DiscardContainer onClick={onDiscardClick} clickable={isClickable}>
       {Array.from({ length: visibleLayers }).map((_, index) => {
         const cardIndex = discardPile.length - visibleLayers + index;
         const card = discardPile[cardIndex];
@@ -50,7 +49,7 @@ export const DiscardDisplay = ({
                 style={{
                   pointerEvents: "none",
                   transform: "scale(0.95)",
-                  filter: isOpponent ? "grayscale(100%)" : "none",
+                  filter: "grayscale(100%)",
                 }}
               >
                 <Card

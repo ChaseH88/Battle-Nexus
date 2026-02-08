@@ -4,7 +4,7 @@ import "../styles.css";
 import { Controls } from "./Controls";
 import { PlayerBoard } from "./PlayerBoard";
 import { Hand } from "./Hand";
-import { Modal, PlayCreatureModal } from "./Modal";
+import { Modal, PlayCreatureModal, DiscardPileModal } from "./Modal";
 import { TargetSelectModal } from "./Modal";
 import { CardDetailModal } from "./Modal/CardDetailModal";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -452,6 +452,7 @@ export const Battle = () => {
         />
         <TargetSelectModal />
         <CardDetailModal />
+        <DiscardPileModal />
         {/* Activation Animation from Queue */}
         {currentAnimation?.type === "activation" && (
           <CardActivationEffect

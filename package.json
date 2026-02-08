@@ -15,7 +15,8 @@
     "serve": "vite preview",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "build:android": "npm run build && npx cap sync android"
   },
   "keywords": [],
   "author": "",

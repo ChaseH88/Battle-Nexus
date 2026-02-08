@@ -9,6 +9,7 @@ import {
 } from "../Modal/styled";
 
 export const PlayCreatureModalContent = styled(ModalContent)(() => ({
+  background: "#010015eb",
   maxWidth: "800px",
   minHeight: "500px",
 }));

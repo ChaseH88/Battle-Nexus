@@ -29,6 +29,31 @@ export class BattleEngine {
     this.state.log.info(this.state.turn, this.state.phase, msg);
   }
 
+  /**
+   * Normalizes a card when it enters the discard pile.
+   * Cards in discard should always be face-up and in attack mode (for creatures).
+   */
+  private normalizeCardForDiscard<T extends CardInterface>(card: T): T {
+    const normalized = { ...card } as any;
+
+    // Always face up in discard
+    if ('isFaceDown' in normalized) {
+      normalized.isFaceDown = false;
+    }
+
+    // Creatures should be in attack mode
+    if ("mode" in normalized) {
+      normalized.mode = "ATTACK";
+    }
+
+    // Action/Trap cards should not be active
+    if ("isActive" in normalized) {
+      normalized.isActive = false;
+    }
+
+    return normalized as T;
+  }
+
   // Access to the full logger for structured events
   get logger() {
     return this.state.log;
@@ -346,7 +371,10 @@ export class BattleEngine {
 
     // Remove creature from field
     player.lanes[lane] = null;
-    player.discardPile = [...player.discardPile, creature];
+    player.discardPile = [
+      ...player.discardPile,
+      this.normalizeCardForDiscard(creature),
+    ];
 
     this.log(`${player.id} sacrificed ${creature.name}!`);
     this.gainMomentum(playerIndex, momentumGain);
@@ -1004,7 +1032,10 @@ export class BattleEngine {
             `💀 ${defender.name} was destroyed and removed from the game! (MAX card)`,
           );
         } else {
-          opponent.discardPile = [...opponent.discardPile, defender];
+          opponent.discardPile = [
+            ...opponent.discardPile,
+            this.normalizeCardForDiscard(defender),
+          ];
           this.log(`💀 ${defender.name} was destroyed!`);
         }
 
@@ -1050,7 +1081,7 @@ export class BattleEngine {
         } else {
           this.state.players[playerIndex].discardPile = [
             ...this.state.players[playerIndex].discardPile,
-            attacker,
+            this.normalizeCardForDiscard(attacker),
           ];
           this.log(`💀 ${attacker.name} was destroyed by the counter-attack!`);
         }
@@ -1098,7 +1129,10 @@ export class BattleEngine {
               `💀 ${defender.name} was destroyed and removed from the game! (MAX card)`,
             );
           } else {
-            opponent.discardPile = [...opponent.discardPile, defender];
+            opponent.discardPile = [
+              ...opponent.discardPile,
+              this.normalizeCardForDiscard(defender),
+            ];
             this.log(`💀 ${defender.name} was destroyed!`);
           }
           // Remove any support cards targeting this creature

@@ -48,6 +48,13 @@ interface EffectNotification {
   activeEffects: ActiveEffect[];
 }
 
+interface DiscardPileModalState {
+  isOpen: boolean;
+  discardPile: CardInterface[];
+  playerIndex: 0 | 1;
+  playerName: string;
+}
+
 interface UIState {
   modal: ModalState;
   playCreatureModal: PlayCreatureModalState;
@@ -55,6 +62,7 @@ interface UIState {
   selectedAttacker: number | null;
   targetSelectModal: TargetSelectModalState;
   cardDetailModal: CardDetailModalState;
+  discardPileModal: DiscardPileModalState;
   effectNotificationQueue: EffectNotification[];
   isShowingEffectNotification: boolean;
 }
@@ -84,6 +92,12 @@ const initialState: UIState = {
     card: null,
     activeEffects: [],
     originRect: undefined,
+  },
+  discardPileModal: {
+    isOpen: false,
+    discardPile: [],
+    playerIndex: 0,
+    playerName: "",
   },
   selectedHandCard: null,
   selectedAttacker: null,
@@ -153,6 +167,22 @@ export const uiSlice = createSlice({
     closeCardDetailModal: (state) => {
       state.cardDetailModal = initialState.cardDetailModal;
     },
+    openDiscardPileModal: (
+      state,
+      action: PayloadAction<{
+        discardPile: CardInterface[];
+        playerIndex: 0 | 1;
+        playerName: string;
+      }>,
+    ) => {
+      state.discardPileModal = {
+        isOpen: true,
+        ...action.payload,
+      };
+    },
+    closeDiscardPileModal: (state) => {
+      state.discardPileModal = initialState.discardPileModal;
+    },
     queueEffectNotification: (
       state,
       action: PayloadAction<EffectNotification>,
@@ -184,6 +214,8 @@ export const {
   closeTargetSelectModal,
   openCardDetailModal,
   closeCardDetailModal,
+  openDiscardPileModal,
+  closeDiscardPileModal,
   queueEffectNotification,
   dequeueEffectNotification,
   setShowingEffectNotification,

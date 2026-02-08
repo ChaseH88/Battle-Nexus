@@ -30,10 +30,26 @@ export const Modal = ({
         <ModalTitle>{title}</ModalTitle>
         <ModalMessage>{message}</ModalMessage>
         <ModalActions>
-          <ModalButton buttonType="confirm" onClick={onConfirm}>
+          <ModalButton
+            buttonType="confirm"
+            onClick={onConfirm}
+            sx={{
+              fontSize: "1rem",
+              padding: ".5em .2em",
+              minWidth: "5em",
+            }}
+          >
             Yes
           </ModalButton>
-          <ModalButton buttonType="cancel" onClick={onCancel}>
+          <ModalButton
+            buttonType="cancel"
+            onClick={onCancel}
+            sx={{
+              fontSize: "1rem",
+              padding: ".5em .2em",
+              minWidth: "5em",
+            }}
+          >
             No
           </ModalButton>
         </ModalActions>

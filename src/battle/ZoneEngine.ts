@@ -11,6 +11,31 @@ import {
   supportIndexFromZone,
 } from "./zones";
 
+/**
+ * Normalizes a card when it enters the discard pile.
+ * Cards in discard should always be face-up and in attack mode (for creatures).
+ */
+function normalizeCardForDiscard(card: CardInterface): CardInterface {
+  const normalized = { ...card } as any;
+
+  // Always face up in discard
+  if ('isFaceDown' in normalized) {
+    normalized.isFaceDown = false;
+  }
+
+  // Creatures should be in attack mode
+  if ("mode" in normalized) {
+    normalized.mode = "ATTACK";
+  }
+
+  // Action/Trap cards should not be active
+  if ("isActive" in normalized) {
+    normalized.isActive = false;
+  }
+
+  return normalized as CardInterface;
+}
+
 interface MoveOptions {
   fromLane?: number; // lane/support index override
   toLane?: number;
@@ -115,7 +140,8 @@ export function moveCard(
     }
 
     if (to === Zone.DiscardPile) {
-      player.discardPile = [...player.discardPile, card];
+      const normalizedCard = normalizeCardForDiscard(card);
+      player.discardPile = [...player.discardPile, normalizedCard];
       return;
     }
 

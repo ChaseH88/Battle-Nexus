@@ -7,7 +7,6 @@ export const ModalOverlay = styled(Box)(() => ({
   left: 0,
   right: 0,
   bottom: 0,
-  background: "transparent",
   backdropFilter: "blur(2px)",
   display: "flex",
   alignItems: "center",
@@ -21,7 +20,8 @@ export const ModalOverlay = styled(Box)(() => ({
 }));
 
 export const ModalContent = styled(Box)(() => ({
-  background: "transparent",
+  background: "#010015eb",
+  padding: "30px",
   boxShadow:
     "0 20px 60px rgba(0, 0, 0, 0.8), 0 0 60px rgba(251, 191, 36, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
   animation: "modalSlideIn 0.3s ease",

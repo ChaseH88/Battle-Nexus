@@ -257,7 +257,7 @@ describe("AIPlayer", () => {
 
       // Should be activated and discarded (ONE_TIME)
       expect(game.players[1].support[0]).toBeNull();
-      expect(game.players[1].discardPile).toContain(regularSupport);
+      expect(game.players[1].discardPile.some(c => c.id === regularSupport.id)).toBe(true);
     });
   });
 

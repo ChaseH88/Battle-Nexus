@@ -2,13 +2,15 @@ import { PlayerState } from "../../../battle/PlayerState";
 import { GameState } from "../../../battle/GameState";
 import { SupportZone, SupportZoneProps } from "./SupportZone";
 import { CreatureZone, CreatureZoneProps } from "./CreatureZone";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { PlayerBoardContainer, DeckArea } from "./PlayerBoard.styled";
 import { Player } from "./Player";
 import { DeckDisplay } from "../DeckDisplay";
 import { DiscardDisplay } from "../DiscardDisplay";
 import { PlayerActiveEffects } from "../PlayerActiveEffects";
 import { Box } from "@mui/material";
+import { useAppDispatch } from "../../../store/hooks";
+import { openDiscardPileModal } from "../../../store/uiSlice";
 
 interface PlayerBoardProps
   extends
@@ -62,6 +64,18 @@ export const PlayerBoard = ({
   showPlayButtons = false,
   deckSize,
 }: PlayerBoardProps) => {
+  const dispatch = useAppDispatch();
+
+  const handleDiscardClick = useCallback(() => {
+    dispatch(
+      openDiscardPileModal({
+        discardPile: player.discardPile,
+        playerIndex: isOpponent ? 1 : 0,
+        playerName: player.id,
+      }),
+    );
+  }, [dispatch, player.discardPile, player.id, isOpponent]);
+
   const SupportZoneComponent = useMemo(
     () => (
       <SupportZone
@@ -92,10 +106,10 @@ export const PlayerBoard = ({
       <DiscardDisplay
         discardPile={player.discardPile}
         playerIndex={isOpponent ? 1 : 0}
-        isOpponent={isOpponent}
+        onDiscardClick={handleDiscardClick}
       />
     ),
-    [player.discardPile, isOpponent],
+    [player.discardPile, isOpponent, handleDiscardClick],
   );
 
   const ActiveEffectsComponent = useMemo(

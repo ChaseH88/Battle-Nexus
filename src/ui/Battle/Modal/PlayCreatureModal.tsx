@@ -8,12 +8,12 @@ import {
   PlayOptionTitle,
   CancelButton,
 } from "./PlayCreatureModal.styled";
-import { CreatureCard } from "../../../cards/types";
+import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card/Card";
 
 interface PlayCreatureModalProps {
   isOpen: boolean;
-  card: CreatureCard | null;
+  card: CardInterface | null;
   onPlayFaceUpAttack: () => void;
   onPlayFaceDownDefense: () => void;
   onCancel: () => void;
@@ -42,13 +42,12 @@ export const PlayCreatureModal = ({
             <PlayOptionTitle>Face-Up Attack Mode</PlayOptionTitle>
             <div style={{ pointerEvents: "none" }}>
               <Card
-                card={{ ...card, mode: "ATTACK", isFaceDown: false }}
+                card={{ ...card, mode: "ATTACK", isFaceDown: false } as any}
                 isSelected={false}
                 showFaceDown={false}
                 canActivate={false}
                 playerIndex={0}
                 activeEffects={[]}
-                playerMomentum={0}
               />
             </div>
           </PlayOptionGroup>
@@ -60,13 +59,12 @@ export const PlayCreatureModal = ({
             <PlayOptionTitle>Face-Down Defense Mode</PlayOptionTitle>
             <div style={{ pointerEvents: "none" }}>
               <Card
-                card={{ ...card, mode: "DEFENSE", isFaceDown: true }}
+                card={{ ...card, mode: "DEFENSE", isFaceDown: true } as any}
                 isSelected={false}
                 showFaceDown={true}
                 canActivate={false}
                 playerIndex={0}
                 activeEffects={[]}
-                playerMomentum={0}
               />
             </div>
           </PlayOptionGroup>
