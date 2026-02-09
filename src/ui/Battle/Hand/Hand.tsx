@@ -141,8 +141,8 @@ export const Hand = ({
                   dragMomentum={false}
                   dragTransition={{ bounceStiffness: 300, bounceDamping: 25 }}
                   whileHover={{
-                    scale: 1.5,
-                    y: -100,
+                    scale: 1.35,
+                    y: -50,
                     rotate: 0,
                     zIndex: 1000,
                     transition: {

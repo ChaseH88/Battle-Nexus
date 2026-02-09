@@ -19,7 +19,7 @@ function normalizeCardForDiscard(card: CardInterface): CardInterface {
   const normalized = { ...card } as any;
 
   // Always face up in discard
-  if ('isFaceDown' in normalized) {
+  if ("isFaceDown" in normalized) {
     normalized.isFaceDown = false;
   }
 

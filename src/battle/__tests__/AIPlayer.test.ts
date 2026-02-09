@@ -257,7 +257,9 @@ describe("AIPlayer", () => {
 
       // Should be activated and discarded (ONE_TIME)
       expect(game.players[1].support[0]).toBeNull();
-      expect(game.players[1].discardPile.some(c => c.id === regularSupport.id)).toBe(true);
+      expect(
+        game.players[1].discardPile.some((c) => c.id === regularSupport.id),
+      ).toBe(true);
     });
   });
 
@@ -358,7 +360,7 @@ describe("AIPlayer", () => {
       // Create AI without trap callback
       const aiWithoutCallback = new AIPlayer(
         { skillLevel: 5, playerIndex: 1 },
-        engine
+        engine,
       );
 
       // Should not crash when trap callback is not provided

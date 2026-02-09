@@ -635,7 +635,7 @@ describe("BattleEngine – Momentum System", () => {
       engine.activateSupport(0, 0);
       expect(p1.momentum).toBe(2); // 5 - 3 = 2
       expect(support.isFaceDown).toBe(false);
-      expect(p1.discardPile.some(c => c.id === support.id)).toBe(true); // ONE_TIME support gets discarded
+      expect(p1.discardPile.some((c) => c.id === support.id)).toBe(true); // ONE_TIME support gets discarded
     });
 
     it("allows activating support with exact momentum cost", () => {

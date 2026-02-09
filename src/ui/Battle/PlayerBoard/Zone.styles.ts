@@ -15,7 +15,8 @@ export const Lanes = styled.div<{ isCreature?: boolean }>`
 `;
 
 export const Lane = styled.div`
-  min-width: ${CARD_DIMENSIONS.WIDTH}px;
+  width: ${CARD_DIMENSIONS.WIDTH}px;
+  height: ${CARD_DIMENSIONS.HEIGHT}px;
 `;
 
 export const PlayHereButton = styled.button`
