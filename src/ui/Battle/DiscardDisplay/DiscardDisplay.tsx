@@ -31,7 +31,7 @@ export const DiscardDisplay = ({
   }
 
   return (
-    <DiscardContainer onClick={onDiscardClick} clickable={isClickable}>
+    <DiscardContainer onClick={onDiscardClick} $clickable={isClickable}>
       {Array.from({ length: visibleLayers }).map((_, index) => {
         const cardIndex = discardPile.length - visibleLayers + index;
         const card = discardPile[cardIndex];

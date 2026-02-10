@@ -1,5 +1,5 @@
 import { styled } from "@mui/material/styles";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import {
   ModalOverlay,
   ModalContent,
@@ -24,34 +24,16 @@ export const PlayOptions = styled(Box)(() => ({
 
 export const PlayOptionGroup = styled(Box)(() => ({
   flex: 1,
-  maxWidth: "300px",
-  background: "rgba(0, 0, 0, 0.4)",
-  padding: "20px",
   borderRadius: "12px",
-  border: "2px solid rgba(255, 255, 255, 0.1)",
   boxShadow: "inset 0 2px 8px rgba(0, 0, 0, 0.3)",
   transition: "all 0.3s ease",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  justifyContent: "center",
   "&:hover": {
-    border: "2px solid rgba(251, 191, 36, 0.5)",
     transform: "translateY(-5px) scale(1.02)",
-    boxShadow: "0 8px 24px rgba(251, 191, 36, 0.3)",
   },
-}));
-
-export const PlayOptionTitle = styled(Typography)(() => ({
-  textAlign: "center",
-  marginBottom: "18px",
-  fontSize: "1.3rem",
-  background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  backgroundClip: "text",
-  fontWeight: 900,
-  textTransform: "uppercase",
-  letterSpacing: "1.5px",
 }));
 
 export const PlayOptionButton = styled(ModalButton)<{

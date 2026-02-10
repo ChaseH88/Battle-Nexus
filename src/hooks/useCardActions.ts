@@ -19,6 +19,7 @@ interface UseCardActionsProps {
   gameState: GameState | null;
   selectedHandCard: string | null;
   isShowingEffectNotification: boolean;
+  isAnimating: boolean;
   checkNeedsToDraw: () => boolean;
   showDrawReminderModal: () => void;
   playCreature: (
@@ -43,6 +44,7 @@ export const useCardActions = ({
   gameState,
   selectedHandCard,
   isShowingEffectNotification,
+  isAnimating,
   checkNeedsToDraw,
   showDrawReminderModal,
   playCreature,
@@ -145,7 +147,8 @@ export const useCardActions = ({
 
   const handleActivateSupport = useCallback(
     (slot: number, element?: HTMLElement) => {
-      if (isShowingEffectNotification || !gameState || !engine) return;
+      if (isShowingEffectNotification || isAnimating || !gameState || !engine)
+        return;
       if (checkNeedsToDraw()) {
         showDrawReminderModal();
         return;
@@ -313,6 +316,7 @@ export const useCardActions = ({
     },
     [
       isShowingEffectNotification,
+      isAnimating,
       gameState,
       engine,
       checkNeedsToDraw,

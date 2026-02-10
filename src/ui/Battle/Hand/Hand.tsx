@@ -89,6 +89,7 @@ export const Hand = ({
         if (isDragging) return;
         setIsHovering(false);
       }}
+      data-testid="player-hand"
     >
       <motion.div
         initial={{ opacity: 0, y: 50 }}

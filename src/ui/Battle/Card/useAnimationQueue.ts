@@ -1,16 +1,18 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { CardInterface } from "@cards/types";
 
-type AnimationType = "activation" | "attack";
+type AnimationType = "activation" | "attack" | "draw";
 
 interface AnimationQueueItem {
   id: string;
   type: AnimationType;
+  blocking: boolean; // true = blocks interactions, false = doesn't block
   data: {
-    card: CardInterface;
+    card?: CardInterface;
     originBounds?: DOMRect;
     attackerBounds?: DOMRect;
     defenderBounds?: DOMRect;
+    startBounds?: DOMRect; // For draw animation
     damage?: number; // Damage dealt to defender
     counterDamage?: number; // Counter damage dealt to attacker
   };
@@ -20,13 +22,14 @@ interface AnimationQueueItem {
 interface UseAnimationQueueReturn {
   // Current animation state
   currentAnimation: AnimationQueueItem | null;
-  isAnimating: boolean;
+  activeAnimations: AnimationQueueItem[]; // Multiple non-blocking animations can play at once
+  isAnimating: boolean; // Only true if blocking animation is playing
 
   // Queue management
   queueActivation: (
     card: CardInterface,
     element: HTMLElement,
-    onComplete?: () => void
+    onComplete?: () => void,
   ) => void;
   queueAttack: (
     card: CardInterface,
@@ -34,9 +37,11 @@ interface UseAnimationQueueReturn {
     defenderElement: HTMLElement,
     damage: number,
     counterDamage: number,
-    onComplete?: () => void
+    onComplete?: () => void,
   ) => void;
+  queueDraw: (deckElement: HTMLElement, onComplete?: () => void) => void;
   completeCurrentAnimation: () => void;
+  completeAnimation: (animationId: string) => void;
   clearQueue: () => void;
 }
 
@@ -47,15 +52,19 @@ export const useAnimationQueue = (): UseAnimationQueueReturn => {
   const [queue, setQueue] = useState<AnimationQueueItem[]>([]);
   const [currentAnimation, setCurrentAnimation] =
     useState<AnimationQueueItem | null>(null);
+  const [activeAnimations, setActiveAnimations] = useState<
+    AnimationQueueItem[]
+  >([]);
   const processingRef = useRef(false);
 
-  // Queue an activation animation
+  // Queue an activation animation (blocking)
   const queueActivation = useCallback(
     (card: CardInterface, element: HTMLElement, onComplete?: () => void) => {
       const bounds = element.getBoundingClientRect();
       const item: AnimationQueueItem = {
         id: `activation-${Date.now()}-${Math.random()}`,
         type: "activation",
+        blocking: true, // Activation animations block interactions
         data: {
           card,
           originBounds: bounds,
@@ -65,10 +74,10 @@ export const useAnimationQueue = (): UseAnimationQueueReturn => {
 
       setQueue((prev) => [...prev, item]);
     },
-    []
+    [],
   );
 
-  // Queue an attack animation
+  // Queue an attack animation (blocking)
   const queueAttack = useCallback(
     (
       card: CardInterface,
@@ -76,7 +85,7 @@ export const useAnimationQueue = (): UseAnimationQueueReturn => {
       defenderElement: HTMLElement,
       damage: number,
       counterDamage: number,
-      onComplete?: () => void
+      onComplete?: () => void,
     ) => {
       const attackerBounds = attackerElement.getBoundingClientRect();
       const defenderBounds = defenderElement.getBoundingClientRect();
@@ -84,6 +93,7 @@ export const useAnimationQueue = (): UseAnimationQueueReturn => {
       const item: AnimationQueueItem = {
         id: `attack-${Date.now()}-${Math.random()}`,
         type: "attack",
+        blocking: true, // Attack animations block interactions
         data: {
           card,
           attackerBounds,
@@ -96,10 +106,42 @@ export const useAnimationQueue = (): UseAnimationQueueReturn => {
 
       setQueue((prev) => [...prev, item]);
     },
-    []
+    [],
   );
 
-  // Complete current animation and move to next
+  // Queue a draw animation (non-blocking - starts immediately)
+  const queueDraw = useCallback(
+    (deckElement: HTMLElement, onComplete?: () => void) => {
+      const startBounds = deckElement.getBoundingClientRect();
+
+      const item: AnimationQueueItem = {
+        id: `draw-${Date.now()}-${Math.random()}`,
+        type: "draw",
+        blocking: false, // Draw animations don't block interactions
+        data: {
+          startBounds,
+        },
+        onComplete,
+      };
+
+      // Non-blocking animations start immediately
+      setActiveAnimations((prev) => [...prev, item]);
+    },
+    [],
+  );
+
+  // Complete a specific animation by id (used for non-blocking animations)
+  const completeAnimation = useCallback((animationId: string) => {
+    setActiveAnimations((prev) => {
+      const animation = prev.find((a) => a.id === animationId);
+      if (animation?.onComplete) {
+        animation.onComplete();
+      }
+      return prev.filter((a) => a.id !== animationId);
+    });
+  }, []);
+
+  // Complete current blocking animation and move to next
   const completeCurrentAnimation = useCallback(() => {
     // Call the completion callback for the current animation
     if (currentAnimation?.onComplete) {
@@ -123,10 +165,11 @@ export const useAnimationQueue = (): UseAnimationQueueReturn => {
     });
   }, [currentAnimation]);
 
-  // Clear the entire queue
+  // Clear the entire queue and all active animations
   const clearQueue = useCallback(() => {
     setQueue([]);
     setCurrentAnimation(null);
+    setActiveAnimations([]);
     processingRef.current = false;
   }, []);
 
@@ -149,10 +192,13 @@ export const useAnimationQueue = (): UseAnimationQueueReturn => {
 
   return {
     currentAnimation,
-    isAnimating: currentAnimation !== null,
+    activeAnimations,
+    isAnimating: currentAnimation !== null && currentAnimation.blocking, // Only blocking animations prevent interactions
     queueActivation,
     queueAttack,
+    queueDraw,
     completeCurrentAnimation,
+    completeAnimation,
     clearQueue,
   };
 };

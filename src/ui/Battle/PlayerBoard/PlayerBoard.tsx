@@ -38,6 +38,7 @@ interface PlayerBoardProps
   onSupportDoubleClick?: (slot: number) => void;
   showPlayButtons?: boolean; // Show "Play Here" buttons for accessibility
   deckSize?: number; // Number of cards remaining in deck
+  onDraw?: () => void; // Callback for drawing a card
 }
 
 export const PlayerBoard = ({
@@ -63,6 +64,7 @@ export const PlayerBoard = ({
   onSetAttackerRef,
   showPlayButtons = false,
   deckSize,
+  onDraw,
 }: PlayerBoardProps) => {
   const dispatch = useAppDispatch();
 
@@ -164,7 +166,17 @@ export const PlayerBoard = ({
       >
         <DeckArea>
           {!isOpponent && DiscardDisplayComponent}
-          <DeckDisplay deckSize={deckSize || 0} />
+          <DeckDisplay
+            deckSize={deckSize || 0}
+            onDraw={onDraw}
+            canDraw={
+              !isOpponent &&
+              gameState?.phase === "DRAW" &&
+              gameState?.activePlayer === 0
+            }
+            isDrawPhase={gameState?.phase === "DRAW"}
+            isOpponent={isOpponent}
+          />
           {isOpponent && DiscardDisplayComponent}
         </DeckArea>
       </Box>

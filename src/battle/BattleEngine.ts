@@ -21,6 +21,7 @@ import {
 
 export class BattleEngine {
   public onEffectActivated?: (card: CardInterface, effectName: string) => void;
+  public onCardDrawn?: (playerIndex: 0 | 1, drawIndex?: number) => void;
 
   constructor(public state: GameState) {}
 

@@ -64,6 +64,9 @@ export interface BattleEngineHookReturn {
   setEffectCallback: (
     callback: (card: CardInterface, effectName: string) => void,
   ) => void;
+  setDrawCallback: (
+    callback: (playerIndex: 0 | 1, drawIndex?: number) => void,
+  ) => void;
 
   // Utility
   refresh: () => void;
@@ -295,6 +298,15 @@ export function useBattleEngine(): BattleEngineHookReturn {
     [engine],
   );
 
+  const setDrawCallback = useCallback(
+    (callback: (playerIndex: 0 | 1, drawIndex?: number) => void) => {
+      if (engine) {
+        engine.onCardDrawn = callback;
+      }
+    },
+    [engine],
+  );
+
   // Derive state from engine (always current because it depends on version)
   const gameState = engine?.state || null;
   const currentPlayer = gameState
@@ -337,6 +349,7 @@ export function useBattleEngine(): BattleEngineHookReturn {
     toggleCreatureMode,
     endTurn,
     setEffectCallback,
+    setDrawCallback,
 
     // Utility
     refresh,

@@ -5,11 +5,11 @@ import {
   ModalMessage,
   PlayOptions,
   PlayOptionGroup,
-  PlayOptionTitle,
   CancelButton,
 } from "./PlayCreatureModal.styled";
 import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card/Card";
+import { Box } from "@mui/material";
 
 interface PlayCreatureModalProps {
   isOpen: boolean;
@@ -39,8 +39,12 @@ export const PlayCreatureModal = ({
             onClick={onPlayFaceUpAttack}
             style={{ cursor: "pointer" }}
           >
-            <PlayOptionTitle>Face-Up Attack Mode</PlayOptionTitle>
-            <div style={{ pointerEvents: "none" }}>
+            <Box
+              sx={{ pointerEvents: "none" }}
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+            >
               <Card
                 card={{ ...card, mode: "ATTACK", isFaceDown: false } as any}
                 isSelected={false}
@@ -49,15 +53,14 @@ export const PlayCreatureModal = ({
                 playerIndex={0}
                 activeEffects={[]}
               />
-            </div>
+            </Box>
           </PlayOptionGroup>
 
           <PlayOptionGroup
             onClick={onPlayFaceDownDefense}
             style={{ cursor: "pointer" }}
           >
-            <PlayOptionTitle>Face-Down Defense Mode</PlayOptionTitle>
-            <div style={{ pointerEvents: "none" }}>
+            <Box sx={{ pointerEvents: "none" }}>
               <Card
                 card={{ ...card, mode: "DEFENSE", isFaceDown: true } as any}
                 isSelected={false}
@@ -66,11 +69,13 @@ export const PlayCreatureModal = ({
                 playerIndex={0}
                 activeEffects={[]}
               />
-            </div>
+            </Box>
           </PlayOptionGroup>
         </PlayOptions>
 
-        <CancelButton onClick={onCancel}>Cancel</CancelButton>
+        <Box display="flex" justifyContent="flex-end">
+          <CancelButton onClick={onCancel}>Cancel</CancelButton>
+        </Box>
       </PlayCreatureModalContent>
     </ModalOverlay>
   );

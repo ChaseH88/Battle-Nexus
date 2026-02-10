@@ -202,6 +202,12 @@ export function createEffectUtils(
         if (player.deck.length > 0) {
           const card = player.deck.shift()!;
           player.hand.push(card);
+
+          // Trigger draw animation callback for each card with stagger index
+          if (engine.onCardDrawn && playerIndex === 0) {
+            engine.onCardDrawn(playerIndex, i);
+          }
+
           state.log.effectApplied(
             state.turn,
             state.phase,

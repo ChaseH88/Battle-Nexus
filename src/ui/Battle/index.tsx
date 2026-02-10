@@ -21,6 +21,7 @@ import { useBattleEngine } from "../../hooks/useBattleEngine";
 import { useGameInitialization } from "../../hooks/useGameInitialization";
 import { CardActivationEffect } from "./Card/CardActivationEffect";
 import { CardAttackAnimation } from "./Card/CardAttackAnimation";
+import { CardDrawAnimation } from "./Card/CardDrawAnimation";
 import { useAnimationQueue } from "./Card/useAnimationQueue";
 import { useAttackAnimation } from "../../hooks/useAttackAnimation";
 import { useTrapActivation } from "../../hooks/useTrapActivation";
@@ -47,9 +48,13 @@ export const Battle = () => {
   // Animation queue - handles both activation and attack animations sequentially
   const {
     currentAnimation,
+    activeAnimations,
+    isAnimating,
     queueActivation,
     queueAttack,
+    queueDraw,
     completeCurrentAnimation,
+    completeAnimation,
   } = useAnimationQueue();
 
   // Use the battle engine hook for all state management
@@ -72,6 +77,7 @@ export const Battle = () => {
     refresh,
     ai,
     setEffectCallback,
+    setDrawCallback,
   } = useBattleEngine();
 
   // Use trap activation hook
@@ -115,6 +121,34 @@ export const Battle = () => {
     };
   }, [engine, dispatch, gameState, setEffectCallback]);
 
+  // Wire BattleEngine draw callback to animation queue for effect-triggered draws
+  useEffect(() => {
+    if (!engine) return;
+
+    setDrawCallback((playerIndex: 0 | 1, drawIndex: number = 0) => {
+      // Only animate for player 0 (human player)
+      if (playerIndex === 0) {
+        const deckElement = document.querySelector(
+          '[data-testid="player-deck"]',
+        ) as HTMLElement;
+
+        if (deckElement) {
+          // Stagger animations by 150ms each
+          setTimeout(() => {
+            // For effect-triggered draws, card is already in hand, just show animation
+            queueDraw(deckElement, () => {
+              // Animation complete, no action needed (card already drawn)
+            });
+          }, drawIndex * 150);
+        }
+      }
+    });
+
+    return () => {
+      if (engine) setDrawCallback(() => {});
+    };
+  }, [engine, queueDraw, setDrawCallback]);
+
   // Game initialization hook
   const { showDeckLoadPrompt, handleNewGame, handleDeckLoadResponse } =
     useGameInitialization({
@@ -130,8 +164,19 @@ export const Battle = () => {
 
   const handleDraw = () => {
     if (isShowingEffectNotification) return;
-    // The engine handles empty deck case automatically
+
+    // For manual draws (clicking deck), draw first then show animation
+    const deckElement = document.querySelector(
+      '[data-testid="player-deck"]',
+    ) as HTMLElement;
+
+    // Draw the card first
     draw(gameState!.activePlayer);
+
+    // Then show the animation
+    if (deckElement) {
+      queueDraw(deckElement);
+    }
   };
 
   // Use draw reminder hook
@@ -151,6 +196,7 @@ export const Battle = () => {
     gameState,
     selectedHandCard,
     isShowingEffectNotification,
+    isAnimating,
     checkNeedsToDraw,
     showDrawReminderModal,
     playCreature,
@@ -336,6 +382,7 @@ export const Battle = () => {
           selectedHandCard={selectedHandCard}
           selectedAttacker={selectedAttacker}
           deckSize={player1.deck.length}
+          onDraw={handleDraw}
           onPlayCreature={handlePlayCreatureClick}
           onPlaySupport={handlePlaySupport}
           onActivateSupport={handleActivateSupport}
@@ -420,10 +467,8 @@ export const Battle = () => {
         <Controls
           phase={gameState.phase}
           isGameOver={isGameOver}
-          handleDraw={handleDraw}
           handleEndTurn={handleEndTurn}
           startNewGame={handleNewGame}
-          deckSize={player1.deck.length}
           isPlayerTurn={gameState.activePlayer === 0}
           isShowingEffectNotification={isShowingEffectNotification}
         />
@@ -454,16 +499,17 @@ export const Battle = () => {
         <CardDetailModal />
         <DiscardPileModal />
         {/* Activation Animation from Queue */}
-        {currentAnimation?.type === "activation" && (
-          <CardActivationEffect
-            card={currentAnimation.data.card}
-            isActivating={true}
-            originBounds={currentAnimation.data.originBounds}
-            onComplete={completeCurrentAnimation}
-          />
-        )}
+        {currentAnimation?.type === "activation" &&
+          currentAnimation.data.card && (
+            <CardActivationEffect
+              card={currentAnimation.data.card}
+              isActivating={true}
+              originBounds={currentAnimation.data.originBounds}
+              onComplete={completeCurrentAnimation}
+            />
+          )}
         {/* Attack Animation from Queue */}
-        {currentAnimation?.type === "attack" && (
+        {currentAnimation?.type === "attack" && currentAnimation.data.card && (
           <CardAttackAnimation
             card={currentAnimation.data.card}
             attackerBounds={currentAnimation.data.attackerBounds}
@@ -473,6 +519,17 @@ export const Battle = () => {
             onComplete={completeCurrentAnimation}
           />
         )}
+        {/* Draw Animations - can have multiple playing at once (non-blocking) */}
+        {activeAnimations
+          .filter((anim) => anim.type === "draw" && anim.data.startBounds)
+          .map((anim) => (
+            <CardDrawAnimation
+              key={anim.id}
+              startBounds={anim.data.startBounds!}
+              endBounds={anim.data.startBounds!}
+              onComplete={() => completeAnimation(anim.id)}
+            />
+          ))}
       </div>
     </div>
   );

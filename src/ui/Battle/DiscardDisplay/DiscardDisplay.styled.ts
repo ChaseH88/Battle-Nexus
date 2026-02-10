@@ -1,8 +1,8 @@
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 
-export const DiscardContainer = styled(Box)<{ clickable?: boolean }>(
-  ({ clickable }) => ({
+export const DiscardContainer = styled(Box)<{ $clickable?: boolean }>(
+  ({ $clickable }) => ({
     position: "relative",
     width: "120px",
     height: "168px",
@@ -10,9 +10,9 @@ export const DiscardContainer = styled(Box)<{ clickable?: boolean }>(
     margin: "10px 0",
     alignItems: "center",
     justifyContent: "center",
-    cursor: clickable ? "pointer" : "default",
+    cursor: $clickable ? "pointer" : "default",
     transition: "transform 0.2s ease",
-    "&:hover": clickable
+    "&:hover": $clickable
       ? {
           transform: "scale(1.05)",
         }
