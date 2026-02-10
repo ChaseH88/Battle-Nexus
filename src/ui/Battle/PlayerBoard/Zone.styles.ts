@@ -1,10 +1,12 @@
 import styled from "styled-components";
 import { CARD_DIMENSIONS } from "../Card/cardDimensions";
 
-export const Lanes = styled.div<{ isCreature?: boolean }>`
+export const Lanes = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "$isCreature",
+})<{ $isCreature?: boolean }>`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: ${(props) => (props.isCreature ? 7 : 4)}em;
+  gap: ${(props) => (props.$isCreature ? 7 : 4)}em;
   justify-content: center;
   max-width: 520px;
   margin: 0 auto;

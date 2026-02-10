@@ -6,7 +6,9 @@ interface BackContainerProps {
   $isCreature: boolean;
 }
 
-export const BackContainer = styled.div<BackContainerProps>`
+export const BackContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => !["$type", "$isCreature"].includes(prop),
+})<BackContainerProps>`
   box-sizing: border-box;
   min-height: 140px;
   min-width: ${CARD_DIMENSIONS.WIDTH}px;

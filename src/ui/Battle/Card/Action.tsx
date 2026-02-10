@@ -101,7 +101,7 @@ export const Action = ({
           Speed: {speed}
         </div>
       </div>
-      <CardImage card={{ id, name, image }} width={80} height={80} />
+      <CardImage card={{ id, name, image }} />
       <div
         className="card-description"
         style={{ fontSize: "9px", marginBottom: "4px", lineHeight: "1.2" }}

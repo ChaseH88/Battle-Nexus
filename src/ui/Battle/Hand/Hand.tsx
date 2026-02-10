@@ -83,7 +83,7 @@ export const Hand = ({
 
   return (
     <HandZone
-      isHovering={isHovering}
+      $isHovering={isHovering}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => {
         if (isDragging) return;

@@ -67,9 +67,11 @@ export const ModalActions = styled(Box)(() => ({
   flexWrap: "wrap",
 }));
 
-export const ModalButton = styled(Button)<{
-  buttonType?: "confirm" | "cancel";
-}>(({ buttonType = "confirm" }) => ({
+export const ModalButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== "$buttonType",
+})<{
+  $buttonType?: "confirm" | "cancel";
+}>(({ $buttonType = "confirm" }) => ({
   padding: "14px 36px",
   fontSize: "1.15rem",
   fontWeight: 800,
@@ -82,7 +84,7 @@ export const ModalButton = styled(Button)<{
   letterSpacing: "1.5px",
   position: "relative",
   overflow: "hidden",
-  ...(buttonType === "confirm" && {
+  ...($buttonType === "confirm" && {
     background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
     color: "white",
     boxShadow: "0 4px 16px rgba(34, 197, 94, 0.4)",
@@ -92,7 +94,7 @@ export const ModalButton = styled(Button)<{
       boxShadow: "0 8px 24px rgba(34, 197, 94, 0.6)",
     },
   }),
-  ...(buttonType === "cancel" && {
+  ...($buttonType === "cancel" && {
     background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
     color: "white",
     boxShadow: "0 4px 16px rgba(239, 68, 68, 0.4)",

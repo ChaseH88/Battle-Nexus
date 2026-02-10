@@ -128,7 +128,7 @@ export const PlayerBoard = ({
 
   return (
     <PlayerBoardContainer
-      isTurn={gameState?.activePlayer === (isOpponent ? 1 : 0)}
+      $isTurn={gameState?.activePlayer === (isOpponent ? 1 : 0)}
     >
       <Player player={player} lifePoints={lifePoints} isOpponent={isOpponent} />
       {isOpponent && SupportZoneComponent}

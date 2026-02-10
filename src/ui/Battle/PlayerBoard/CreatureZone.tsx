@@ -67,7 +67,7 @@ export const CreatureZone = ({
 
   return (
     <Box mb={!isOpponent ? 2 : 0}>
-      <Lanes isCreature>
+      <Lanes $isCreature>
         {player.lanes.map((card, i) => {
           const draggedCard = draggedCardId
             ? player.hand.find((c) => c.id === draggedCardId)
@@ -112,7 +112,7 @@ export const CreatureZone = ({
                 scale: isDropTarget ? 1.05 : 1,
                 backgroundColor: isDropTarget
                   ? "rgba(76, 175, 80, 0.2)"
-                  : "transparent",
+                  : "rgba(0, 0, 0, 0)",
               }}
               transition={{ duration: 0.2 }}
               style={{

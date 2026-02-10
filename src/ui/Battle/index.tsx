@@ -322,6 +322,7 @@ export const Battle = () => {
 
   return (
     <div
+      data-testid="battle-container"
       style={{
         position: "relative",
       }}
@@ -348,6 +349,7 @@ export const Battle = () => {
       </div>
       <div className="game-container">
         <PlayerBoard
+          data-testid="opponent-board"
           player={player2}
           gameState={gameState}
           currentPlayerState={player1}
@@ -374,6 +376,7 @@ export const Battle = () => {
           draggedCardId={null}
         />
         <PlayerBoard
+          data-testid="player-board"
           player={player1}
           gameState={gameState}
           lifePoints={player1.lifePoints}

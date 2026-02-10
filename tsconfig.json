@@ -27,7 +27,8 @@
       "@static/*": ["src/static/*"],
       "@assets": ["src/assets"],
       "@assets/*": ["src/assets/*"]
-    }
+    },
+    "types": ["node", "jest", "@testing-library/jest-dom"]
   },
   "include": ["src"]
 }

@@ -55,7 +55,7 @@ export const SupportZone = ({
                 scale: isDropTarget ? 1.05 : 1,
                 backgroundColor: isDropTarget
                   ? "rgba(147, 51, 234, 0.2)"
-                  : "transparent",
+                  : "rgba(0, 0, 0, 0)",
               }}
               transition={{ duration: 0.2 }}
               style={{

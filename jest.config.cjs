@@ -1,13 +1,20 @@
 module.exports = {
   preset: "ts-jest",
-  testEnvironment: "node",
-  testMatch: ["**/src/**/__tests__/**/*.test.ts"],
+  testEnvironment: "jsdom",
+  testMatch: [
+    "**/src/**/__tests__/**/*.test.ts",
+    "**/src/**/__tests__/**/*.test.tsx",
+  ],
+  setupFilesAfterEnv: ["<rootDir>/src/test-setup.ts"],
   verbose: true,
   transform: {
     "^.+\\.ts$": ["ts-jest", { tsconfig: "tsconfig.json" }],
+    "^.+\\.tsx$": ["ts-jest", { tsconfig: "tsconfig.json" }],
   },
-  moduleFileExtensions: ["ts", "js", "json"],
+  moduleFileExtensions: ["ts", "tsx", "js", "json"],
   moduleNameMapper: {
+    "\\.(css|less|scss|sass)$": "<rootDir>/src/__mocks__/styleMock.js",
+    "\\.(jpg|jpeg|png|gif|svg|webp)$": "<rootDir>/src/__mocks__/fileMock.js",
     "^@/(.*)$": "<rootDir>/src/$1",
     "^@battle/(.*)$": "<rootDir>/src/battle/$1",
     "^@battle$": "<rootDir>/src/battle",

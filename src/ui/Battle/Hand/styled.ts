@@ -10,18 +10,22 @@ export const pulseGlow = keyframes`
   }
 `;
 
-export const HandZone = styled(Box)(
-  ({ isHovering }: { isHovering?: boolean }) => ({
+export const HandZone = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "$isHovering",
+})<{ $isHovering?: boolean }>(
+  {
     position: "fixed",
     zIndex: 200,
     overflow: "visible",
     bottom: "10px",
     left: "50%",
     transform: `translate(-50%, -40px)`,
-    opacity: isHovering ? 1 : 0.95,
     transition: "transform 0.3s ease, opacity 0.3s ease",
     maxWidth: "100vw",
     height: 200,
+  },
+  ({ $isHovering }) => ({
+    opacity: $isHovering ? 1 : 0.95,
   }),
 );
 

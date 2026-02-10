@@ -31,7 +31,7 @@ export const Modal = ({
         <ModalMessage>{message}</ModalMessage>
         <ModalActions>
           <ModalButton
-            buttonType="confirm"
+            $buttonType="confirm"
             onClick={onConfirm}
             sx={{
               fontSize: "1rem",
@@ -42,7 +42,7 @@ export const Modal = ({
             Yes
           </ModalButton>
           <ModalButton
-            buttonType="cancel"
+            $buttonType="cancel"
             onClick={onCancel}
             sx={{
               fontSize: "1rem",

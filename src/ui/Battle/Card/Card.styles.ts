@@ -26,7 +26,21 @@ interface CardSlotProps {
   disableHover?: boolean;
 }
 
-export const CardSlot = styled.div<CardSlotProps>`
+export const CardSlot = styled.div.withConfig({
+  shouldForwardProp: (prop) =>
+    ![
+      "isEmpty",
+      "isSelected",
+      "cardType",
+      "isDefeated",
+      "isExhausted",
+      "isDefenseMode",
+      "isFaceDown",
+      "isActive",
+      "canActivate",
+      "disableHover",
+    ].includes(prop),
+})<CardSlotProps>`
   box-sizing: border-box;
   background: linear-gradient(145deg, #2d374869, #1a202c76);
   overflow: hidden;

@@ -23,7 +23,7 @@ interface CreatureProps {
   mode: "ATTACK" | "DEFENSE";
   hp: number;
   currentHp?: number;
-  hasAttackedThisTurn: boolean;
+  hasAttacked: boolean;
   description: string;
   affinity: Affinity;
   name: string;
@@ -41,7 +41,7 @@ export const Creature = ({
   mode,
   hp,
   currentHp,
-  hasAttackedThisTurn,
+  hasAttacked,
   description,
   affinity,
   name,
@@ -222,7 +222,7 @@ export const Creature = ({
           zIndex: 3,
         }}
       />
-      {hasAttackedThisTurn && (
+      {hasAttacked && (
         <Box
           className="attacked-badge"
           style={{ fontSize: "9px", padding: "2px 4px" }}
