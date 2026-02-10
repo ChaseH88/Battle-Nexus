@@ -2,7 +2,7 @@ import { CardInterface } from "../cards/types";
 import cardData from "../static/card-data/bn-core.json";
 import { cardFactory } from "./cardFactory";
 
-const DECK_STORAGE_KEY = "battle-nexus-deck";
+const DECK_STORAGE_KEY = "nexis-deck";
 
 // Hardcoded AI deck configuration
 const AI_DECK_CONFIG = {

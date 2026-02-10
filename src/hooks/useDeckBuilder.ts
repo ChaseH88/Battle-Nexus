@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const DECK_STORAGE_KEY = "battle-nexus-deck";
+const DECK_STORAGE_KEY = "nexis-deck";
 
 export interface UseDeckBuilderReturn {
   selectedCards: Map<string, number>;

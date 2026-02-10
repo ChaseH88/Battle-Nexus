@@ -37,20 +37,20 @@ describe("Deck Loader Utilities", () => {
 
     it("returns true when a deck exists in localStorage", () => {
       localStorageMock.setItem(
-        "battle-nexus-deck",
-        JSON.stringify([{ cardId: "BN-CORE-001", count: 1 }])
+        "nexis-deck",
+        JSON.stringify([{ cardId: "BN-CORE-001", count: 1 }]),
       );
       expect(hasSavedDeck()).toBe(true);
     });
 
     it("returns false after deck is removed", () => {
       localStorageMock.setItem(
-        "battle-nexus-deck",
-        JSON.stringify([{ cardId: "BN-CORE-001", count: 1 }])
+        "nexis-deck",
+        JSON.stringify([{ cardId: "BN-CORE-001", count: 1 }]),
       );
       expect(hasSavedDeck()).toBe(true);
 
-      localStorageMock.removeItem("battle-nexus-deck");
+      localStorageMock.removeItem("nexis-deck");
       expect(hasSavedDeck()).toBe(false);
     });
   });
@@ -66,7 +66,7 @@ describe("Deck Loader Utilities", () => {
         { cardId: "ember_cub", count: 2 },
         { cardId: "riptide_pixie", count: 1 },
       ];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -80,7 +80,7 @@ describe("Deck Loader Utilities", () => {
         { cardId: "ignite_burst", count: 1 }, // Support
         { cardId: "card_draw_spell", count: 1 }, // Action
       ];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -96,7 +96,7 @@ describe("Deck Loader Utilities", () => {
 
     it("expands card counts correctly", () => {
       const savedDeck = [{ cardId: "ember_cub", count: 3 }];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -114,7 +114,7 @@ describe("Deck Loader Utilities", () => {
         { cardId: "riptide_pixie", count: 2 },
         { cardId: "mossback_scarab", count: 1 },
       ];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -127,7 +127,7 @@ describe("Deck Loader Utilities", () => {
         { cardId: "INVALID-CARD-ID", count: 2 },
         { cardId: "ember_cub", count: 1 },
       ];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       // Mock console.warn to check it's called
       const consoleSpy = jest.spyOn(console, "warn").mockImplementation();
@@ -137,14 +137,14 @@ describe("Deck Loader Utilities", () => {
       expect(deck).not.toBeNull();
       expect(deck).toHaveLength(1); // Only the valid card
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Card not found: INVALID-CARD-ID")
+        expect.stringContaining("Card not found: INVALID-CARD-ID"),
       );
 
       consoleSpy.mockRestore();
     });
 
     it("returns null and logs error on invalid JSON", () => {
-      localStorageMock.setItem("battle-nexus-deck", "invalid json {");
+      localStorageMock.setItem("nexis-deck", "invalid json {");
 
       const consoleSpy = jest.spyOn(console, "error").mockImplementation();
 
@@ -153,7 +153,7 @@ describe("Deck Loader Utilities", () => {
       expect(deck).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining("Failed to load deck"),
-        expect.any(Error)
+        expect.any(Error),
       );
 
       consoleSpy.mockRestore();
@@ -162,8 +162,8 @@ describe("Deck Loader Utilities", () => {
     it("returns null on corrupted deck data structure", () => {
       // Valid JSON but wrong structure
       localStorageMock.setItem(
-        "battle-nexus-deck",
-        JSON.stringify({ wrong: "format" })
+        "nexis-deck",
+        JSON.stringify({ wrong: "format" }),
       );
 
       const deck = loadDeckFromLocalStorage();
@@ -172,7 +172,7 @@ describe("Deck Loader Utilities", () => {
     });
 
     it("handles empty deck array", () => {
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify([]));
+      localStorageMock.setItem("nexis-deck", JSON.stringify([]));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -182,7 +182,7 @@ describe("Deck Loader Utilities", () => {
 
     it("preserves card properties when loading", () => {
       const savedDeck = [{ cardId: "ember_cub", count: 1 }];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -196,7 +196,7 @@ describe("Deck Loader Utilities", () => {
 
     it("creates independent card instances", () => {
       const savedDeck = [{ cardId: "ember_cub", count: 2 }];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -217,7 +217,7 @@ describe("Deck Loader Utilities", () => {
         { cardId: "ember_cub", count: 0 },
         { cardId: "riptide_pixie", count: 1 },
       ];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -227,7 +227,7 @@ describe("Deck Loader Utilities", () => {
 
     it("handles negative count gracefully", () => {
       const savedDeck = [{ cardId: "ember_cub", count: -1 }];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -239,7 +239,7 @@ describe("Deck Loader Utilities", () => {
   describe("Integration with card types", () => {
     it("loads Creature cards with combat stats", () => {
       const savedDeck = [{ cardId: "ember_cub", count: 1 }];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
       const creature = deck![0];
@@ -253,7 +253,7 @@ describe("Deck Loader Utilities", () => {
 
     it("loads Support cards correctly", () => {
       const savedDeck = [{ cardId: "ignite_burst", count: 1 }];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -263,7 +263,7 @@ describe("Deck Loader Utilities", () => {
 
     it("loads Action cards correctly", () => {
       const savedDeck = [{ cardId: "card_draw_spell", count: 1 }];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck = loadDeckFromLocalStorage();
 
@@ -275,7 +275,7 @@ describe("Deck Loader Utilities", () => {
   describe("Persistence", () => {
     it("survives multiple load operations", () => {
       const savedDeck = [{ cardId: "ember_cub", count: 2 }];
-      localStorageMock.setItem("battle-nexus-deck", JSON.stringify(savedDeck));
+      localStorageMock.setItem("nexis-deck", JSON.stringify(savedDeck));
 
       const deck1 = loadDeckFromLocalStorage();
       const deck2 = loadDeckFromLocalStorage();
@@ -288,11 +288,11 @@ describe("Deck Loader Utilities", () => {
     it("doesn't modify localStorage when loading", () => {
       const savedDeck = [{ cardId: "BN-CORE-001", count: 1 }];
       const deckJSON = JSON.stringify(savedDeck);
-      localStorageMock.setItem("battle-nexus-deck", deckJSON);
+      localStorageMock.setItem("nexis-deck", deckJSON);
 
       loadDeckFromLocalStorage();
 
-      const afterLoad = localStorageMock.getItem("battle-nexus-deck");
+      const afterLoad = localStorageMock.getItem("nexis-deck");
       expect(afterLoad).toBe(deckJSON);
     });
   });
