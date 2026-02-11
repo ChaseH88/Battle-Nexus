@@ -1,11 +1,16 @@
-/// <reference types="@testing-library/jest-dom" />
-
 import { render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "react-redux";
-import { configureStore } from "@reduxjs/toolkit";
 import { Battle } from "../index";
-import uiReducer from "../../../store/uiSlice";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
+import {
+  createTestStore,
+  createMockGameState,
+  createMockEngine,
+  createMockUIStateWithModal,
+  createMockBattleEngineReturn,
+  createMockAnimationQueueReturn,
+  setupDefaultHookMocks,
+} from "./testHelpers";
 
 // Mock hooks to isolate component logic
 jest.mock("../../../hooks/useBattleEngine");
@@ -32,145 +37,26 @@ import { useCardActions } from "../../../hooks/useCardActions";
 import { useCreatureActions } from "../../../hooks/useCreatureActions";
 import { useCardDetailModals } from "../../../hooks/useCardDetailModals";
 import { useAttackHandler } from "../../../hooks/useAttackHandler";
-import { GameState } from "../../../battle/GameState";
-import { BattleEngine } from "../../../battle/BattleEngine";
-
-const createMockStore = () =>
-  configureStore({
-    reducer: {
-      ui: uiReducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        serializableCheck: false, // Disable for tests with mock functions
-      }),
-  });
 
 describe("Battle Component", () => {
-  let mockStore: ReturnType<typeof createMockStore>;
-  let mockGameState: GameState;
-  let mockEngine: Partial<BattleEngine>;
+  let mockStore: ReturnType<typeof createTestStore>;
 
   beforeEach(() => {
-    mockStore = createMockStore();
+    mockStore = createTestStore();
 
-    // Create minimal mock game state
-    mockGameState = {
-      turn: 1,
-      phase: "DRAW",
-      activePlayer: 0,
-      hasDrawnThisTurn: false,
-      winnerIndex: null,
-      players: [
-        {
-          id: "Player 1",
-          lifePoints: 2000,
-          deck: [],
-          hand: [],
-          maxDeck: [],
-          lanes: [null, null, null],
-          support: [null, null, null],
-          discardPile: [],
-          removedFromGame: [],
-          momentum: 0,
-        },
-        {
-          id: "AI Opponent",
-          lifePoints: 2000,
-          deck: [],
-          hand: [],
-          maxDeck: [],
-          lanes: [null, null, null],
-          support: [null, null, null],
-          discardPile: [],
-          removedFromGame: [],
-          momentum: 0,
-        },
-      ],
-      activeEffects: [],
-      stack: [],
-      log: {} as any, // Mock logger
-    } as GameState;
-
-    mockEngine = {
-      state: mockGameState,
-    };
-
-    // Mock all hooks with default values
-    (useBattleEngine as jest.Mock).mockReturnValue({
-      engine: mockEngine,
-      gameState: mockGameState,
-      currentPlayer: mockGameState.players[0],
-      opponent: mockGameState.players[1],
-      isGameOver: false,
-      initializeGame: jest.fn(),
-      draw: jest.fn(),
-      playCreature: jest.fn(),
-      playSupport: jest.fn(),
-      activateSupport: jest.fn(),
-      activateTrap: jest.fn(),
-      activateCreatureEffect: jest.fn(),
-      attack: jest.fn(),
-      toggleCreatureMode: jest.fn(),
-      endTurn: jest.fn(),
-      refresh: jest.fn(),
-      ai: null,
-      setEffectCallback: jest.fn(),
-      setDrawCallback: jest.fn(),
-    });
-
-    (useGameInitialization as jest.Mock).mockReturnValue({
-      showDeckLoadPrompt: false,
-      handleNewGame: jest.fn(),
-      handleDeckLoadResponse: jest.fn(),
-    });
-
-    (useAnimationQueue as jest.Mock).mockReturnValue({
-      currentAnimation: null,
-      activeAnimations: [],
-      isAnimating: false,
-      queueActivation: jest.fn(),
-      queueAttack: jest.fn(),
-      queueDraw: jest.fn(),
-      completeCurrentAnimation: jest.fn(),
-      completeAnimation: jest.fn(),
-    });
-
-    (useAttackAnimation as jest.Mock).mockReturnValue({
-      aiAttackAnimationCallbackRef: { current: null },
-    });
-
-    (useTrapActivation as jest.Mock).mockReturnValue({
-      trapActivationCallbackRef: { current: null },
-    });
-
-    (useDrawReminder as jest.Mock).mockReturnValue({
-      checkNeedsToDraw: jest.fn().mockReturnValue(false),
-      showDrawReminderModal: jest.fn(),
-    });
-
-    (useCardActions as jest.Mock).mockReturnValue({
-      handlePlayCreature: jest.fn(),
-      handlePlayCreatureClick: jest.fn(),
-      handlePlaySupport: jest.fn(),
-      handleActivateSupport: jest.fn(),
-    });
-
-    (useCreatureActions as jest.Mock).mockReturnValue({
-      handleToggleMode: jest.fn(),
-      handleFlipFaceUp: jest.fn(),
-    });
-
-    (useCardDetailModals as jest.Mock).mockReturnValue({
-      handleCardClick: jest.fn(),
-      handleCardDoubleClick: jest.fn(),
-    });
-
-    (useAttackHandler as jest.Mock).mockReturnValue({
-      handleSelectAttacker: jest.fn(),
-      handleAttack: jest.fn(),
-      setAttackerRef: jest.fn(),
-    });
+    // Set up all hook mocks with default values
+    setupDefaultHookMocks(
+      useBattleEngine as jest.Mock,
+      useGameInitialization as jest.Mock,
+      useAnimationQueue as jest.Mock,
+      useAttackAnimation as jest.Mock,
+      useTrapActivation as jest.Mock,
+      useDrawReminder as jest.Mock,
+      useCardActions as jest.Mock,
+      useCreatureActions as jest.Mock,
+      useCardDetailModals as jest.Mock,
+      useAttackHandler as jest.Mock,
+    );
   });
 
   describe("Rendering", () => {
@@ -240,32 +126,15 @@ describe("Battle Component", () => {
     });
 
     it("shows game over state when winner exists", () => {
-      const gameOverState = {
-        ...mockGameState,
-        winnerIndex: 0,
-      };
+      const gameOverState = createMockGameState({ winnerIndex: 0 });
 
-      (useBattleEngine as jest.Mock).mockReturnValue({
-        engine: mockEngine,
-        gameState: gameOverState,
-        currentPlayer: gameOverState.players[0],
-        opponent: gameOverState.players[1],
-        isGameOver: true,
-        initializeGame: jest.fn(),
-        draw: jest.fn(),
-        playCreature: jest.fn(),
-        playSupport: jest.fn(),
-        activateSupport: jest.fn(),
-        activateTrap: jest.fn(),
-        activateCreatureEffect: jest.fn(),
-        attack: jest.fn(),
-        toggleCreatureMode: jest.fn(),
-        endTurn: jest.fn(),
-        refresh: jest.fn(),
-        ai: null,
-        setEffectCallback: jest.fn(),
-        setDrawCallback: jest.fn(),
-      });
+      (useBattleEngine as jest.Mock).mockReturnValue(
+        createMockBattleEngineReturn(
+          createMockEngine(gameOverState),
+          gameOverState,
+          { isGameOver: true },
+        ),
+      );
 
       render(
         <Provider store={mockStore}>
@@ -291,16 +160,11 @@ describe("Battle Component", () => {
         onComplete: jest.fn(),
       };
 
-      (useAnimationQueue as jest.Mock).mockReturnValue({
-        currentAnimation: null,
-        activeAnimations: [mockDrawAnimation],
-        isAnimating: false,
-        queueActivation: jest.fn(),
-        queueAttack: jest.fn(),
-        queueDraw: jest.fn(),
-        completeCurrentAnimation: jest.fn(),
-        completeAnimation: jest.fn(),
-      });
+      (useAnimationQueue as jest.Mock).mockReturnValue(
+        createMockAnimationQueueReturn({
+          activeAnimations: [mockDrawAnimation],
+        }),
+      );
 
       render(
         <Provider store={mockStore}>
@@ -338,16 +202,11 @@ describe("Battle Component", () => {
         },
       ];
 
-      (useAnimationQueue as jest.Mock).mockReturnValue({
-        currentAnimation: null,
-        activeAnimations: mockDrawAnimations,
-        isAnimating: false,
-        queueActivation: jest.fn(),
-        queueAttack: jest.fn(),
-        queueDraw: jest.fn(),
-        completeCurrentAnimation: jest.fn(),
-        completeAnimation: jest.fn(),
-      });
+      (useAnimationQueue as jest.Mock).mockReturnValue(
+        createMockAnimationQueueReturn({
+          activeAnimations: mockDrawAnimations,
+        }),
+      );
 
       render(
         <Provider store={mockStore}>
@@ -405,48 +264,7 @@ describe("Battle Component", () => {
     });
 
     it("renders modal when one is triggered", async () => {
-      const storeWithModal = configureStore({
-        reducer: {
-          ui: uiReducer,
-        },
-        middleware: (getDefaultMiddleware) =>
-          getDefaultMiddleware({
-            serializableCheck: false, // Disable for tests with mock functions
-          }),
-        preloadedState: {
-          ui: {
-            modal: {
-              isOpen: true,
-              title: "Test Modal",
-              message: "Test message",
-              onConfirm: jest.fn(),
-            },
-            playCreatureModal: { isOpen: false, lane: 0, card: null },
-            targetSelectModal: {
-              isOpen: false,
-              title: "",
-              message: "",
-              options: [],
-              onConfirm: undefined,
-            },
-            cardDetailModal: {
-              isOpen: false,
-              card: null,
-              activeEffects: [],
-            },
-            discardPileModal: {
-              isOpen: false,
-              discardPile: [],
-              playerIndex: 0 as 0 | 1,
-              playerName: "",
-            },
-            selectedHandCard: null,
-            selectedAttacker: null,
-            isShowingEffectNotification: false,
-            effectNotificationQueue: [],
-          },
-        },
-      });
+      const storeWithModal = createTestStore(createMockUIStateWithModal());
 
       render(
         <Provider store={storeWithModal}>
