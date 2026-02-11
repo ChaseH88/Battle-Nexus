@@ -10,7 +10,7 @@ export const Routes = () => (
   <BrowserRouter>
     <RouterRoutes>
       <Route element={<PageWrapper />}>
-        <Route path="/" element={<Home />} />
+        <Route index path="/" element={<Home />} />
         <Route path="/deck-builder" element={<DeckBuilder />} />
         <Route path="/effects" element={<Effects />} />
       </Route>
