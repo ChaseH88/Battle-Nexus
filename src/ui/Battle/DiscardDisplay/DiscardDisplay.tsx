@@ -5,7 +5,7 @@ import {
 } from "./DiscardDisplay.styled";
 import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card/Card";
-import { TextOutline } from "../Common/TextOutline";
+import { TextOutline } from "../../Common/TextOutline";
 
 interface DiscardDisplayProps {
   discardPile: CardInterface[];

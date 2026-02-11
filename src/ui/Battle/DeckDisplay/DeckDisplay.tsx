@@ -1,6 +1,6 @@
 import { DeckContainer, DeckCard, EmptyDeck } from "./DeckDisplay.styled";
 import cardBackImage from "../../../assets/card-back.png";
-import { TextOutline } from "../Common/TextOutline";
+import { TextOutline } from "../../Common/TextOutline";
 
 interface DeckDisplayProps {
   deckSize: number;
