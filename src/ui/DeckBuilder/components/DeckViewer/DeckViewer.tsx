@@ -1,7 +1,9 @@
 import { UseDeckBuilderReturn } from "@/hooks/useDeckBuilder";
 import { Card } from "@/ui/Battle/Card";
-import { Box, Button, Chip, Typography } from "@mui/material";
+import { Box, Chip, Typography, IconButton } from "@mui/material";
 import { isValidElement } from "react";
+import { GameButton } from "@/ui/Common/Button";
+import CloseIcon from "@mui/icons-material/Close";
 
 export interface DeckViewerProps extends Pick<
   UseDeckBuilderReturn,
@@ -9,6 +11,8 @@ export interface DeckViewerProps extends Pick<
 > {
   deckList: Array<{ card: any; count: number }>;
   totalCards: number;
+  totalCost?: number;
+  typeComposition?: Record<string, number>;
   HeaderComponent?: React.ReactNode;
   isFullScreen?: boolean;
 }
@@ -16,6 +20,8 @@ export interface DeckViewerProps extends Pick<
 export const DeckViewer = ({
   deckList,
   totalCards,
+  totalCost,
+  typeComposition,
   saveDeckToLocalStorage,
   clearDeck,
   removeCardFromDeck,
@@ -57,41 +63,47 @@ export const DeckViewer = ({
       </Box>
 
       <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-        <Button
-          variant="contained"
+        <GameButton
+          variant="success"
           fullWidth
           onClick={saveDeckToLocalStorage}
           disabled={totalCards === 0}
-          sx={{
-            background: "linear-gradient(145deg, #48bb78, #38a169)",
-            "&:hover": {
-              background: "linear-gradient(145deg, #38a169, #2f855a)",
-            },
-            "&:disabled": {
-              background: "rgba(255,255,255,0.2)",
-            },
-          }}
         >
           Save Deck
-        </Button>
-        <Button
-          variant="contained"
+        </GameButton>
+        <GameButton
+          variant="danger"
           fullWidth
           onClick={clearDeck}
           disabled={totalCards === 0}
-          sx={{
-            background: "linear-gradient(145deg, #ef4444, #dc2626)",
-            "&:hover": {
-              background: "linear-gradient(145deg, #dc2626, #b91c1c)",
-            },
-            "&:disabled": {
-              background: "rgba(255,255,255,0.2)",
-            },
-          }}
         >
-          Clear
-        </Button>
+          Clear Deck
+        </GameButton>
       </Box>
+
+      {/* Deck Statistics */}
+      {totalCards > 0 && (
+        <Box sx={{ mb: 2, color: "#a0aec0", fontSize: "0.875rem" }}>
+          {totalCost !== undefined && (
+            <Typography variant="body2" sx={{ color: "#a0aec0" }}>
+              Total Cost: {totalCost}
+            </Typography>
+          )}
+          {typeComposition && Object.keys(typeComposition).length > 0 && (
+            <Box sx={{ mt: 1 }}>
+              {Object.entries(typeComposition).map(([type, count]) => (
+                <Typography
+                  key={type}
+                  variant="body2"
+                  sx={{ color: "#a0aec0" }}
+                >
+                  {type}: {count}
+                </Typography>
+              ))}
+            </Box>
+          )}
+        </Box>
+      )}
 
       {deckList.length === 0 ? (
         <Typography
@@ -109,13 +121,7 @@ export const DeckViewer = ({
             if (!card) return null;
             return (
               <Box key={card.id} position="relative" sx={fullScreenStyles}>
-                <Card
-                  card={card}
-                  readonly
-                  onClick={() => {
-                    removeCardFromDeck(card.id);
-                  }}
-                />
+                <Card card={card} readonly />
                 <Chip
                   label={`x${count}`}
                   size="small"
@@ -128,6 +134,25 @@ export const DeckViewer = ({
                     right: 5,
                   }}
                 />
+                <IconButton
+                  aria-label="Remove card from deck"
+                  size="small"
+                  onClick={() => removeCardFromDeck(card.id)}
+                  sx={{
+                    position: "absolute",
+                    bottom: 5,
+                    right: 5,
+                    background: "rgba(239, 68, 68, 0.9)",
+                    color: "#fff",
+                    "&:hover": {
+                      background: "rgba(220, 38, 38, 1)",
+                    },
+                    width: 24,
+                    height: 24,
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
               </Box>
             );
           })}

@@ -68,8 +68,12 @@ const DeckBuilder = () => {
 
   const totalCards = useMemo(
     () =>
-      Array.from(selectedCards.values()).reduce((sum, count) => sum + count, 0),
-    [selectedCards],
+      Array.from(selectedCards.entries()).reduce((sum, [cardId, count]) => {
+        // Only count cards that exist in availableCards
+        const cardExists = availableCards.some((c) => c.id === cardId);
+        return sum + (cardExists ? count : 0);
+      }, 0),
+    [selectedCards, availableCards],
   );
   const deckList = useMemo(
     () =>
@@ -79,6 +83,22 @@ const DeckBuilder = () => {
       }),
     [selectedCards, availableCards],
   );
+
+  const totalCost = useMemo(() => {
+    return deckList.reduce((sum, { card, count }) => {
+      return sum + (card?.cost || 0) * count;
+    }, 0);
+  }, [deckList]);
+
+  const typeComposition = useMemo(() => {
+    const composition: Record<string, number> = {};
+    deckList.forEach(({ card, count }) => {
+      if (card) {
+        composition[card.type] = (composition[card.type] || 0) + count;
+      }
+    });
+    return composition;
+  }, [deckList]);
 
   const toggleDeckFullScreen = useCallback(() => {
     setIsDeckFullScreen((prev) => !prev);
@@ -190,6 +210,7 @@ const DeckBuilder = () => {
                 return (
                   <Grid key={card.id} flex="1 1 auto">
                     <Box
+                      data-testid={`deck-card-${card.id}`}
                       display={"inline-block"}
                       sx={{
                         cursor: "pointer",
@@ -199,6 +220,9 @@ const DeckBuilder = () => {
                           transform: "translateY(-5px)",
                           filter: "brightness(1.2)",
                         },
+                      }}
+                      onClick={() => {
+                        handleAddToDeck(card.id);
                       }}
                     >
                       {/* Count badge */}
@@ -232,14 +256,7 @@ const DeckBuilder = () => {
                       >
                         {countInDeck}/3
                       </Box>
-                      <Card
-                        card={cardInstance}
-                        disableHover={false}
-                        readonly
-                        onClick={() => {
-                          handleAddToDeck(card.id);
-                        }}
-                      />
+                      <Card card={cardInstance} disableHover={false} readonly />
                     </Box>
                   </Grid>
                 );
@@ -257,6 +274,8 @@ const DeckBuilder = () => {
           <DeckViewer
             deckList={deckList}
             totalCards={totalCards}
+            totalCost={totalCost}
+            typeComposition={typeComposition}
             saveDeckToLocalStorage={saveDeckToLocalStorage}
             clearDeck={clearDeck}
             removeCardFromDeck={removeCardFromDeck}

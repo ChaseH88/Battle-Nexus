@@ -166,9 +166,14 @@ describe("Deck Loader Utilities", () => {
         JSON.stringify({ wrong: "format" }),
       );
 
+      // Suppress expected console.error
+      const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+
       const deck = loadDeckFromLocalStorage();
 
       expect(deck).toBeNull();
+
+      consoleSpy.mockRestore();
     });
 
     it("handles empty deck array", () => {
@@ -290,10 +295,15 @@ describe("Deck Loader Utilities", () => {
       const deckJSON = JSON.stringify(savedDeck);
       localStorageMock.setItem("nexis-deck", deckJSON);
 
+      // Suppress expected console.warn for non-existent card
+      const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+
       loadDeckFromLocalStorage();
 
       const afterLoad = localStorageMock.getItem("nexis-deck");
       expect(afterLoad).toBe(deckJSON);
+
+      consoleWarnSpy.mockRestore();
     });
   });
 });

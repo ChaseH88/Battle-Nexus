@@ -1,5 +1,5 @@
 import { styled } from "@mui/material/styles";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 export const ModalOverlay = styled(Box)(() => ({
   position: "fixed",
@@ -65,62 +65,4 @@ export const ModalActions = styled(Box)(() => ({
   gap: "18px",
   justifyContent: "center",
   flexWrap: "wrap",
-}));
-
-export const ModalButton = styled(Button, {
-  shouldForwardProp: (prop) => prop !== "$buttonType",
-})<{
-  $buttonType?: "confirm" | "cancel";
-}>(({ $buttonType = "confirm" }) => ({
-  padding: "14px 36px",
-  fontSize: "1.15rem",
-  fontWeight: 800,
-  border: "none",
-  borderRadius: "10px",
-  cursor: "pointer",
-  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-  minWidth: "120px",
-  textTransform: "uppercase",
-  letterSpacing: "1.5px",
-  position: "relative",
-  overflow: "hidden",
-  ...($buttonType === "confirm" && {
-    background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-    color: "white",
-    boxShadow: "0 4px 16px rgba(34, 197, 94, 0.4)",
-    "&:hover": {
-      background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)",
-      transform: "translateY(-3px) scale(1.05)",
-      boxShadow: "0 8px 24px rgba(34, 197, 94, 0.6)",
-    },
-  }),
-  ...($buttonType === "cancel" && {
-    background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-    color: "white",
-    boxShadow: "0 4px 16px rgba(239, 68, 68, 0.4)",
-    "&:hover": {
-      background: "linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)",
-      transform: "translateY(-3px) scale(1.05)",
-      boxShadow: "0 8px 24px rgba(239, 68, 68, 0.6)",
-    },
-  }),
-  "&::before": {
-    content: '""',
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    width: 0,
-    height: 0,
-    borderRadius: "50%",
-    background: "rgba(255, 255, 255, 0.3)",
-    transform: "translate(-50%, -50%)",
-    transition: "width 0.6s, height 0.6s",
-  },
-  "&:hover::before": {
-    width: "300px",
-    height: "300px",
-  },
-  "&:active": {
-    transform: "translateY(-1px) scale(1.02)",
-  },
 }));

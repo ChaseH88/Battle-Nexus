@@ -1,5 +1,5 @@
 import { styled } from "@mui/material/styles";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 export const GameHeaderContainer = styled(Box)(() => ({
   textAlign: "center",
@@ -29,22 +29,6 @@ export const GameOverTitle = styled(Typography)(() => ({
   color: "gold",
   fontSize: "1.75rem",
   fontWeight: "bold",
-}));
-
-export const NewGameButton = styled(Button)(() => ({
-  background: "linear-gradient(145deg, #4299e1, #3182ce)",
-  color: "white",
-  padding: "12px 30px",
-  fontSize: "1rem",
-  borderRadius: "8px",
-  fontWeight: "bold",
-  textTransform: "uppercase",
-  letterSpacing: "1px",
-  "&:hover": {
-    background: "linear-gradient(145deg, #3182ce, #2c5282)",
-    transform: "translateY(-2px)",
-    boxShadow: "0 5px 15px rgba(66, 153, 225, 0.4)",
-  },
 }));
 
 export const TurnInfo = styled(Box)(() => ({

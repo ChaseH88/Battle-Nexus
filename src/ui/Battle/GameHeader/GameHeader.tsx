@@ -2,10 +2,10 @@ import {
   GameHeaderContainer,
   GameOverBox,
   GameOverTitle,
-  NewGameButton,
   TurnInfo,
   PhaseIndicator,
 } from "./styled";
+import { GameButton } from "../../Common/Button";
 import logo from "../../../assets/battle-nexus.png";
 import { Box } from "@mui/material";
 
@@ -39,7 +39,9 @@ export const GameHeader = ({
         <GameOverTitle variant="h2" data-testid="winner-message">
           Game Over! {winnerName} Wins!
         </GameOverTitle>
-        <NewGameButton onClick={onNewGame}>New Game</NewGameButton>
+        <GameButton variant="primary" size="large" onClick={onNewGame}>
+          New Game
+        </GameButton>
       </GameOverBox>
     ) : (
       <TurnInfo>

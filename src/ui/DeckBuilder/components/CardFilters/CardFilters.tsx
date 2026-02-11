@@ -58,12 +58,18 @@ export const CardFilters = ({
       }}
     />
     <FormControl sx={{ minWidth: 150 }}>
-      <InputLabel sx={{ color: "#cbd5e0" }}>Type</InputLabel>
+      <InputLabel id="type-filter-label" sx={{ color: "#cbd5e0" }}>
+        Type
+      </InputLabel>
       <Select
+        labelId="type-filter-label"
+        id="type-filter"
+        label="Type"
         value={filterType}
         onChange={(e) => setFilterType(e.target.value as CardType | "ALL")}
         sx={{ color: "#fff" }}
       >
+        <MenuItem value="ALL">All Types</MenuItem>
         {Object.values(CardType).map((type) => (
           <MenuItem key={type} value={type}>
             {type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}
@@ -72,8 +78,13 @@ export const CardFilters = ({
       </Select>
     </FormControl>
     <FormControl sx={{ minWidth: 150 }}>
-      <InputLabel sx={{ color: "#cbd5e0" }}>Cost</InputLabel>
+      <InputLabel id="cost-filter-label" sx={{ color: "#cbd5e0" }}>
+        Cost
+      </InputLabel>
       <Select
+        labelId="cost-filter-label"
+        id="cost-filter"
+        label="Cost"
         value={filterCost}
         onChange={(e) => setFilterCost(e.target.value as number | "ALL")}
         sx={{ color: "#fff" }}
@@ -87,8 +98,13 @@ export const CardFilters = ({
       </Select>
     </FormControl>
     <FormControl sx={{ minWidth: 150 }}>
-      <InputLabel sx={{ color: "#cbd5e0" }}>Affinity</InputLabel>
+      <InputLabel id="affinity-filter-label" sx={{ color: "#cbd5e0" }}>
+        Affinity
+      </InputLabel>
       <Select
+        labelId="affinity-filter-label"
+        id="affinity-filter"
+        label="Affinity"
         value={filterAffinity}
         onChange={(e) => setFilterAffinity(e.target.value as Affinity | "ALL")}
         sx={{ color: "#fff" }}

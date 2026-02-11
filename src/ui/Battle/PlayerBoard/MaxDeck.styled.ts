@@ -103,25 +103,6 @@ export const MaxDeckModalHeader = styled.div`
   }
 `;
 
-export const CloseButton = styled.button`
-  position: absolute;
-  top: -8px;
-  right: 0;
-  background: none;
-  border: none;
-  color: #94a3b8;
-  font-size: 2.5rem;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  transition: all 0.2s ease;
-
-  &:hover {
-    color: #60a5fa;
-    transform: scale(1.1);
-  }
-`;
-
 export const MaxDeckModalCards = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

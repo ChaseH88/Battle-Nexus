@@ -5,11 +5,11 @@ import {
   ModalMessage,
   PlayOptions,
   PlayOptionGroup,
-  CancelButton,
 } from "./PlayCreatureModal.styled";
 import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card/Card";
 import { Box } from "@mui/material";
+import { GameButton } from "../../Common/Button";
 
 interface PlayCreatureModalProps {
   isOpen: boolean;
@@ -74,7 +74,9 @@ export const PlayCreatureModal = ({
         </PlayOptions>
 
         <Box display="flex" justifyContent="flex-end">
-          <CancelButton onClick={onCancel}>Cancel</CancelButton>
+          <GameButton variant="ghost" size="medium" onClick={onCancel}>
+            Cancel
+          </GameButton>
         </Box>
       </PlayCreatureModalContent>
     </ModalOverlay>

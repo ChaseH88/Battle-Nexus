@@ -3,9 +3,9 @@ import {
   Typography,
   CircularProgress,
   LinearProgress,
-  Button,
 } from "@mui/material";
 import { styled, keyframes } from "@mui/material/styles";
+import { GameButton } from "./Common/Button";
 
 const fadeIn = keyframes`
   from {
@@ -82,30 +82,6 @@ const ProgressText = styled(Typography)(({ theme }) => ({
   textAlign: "center",
 }));
 
-const StartButton = styled(Button)(({ theme }) => ({
-  marginTop: theme.spacing(4),
-  padding: theme.spacing(1.5, 6),
-  fontSize: "1.25rem",
-  fontWeight: 700,
-  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-  color: "#fff",
-  border: "none",
-  borderRadius: theme.spacing(1),
-  textTransform: "uppercase",
-  letterSpacing: "0.1em",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-  animation: `${fadeIn} 0.5s ease-out`,
-  "&:hover": {
-    background: "linear-gradient(135deg, #764ba2 0%, #667eea 100%)",
-    transform: "translateY(-2px)",
-    boxShadow: "0 8px 20px rgba(102, 126, 234, 0.4)",
-  },
-  "&:active": {
-    transform: "translateY(0)",
-  },
-}));
-
 interface WelcomeScreenProps {
   progress: number;
   error?: string | null;
@@ -145,9 +121,18 @@ export const WelcomeScreen = ({
             >
               Ready to play
             </Typography>
-            <StartButton onClick={onStart} variant="contained">
+            <GameButton
+              variant="primary"
+              size="large"
+              onClick={onStart}
+              sx={{
+                marginTop: 2,
+                fontSize: "1.25rem",
+                animation: `${fadeIn} 0.5s ease-out`,
+              }}
+            >
               Start Game
-            </StartButton>
+            </GameButton>
           </>
         ) : (
           <>

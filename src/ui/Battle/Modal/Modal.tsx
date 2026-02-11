@@ -4,8 +4,8 @@ import {
   ModalTitle,
   ModalMessage,
   ModalActions,
-  ModalButton,
 } from "./styled";
+import { GameButton } from "../../Common/Button";
 
 interface ModalProps {
   isOpen: boolean;
@@ -30,28 +30,30 @@ export const Modal = ({
         <ModalTitle>{title}</ModalTitle>
         <ModalMessage>{message}</ModalMessage>
         <ModalActions>
-          <ModalButton
-            $buttonType="confirm"
+          <GameButton
+            variant="success"
+            size="medium"
             onClick={onConfirm}
             sx={{
               fontSize: "1rem",
-              padding: ".5em .2em",
+              padding: ".5em 1.5em",
               minWidth: "5em",
             }}
           >
             Yes
-          </ModalButton>
-          <ModalButton
-            $buttonType="cancel"
+          </GameButton>
+          <GameButton
+            variant="danger"
+            size="medium"
             onClick={onCancel}
             sx={{
               fontSize: "1rem",
-              padding: ".5em .2em",
+              padding: ".5em 1.5em",
               minWidth: "5em",
             }}
           >
             No
-          </ModalButton>
+          </GameButton>
         </ModalActions>
       </ModalContent>
     </ModalOverlay>

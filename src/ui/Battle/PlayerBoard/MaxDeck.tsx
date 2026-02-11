@@ -11,8 +11,8 @@ import {
   MaxDeckModalCards,
   MaxDeckCardWrapper,
   MaxDeckCardCost,
-  CloseButton,
 } from "./MaxDeck.styled";
+import { GameButton } from "../../Common/Button";
 
 interface MaxDeckProps {
   cards: CardInterface[];
@@ -68,7 +68,21 @@ export const MaxDeck = ({
             <MaxDeckModalHeader>
               <h2>MAX Deck</h2>
               <div>Current Momentum: ⚡ {playerMomentum}/10</div>
-              <CloseButton onClick={() => setIsOpen(false)}>×</CloseButton>
+              <GameButton
+                variant="danger"
+                size="small"
+                onClick={() => setIsOpen(false)}
+                sx={{
+                  minWidth: "40px",
+                  width: "40px",
+                  height: "40px",
+                  padding: 0,
+                  fontSize: "1.5rem",
+                  lineHeight: 1,
+                }}
+              >
+                ×
+              </GameButton>
             </MaxDeckModalHeader>
             <MaxDeckModalCards>
               {cards.length === 0 ? (
