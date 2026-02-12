@@ -6,8 +6,8 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { store } from "../store/store";
 import { theme } from "./theme";
 import { Routes } from "./Routes";
-import { WelcomeScreen } from "./WelcomeScreen";
 import { useAssetPreloader } from "../hooks/useAssetPreloader";
+import { WelcomeScreen } from "./WelcomeScreen";
 
 const App = () => {
   const { isLoading, progress, error } = useAssetPreloader();
