@@ -1,7 +1,7 @@
 import {
-  DiscardContainer,
-  DiscardCard,
-  EmptyDiscard,
+  DiscardContainerStyled,
+  DiscardCardStyled,
+  EmptyDiscardStyled,
 } from "./styled";
 import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card/Card";
@@ -24,20 +24,20 @@ export const DiscardDisplay = ({
 
   if (discardPile.length === 0) {
     return (
-      <EmptyDiscard>
+      <EmptyDiscardStyled>
         <div className="empty-text">Discard Pile</div>
-      </EmptyDiscard>
+      </EmptyDiscardStyled>
     );
   }
 
   return (
-    <DiscardContainer onClick={onDiscardClick} $clickable={isClickable}>
+    <DiscardContainerStyled onClick={onDiscardClick} $clickable={isClickable}>
       {Array.from({ length: visibleLayers }).map((_, index) => {
         const cardIndex = discardPile.length - visibleLayers + index;
         const card = discardPile[cardIndex];
 
         return (
-          <DiscardCard
+          <DiscardCardStyled
             key={`${card.id}-${index}`}
             style={{
               transform: `rotate(${(index - (visibleLayers - 1) / 1.25) * 3}deg) translateY(${index * -1}px) translateX(${index * -1}px)`,
@@ -64,12 +64,12 @@ export const DiscardDisplay = ({
             ) : (
               <div className="card-placeholder" />
             )}
-          </DiscardCard>
+          </DiscardCardStyled>
         );
       })}
       <TextOutline
         text={discardPile.length ? discardPile.length.toString() : "0"}
       />
-    </DiscardContainer>
+    </DiscardContainerStyled>
   );
 };

@@ -1,10 +1,10 @@
 import {
-  ModalOverlay,
-  PlayCreatureModalContent,
-  ModalTitle,
-  ModalMessage,
-  PlayOptions,
-  PlayOptionGroup,
+  ModalOverlayStyled,
+  PlayCreatureModalContentStyled,
+  ModalTitleStyled,
+  ModalMessageStyled,
+  PlayOptionsStyled,
+  PlayOptionGroupStyled,
 } from "./PlayCreatureModal.styled";
 import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card/Card";
@@ -29,13 +29,17 @@ export const PlayCreatureModal = ({
   if (!isOpen || !card) return null;
 
   return (
-    <ModalOverlay onClick={onCancel}>
-      <PlayCreatureModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalTitle>Play {card.name}</ModalTitle>
-        <ModalMessage>Choose how to play this creature:</ModalMessage>
+    <ModalOverlayStyled onClick={onCancel}>
+      <PlayCreatureModalContentStyled
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+      >
+        <ModalTitleStyled>Play {card.name}</ModalTitleStyled>
+        <ModalMessageStyled>
+          Choose how to play this creature:
+        </ModalMessageStyled>
 
-        <PlayOptions>
-          <PlayOptionGroup
+        <PlayOptionsStyled>
+          <PlayOptionGroupStyled
             onClick={onPlayFaceUpAttack}
             style={{ cursor: "pointer" }}
           >
@@ -54,9 +58,9 @@ export const PlayCreatureModal = ({
                 activeEffects={[]}
               />
             </Box>
-          </PlayOptionGroup>
+          </PlayOptionGroupStyled>
 
-          <PlayOptionGroup
+          <PlayOptionGroupStyled
             onClick={onPlayFaceDownDefense}
             style={{ cursor: "pointer" }}
           >
@@ -70,15 +74,15 @@ export const PlayCreatureModal = ({
                 activeEffects={[]}
               />
             </Box>
-          </PlayOptionGroup>
-        </PlayOptions>
+          </PlayOptionGroupStyled>
+        </PlayOptionsStyled>
 
         <Box display="flex" justifyContent="flex-end">
           <GameButton variant="ghost" size="medium" onClick={onCancel}>
             Cancel
           </GameButton>
         </Box>
-      </PlayCreatureModalContent>
-    </ModalOverlay>
+      </PlayCreatureModalContentStyled>
+    </ModalOverlayStyled>
   );
 };

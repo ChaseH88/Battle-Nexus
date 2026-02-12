@@ -1,9 +1,9 @@
 import {
-  ModalOverlay,
-  ModalContent,
-  ModalTitle,
-  ModalMessage,
-  ModalActions,
+  ModalOverlayStyled,
+  ModalContentStyled,
+  ModalTitleStyled,
+  ModalMessageStyled,
+  ModalActionsStyled,
 } from "./styled";
 import { GameButton } from "../../Common/Button";
 
@@ -25,11 +25,11 @@ export const Modal = ({
   if (!isOpen) return null;
 
   return (
-    <ModalOverlay onClick={onCancel}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalTitle>{title}</ModalTitle>
-        <ModalMessage>{message}</ModalMessage>
-        <ModalActions>
+    <ModalOverlayStyled onClick={onCancel}>
+      <ModalContentStyled onClick={(e) => e.stopPropagation()}>
+        <ModalTitleStyled>{title}</ModalTitleStyled>
+        <ModalMessageStyled>{message}</ModalMessageStyled>
+        <ModalActionsStyled>
           <GameButton
             variant="success"
             size="medium"
@@ -54,8 +54,8 @@ export const Modal = ({
           >
             No
           </GameButton>
-        </ModalActions>
-      </ModalContent>
-    </ModalOverlay>
+        </ModalActionsStyled>
+      </ModalContentStyled>
+    </ModalOverlayStyled>
   );
 };

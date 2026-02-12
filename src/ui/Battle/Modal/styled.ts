@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { Box, Typography } from "@mui/material";
 
-export const ModalOverlay = styled(Box)(() => ({
+export const ModalOverlayStyled = styled(Box)(() => ({
   position: "fixed",
   top: 0,
   left: 0,
@@ -19,7 +19,7 @@ export const ModalOverlay = styled(Box)(() => ({
   },
 }));
 
-export const ModalContent = styled(Box)(() => ({
+export const ModalContentStyled = styled(Box)(() => ({
   background: "#010015eb",
   padding: "30px",
   boxShadow:
@@ -37,7 +37,7 @@ export const ModalContent = styled(Box)(() => ({
   },
 }));
 
-export const ModalTitle = styled(Typography)(() => ({
+export const ModalTitleStyled = styled(Typography)(() => ({
   fontSize: "2rem",
   marginBottom: "20px",
   background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
@@ -51,7 +51,7 @@ export const ModalTitle = styled(Typography)(() => ({
   textShadow: "0 4px 12px rgba(251, 191, 36, 0.5)",
 }));
 
-export const ModalMessage = styled(Typography)(() => ({
+export const ModalMessageStyled = styled(Typography)(() => ({
   fontSize: "1.25rem",
   marginBottom: "30px",
   textAlign: "center",
@@ -60,7 +60,7 @@ export const ModalMessage = styled(Typography)(() => ({
   fontWeight: 600,
 }));
 
-export const ModalActions = styled(Box)(() => ({
+export const ModalActionsStyled = styled(Box)(() => ({
   display: "flex",
   gap: "18px",
   justifyContent: "center",

@@ -1,4 +1,4 @@
-import { DeckContainer, DeckCard, EmptyDeck } from "./styled";
+import { DeckContainerStyled, DeckCardStyled, EmptyDeckStyled } from "./styled";
 import cardBackImage from "../../../assets/card-back.png";
 import { TextOutline } from "../../Common/TextOutline";
 
@@ -21,14 +21,14 @@ export const DeckDisplay = ({
 
   if (deckSize === 0) {
     return (
-      <EmptyDeck>
+      <EmptyDeckStyled>
         <div className="empty-text">Deck Empty</div>
-      </EmptyDeck>
+      </EmptyDeckStyled>
     );
   }
 
   return (
-    <DeckContainer
+    <DeckContainerStyled
       onClick={canDraw && deckSize > 0 ? onDraw : undefined}
       sx={{
         cursor: canDraw && deckSize > 0 ? "pointer" : "default",
@@ -57,7 +57,7 @@ export const DeckDisplay = ({
       data-testid={isOpponent ? "opponent-deck" : "player-deck"}
     >
       {Array.from({ length: visibleLayers }).map((_, index) => (
-        <DeckCard
+        <DeckCardStyled
           key={index}
           style={{
             transform: `translateY(${index * -2}px) translateX(${index * 1}px)`,
@@ -65,9 +65,9 @@ export const DeckDisplay = ({
           }}
         >
           <img src={cardBackImage} alt="Card back" />
-        </DeckCard>
+        </DeckCardStyled>
       ))}
       <TextOutline text={deckSize.toString()} />
-    </DeckContainer>
+    </DeckContainerStyled>
   );
 };

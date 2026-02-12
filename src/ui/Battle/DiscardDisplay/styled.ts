@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 
-export const DiscardContainer = styled(Box)<{ $clickable?: boolean }>(
+export const DiscardContainerStyled = styled(Box)<{ $clickable?: boolean }>(
   ({ $clickable }) => ({
     position: "relative",
     width: "120px",
@@ -20,7 +20,7 @@ export const DiscardContainer = styled(Box)<{ $clickable?: boolean }>(
   }),
 );
 
-export const DiscardCard = styled(Box)(() => ({
+export const DiscardCardStyled = styled(Box)(() => ({
   position: "absolute",
   width: "100%",
   height: "100%",
@@ -40,7 +40,7 @@ export const DiscardCard = styled(Box)(() => ({
   },
 }));
 
-export const EmptyDiscard = styled(Box)(() => ({
+export const EmptyDiscardStyled = styled(Box)(() => ({
   margin: "10px 0",
   width: "120px",
   height: "168px",

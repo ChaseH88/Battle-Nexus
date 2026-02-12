@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 
-export const DeckContainer = styled(Box)(() => ({
+export const DeckContainerStyled = styled(Box)(() => ({
   position: "relative",
   width: "120px",
   height: "168px",
@@ -10,7 +10,7 @@ export const DeckContainer = styled(Box)(() => ({
   justifyContent: "center",
 }));
 
-export const DeckCard = styled(Box)(() => ({
+export const DeckCardStyled = styled(Box)(() => ({
   position: "absolute",
   width: "100%",
   height: "100%",
@@ -29,7 +29,7 @@ export const DeckCard = styled(Box)(() => ({
   },
 }));
 
-export const EmptyDeck = styled(Box)(() => ({
+export const EmptyDeckStyled = styled(Box)(() => ({
   width: "120px",
   height: "168px",
   border: "3px dashed rgba(255, 255, 255, 0.3)",

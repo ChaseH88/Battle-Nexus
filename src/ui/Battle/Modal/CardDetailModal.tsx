@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import { closeCardDetailModal } from "../../../store/uiSlice";
-import { ModalOverlay } from "./styled";
+import { ModalOverlayStyled } from "./styled";
 import { Card } from "../Card";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -43,7 +43,7 @@ export const CardDetailModal = () => {
   }
 
   return (
-    <ModalOverlay onClick={() => dispatch(closeCardDetailModal())}>
+    <ModalOverlayStyled onClick={() => dispatch(closeCardDetailModal())}>
       <AnimatePresence>
         <motion.div
           initial={initial}
@@ -85,6 +85,6 @@ export const CardDetailModal = () => {
           </div>
         </motion.div>
       </AnimatePresence>
-    </ModalOverlay>
+    </ModalOverlayStyled>
   );
 };

@@ -1,6 +1,11 @@
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { closeTargetSelectModal } from "../../../store/uiSlice";
-import { ModalOverlay, ModalContent, ModalTitle, ModalMessage } from "./styled";
+import {
+  ModalOverlayStyled,
+  ModalContentStyled,
+  ModalTitleStyled,
+  ModalMessageStyled,
+} from "./styled";
 
 export const TargetSelectModal = () => {
   const dispatch = useAppDispatch();
@@ -11,10 +16,12 @@ export const TargetSelectModal = () => {
   const onCancel = () => dispatch(closeTargetSelectModal());
 
   return (
-    <ModalOverlay onClick={onCancel}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalTitle>{modal.title}</ModalTitle>
-        {modal.message && <ModalMessage>{modal.message}</ModalMessage>}
+    <ModalOverlayStyled onClick={onCancel}>
+      <ModalContentStyled onClick={(e) => e.stopPropagation()}>
+        <ModalTitleStyled>{modal.title}</ModalTitleStyled>
+        {modal.message && (
+          <ModalMessageStyled>{modal.message}</ModalMessageStyled>
+        )}
 
         <div style={{ margin: "12px 0", display: "grid", gap: 12 }}>
           {modal.options.map((opt, i) => (
@@ -54,7 +61,7 @@ export const TargetSelectModal = () => {
             </div>
           ))}
         </div>
-      </ModalContent>
-    </ModalOverlay>
+      </ModalContentStyled>
+    </ModalOverlayStyled>
   );
 };
