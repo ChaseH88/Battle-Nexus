@@ -12,7 +12,7 @@ import {
   AttackDirectButton,
   ToggleModeButton,
   FlipButton,
-} from "./Zone.styles";
+} from "./Zone.styled";
 import { useRef } from "react";
 import { canActivateEffect } from "../../../effects/metadata";
 import { Box } from "@mui/material";

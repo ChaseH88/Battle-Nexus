@@ -5,7 +5,7 @@ import { ActionCard } from "../../../cards/ActionCard";
 import { TrapCard } from "../../../cards/TrapCard";
 import { Back } from "./Back";
 import { CreatureCard } from "../../../cards";
-import { CardSlot } from "./Card.styles";
+import { CardSlot } from "./Card.styled";
 import { useDispatch } from "react-redux";
 import { openCardDetailModal } from "../../../store/uiSlice";
 import { useRef, useMemo } from "react";

@@ -4,7 +4,7 @@ import {
   EffectName,
   EffectValue,
   EffectDuration,
-} from "./PlayerActiveEffects.styled";
+} from "./styled";
 import { ActiveEffect } from "../../../battle/GameState";
 
 interface PlayerActiveEffectsProps {

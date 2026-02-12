@@ -2,7 +2,7 @@ import { CardType, ActionCard, TrapCard } from "../../../cards";
 import { PlayerState } from "../../../battle/PlayerState";
 import { Card } from "../Card";
 import { motion } from "framer-motion";
-import { Lanes, Lane, FaceDownButton } from "./Zone.styles";
+import { Lanes, Lane, FaceDownButton } from "./Zone.styled";
 import { SupportZoneTitle, SupportActions } from "./SupportZone.styled";
 import { useRef } from "react";
 import { Box } from "@mui/material";

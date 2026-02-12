@@ -2,7 +2,7 @@ import {
   DiscardContainer,
   DiscardCard,
   EmptyDiscard,
-} from "./DiscardDisplay.styled";
+} from "./styled";
 import { CardInterface } from "../../../cards/types";
 import { Card } from "../Card/Card";
 import { TextOutline } from "../../Common/TextOutline";

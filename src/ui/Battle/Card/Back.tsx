@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import backImage from "@/assets/card-back.png";
-import { BackContainer, BackImage, BackModeBadge } from "./Back.styles";
+import { BackContainer, BackImage, BackModeBadge } from "./Back.styled";
 
 interface BackProps {
   onClick?: () => void;

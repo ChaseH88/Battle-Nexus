@@ -1,4 +1,4 @@
-import { DeckContainer, DeckCard, EmptyDeck } from "./DeckDisplay.styled";
+import { DeckContainer, DeckCard, EmptyDeck } from "./styled";
 import cardBackImage from "../../../assets/card-back.png";
 import { TextOutline } from "../../Common/TextOutline";
 
