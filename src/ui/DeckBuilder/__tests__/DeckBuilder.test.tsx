@@ -5,7 +5,7 @@ import "@testing-library/jest-dom";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
-import DeckBuilder from "../DeckBuilder";
+import DeckBuilder from "../index";
 import uiReducer from "../../../store/uiSlice";
 
 // Mock CardImage component since it uses Vite's import.meta.glob

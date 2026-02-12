@@ -1,5 +1,5 @@
 import { Affinity, CardType } from "@/cards";
-import { CardData } from "@/ui/DeckBuilder/DeckBuilder";
+import { CardData } from "@/ui/DeckBuilder";
 import { useCallback, useMemo, useState } from "react";
 
 interface UseCardFiltersParams {

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes as RouterRoutes, Route } from "react-router-dom";
 import { Home } from "./Home";
-import DeckBuilder from "./DeckBuilder/DeckBuilder";
+import DeckBuilder from "./DeckBuilder";
 import Effects from "./Effects";
 import { PageWrapper } from "./PageWrapper";
 
